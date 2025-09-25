@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: IHearYouDB
+    image: postgres:13
+    env_file: .env.stage
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  bot:
+    build:
+      context: .
+      target: bot
+    container_name: IHearYouBot
+    env_file: .env.stage
+    depends_on:
+      - db
+
+  bot_api:
+    build:
+      context: .
+      target: admin
+    container_name: IHearYouAdminAPI
+    env_file: .env.stage
+    environment:
+      ADMIN_SECRET_KEY: ${ADMIN_SECRET_KEY}
+      BOT_TOKEN: ${BOT_TOKEN}
+    ports:
+      - "${BOT_API_PORT:-8000}:8000"
+    depends_on:
+      - db
+
+  bot_frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${FRONTEND_API_URL}
+    container_name: IHearYouAdminFrontend
+    environment:
+      VITE_API_URL: ${FRONTEND_API_URL}
+    ports:
+      - "${FRONTEND_PORT:-4173}:4173"
+    command: ["serve", "-s", "dist", "-l", "4173"]
+    depends_on:
+      - bot_api
+
+volumes:
+  pg_data:
+

@@ -1,0 +1,28 @@
+# Environment files
+.env
+.env.stage
+*.env
+
+# Python virtual environment
+venv/
+
+# Node modules
+frontend/node_modules/
+
+# Python cache
+__pycache__/
+**/__pycache__/
+
+# Logs
+logs/
+*.log
+
+# Compiled / build artifacts
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# IDE configuration
+.idea/
+.vscode/

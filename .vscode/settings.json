@@ -1,0 +1,70 @@
+{
+    // Python настройки
+    "python.defaultInterpreterPath": "./venv/bin/python",
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "118"
+    ],
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
+        "--config=.conf/.flake8"
+    ],
+    "python.sortImports.args": [
+        "--profile",
+        "black"
+    ],
+    "python.linting.pylintEnabled": false,
+    // Автосохранение
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
+    "files.autoSaveWhenNoErrors": true,
+    // Автоформатирование при сохранении
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": false,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    },
+    // Настройки для Python файлов
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true,
+        "editor.rulers": [
+            118
+        ],
+        "files.autoSave": "afterDelay",
+        "files.autoSaveDelay": 500
+    },
+    // Настройки для JSON файлов
+    "[json]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    // Настройки для YAML файлов
+    "[yaml]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "redhat.vscode-yaml"
+    },
+    // Исключения из автоформатирования
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/*.pyc": true,
+        "**/venv": true,
+        "**/.venv": true,
+        "**/node_modules": true
+    },
+    // Настройки терминала
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "terminal.integrated.env.osx": {
+        "PYTHONPATH": "${workspaceFolder}"
+    },
+    // Дополнительные настройки автосохранения
+    "files.hotExit": "onExitAndWindowClose",
+    "files.saveConflictResolution": "overwriteFileOnDisk",
+    "editor.saveOnFocusLost": true,
+    "editor.saveOnBlur": true
+}

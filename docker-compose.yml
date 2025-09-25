@@ -1,0 +1,78 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: IHearYouDB
+    image: postgres:13
+    env_file: .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  bot:
+    build:
+      context: .
+      target: bot
+    container_name: IHearYouBot
+    env_file: .env
+    depends_on:
+      - db
+    develop:
+      watch:
+        - action: rebuild
+          path: ./bot
+        - action: rebuild
+          path: ./requirements.txt
+        - action: rebuild
+          path: ./Dockerfile
+
+  bot_api:
+    build:
+      context: .
+      target: admin
+    container_name: IHearYouAdminAPI
+    env_file: .env
+    environment:
+      ADMIN_SECRET_KEY: ${ADMIN_SECRET_KEY:-changeme}
+      BOT_TOKEN: ${BOT_TOKEN}
+    depends_on:
+      - db
+    ports:
+      - "${BOT_API_PORT:-8001}:8000"
+    develop:
+      watch:
+        - action: rebuild
+          path: ./backend
+        - action: rebuild
+          path: ./requirements.txt
+        - action: rebuild
+          path: ./Dockerfile
+
+  bot_frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${FRONTEND_API_URL:-http://localhost:8001/api}
+    container_name: IHearYouAdminFrontend
+    environment:
+      VITE_API_URL: ${FRONTEND_API_URL:-http://localhost:8001/api}
+    ports:
+      - "${FRONTEND_PORT:-3001}:3001"
+    command: ["serve", "-s", "dist", "-l", "3001"]
+    depends_on:
+      - bot_api
+    develop:
+      watch:
+        - action: rebuild
+          path: ./frontend/src
+        - action: rebuild
+          path: ./frontend/public
+        - action: rebuild
+          path: ./frontend/package.json
+        - action: rebuild
+          path: ./frontend/package-lock.json
+        - action: rebuild
+          path: ./frontend/Dockerfile
+
+volumes:
+  pg_data:
