@@ -33,15 +33,27 @@ Telegram <-> bot (aiogram) ----> Postgres <---- backend (FastAPI) <---- frontend
 Создайте файл `.env` в корне (пример):
 
 ```
-BOT_TOKEN=<Используйте токен полученный у BotFather>
-POSTGRES_DB=ihearyou
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
+# Database Configuration
+POSTGRES_DB=ihearyou_db
+POSTGRES_USER=postgres_user
+POSTGRES_PASSWORD=postgres_password
 DB_HOST=db
 DB_PORT=5432
-ADMIN_SECRET_KEY=change_me
+
+# Bot Configuration
+BOT_TOKEN=<Используйте токен, полученный у botfather>
+
+# Admin Configuration
+ADMIN_SECRET_KEY=changeme_secret_key_please_change_in_production
 ADMIN_USERNAME=admin
-ADMIN_PASSWORD=admin123
+ADMIN_PASSWORD=admin12345
+
+# API Configuration
+BOT_API_PORT=8001
+
+# Frontend Configuration
+FRONTEND_API_URL=http://localhost:8001/api
+FRONTEND_PORT=3001
 ```
 
 ## Быстрый старт через Docker Compose

@@ -5,13 +5,13 @@ import os
 import aiohttp
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .auth import authenticate_user, create_access_token, get_current_active_admin
 from .database import get_session
-from .models import AdminUser, User
-from .schemas import AdminUserResponse, Token, UserResponse
+from .models import AdminUser, ArticleRating, User
+from .schemas import AdminUserResponse, ArticleRatingResponse, ArticleRatingSummaryItem, Token, UserResponse
 
 router = APIRouter(prefix="/api")
 
@@ -108,3 +108,61 @@ async def list_users(
         )
 
     return [to_item(r) for r in rows]
+
+
+@router.get("/article-ratings", response_model=list[ArticleRatingResponse])
+async def list_article_ratings(
+    session: AsyncSession = Depends(get_session),
+    current_user: AdminUser = Depends(get_current_active_admin),
+):
+    del current_user
+    stmt = (
+        select(
+            ArticleRating.id,
+            User.fullname,
+            ArticleRating.article_name,
+            ArticleRating.rating,
+            ArticleRating.created_at,
+        )
+        .join(User, User.user_id == ArticleRating.user_id)
+        .order_by(ArticleRating.id.desc())
+        .limit(500)
+    )
+    rows = (await session.execute(stmt)).all()
+
+    return [
+        ArticleRatingResponse(
+            id=r.id,
+            fullname=r.fullname,
+            article_name=r.article_name,
+            rating=r.rating,
+            created_at=r.created_at,
+        )
+        for r in rows
+    ]
+
+
+@router.get("/article-ratings/summary", response_model=list[ArticleRatingSummaryItem])
+async def summary_article_ratings(
+    session: AsyncSession = Depends(get_session),
+    current_user: AdminUser = Depends(get_current_active_admin),
+):
+    del current_user
+    stmt = (
+        select(
+            ArticleRating.article_name.label("article_name"),
+            func.count(ArticleRating.id).label("ratings_count"),
+            func.avg(ArticleRating.rating).label("avg_rating"),
+        )
+        .group_by(ArticleRating.article_name)
+        .order_by(func.count(ArticleRating.id).desc())
+    )
+    rows = (await session.execute(stmt)).all()
+    return [
+        ArticleRatingSummaryItem(
+            article_name=r.article_name,
+            ratings_count=r.ratings_count,
+            avg_rating=float(r.avg_rating) if r.avg_rating is not None else 0.0,
+        )
+        for r in rows
+    ]

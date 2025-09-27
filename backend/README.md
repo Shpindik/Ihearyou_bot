@@ -33,3 +33,83 @@
 - `BOT_TOKEN` — токен Telegram-бота для получения аватаров пользователей.
 
 
+
+## Примеры API-запросов: оценки материалов
+
+Все запросы (кроме логина) требуют заголовок `Authorization: Bearer <TOKEN>`.
+
+### 1) Получить токен доступа
+
+```bash
+curl -X POST \
+  -d 'username=admin&password=admin12345' \
+  http://localhost:8001/api/auth/login
+```
+
+Пример ответа:
+
+```json
+{
+  "access_token": "<JWT>",
+  "token_type": "bearer"
+}
+```
+
+Сохраните значение `access_token` и используйте его в следующих запросах.
+
+### 2) Список оценок материалов
+
+GET `/api/article-ratings`
+
+```bash
+curl -H "Authorization: Bearer <JWT>" \
+  http://localhost:8001/api/article-ratings
+```
+
+Пример ответа (обратите внимание: возвращается `fullname`, а не `user_id`):
+
+```json
+[
+  {
+    "id": 3,
+    "fullname": "Alexander Prokofiev",
+    "article_name": "Пройти онлайн-тест",
+    "rating": 5,
+    "created_at": "2025-09-27T07:31:04.212936Z"
+  },
+  {
+    "id": 1,
+    "fullname": "Alexander Prokofiev",
+    "article_name": "Прочитать статью «8 причин»",
+    "rating": 4,
+    "created_at": "2025-09-27T07:22:45.801842Z"
+  }
+]
+```
+
+### 3) Сводка по оценкам
+
+GET `/api/article-ratings/summary`
+
+```bash
+curl -H "Authorization: Bearer <JWT>" \
+  http://localhost:8001/api/article-ratings/summary
+```
+
+Пример ответа:
+
+```json
+[
+  {
+    "article_name": "Прочитать статью «8 причин»",
+    "ratings_count": 1,
+    "avg_rating": 4.0
+  },
+  {
+    "article_name": "Пройти онлайн-тест",
+    "ratings_count": 1,
+    "avg_rating": 5.0
+  }
+]
+```
+

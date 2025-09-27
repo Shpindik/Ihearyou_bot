@@ -41,3 +41,37 @@ async def save_user_data(
         )
     finally:
         await conn.close()
+
+
+# Сохраняем оценку статьи
+async def save_article_rating(
+    user_id: int,
+    article_name: str,
+    rating: int,
+):
+    conn = await asyncpg.connect(
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME,
+        host=DB_HOST,
+        port=DB_PORT,
+    )
+    try:
+        await conn.execute(
+            """
+            INSERT INTO article_ratings (
+                user_id,
+                article_name,
+                rating
+            )
+            VALUES ($1, $2, $3)
+            ON CONFLICT (user_id, article_name) DO UPDATE SET
+                rating = EXCLUDED.rating,
+                created_at = now()
+            """,
+            user_id,
+            article_name,
+            rating,
+        )
+    finally:
+        await conn.close()

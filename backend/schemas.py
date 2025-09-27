@@ -39,3 +39,21 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ArticleRatingResponse(BaseModel):
+    id: int
+    fullname: Optional[str] = None
+    article_name: str
+    rating: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ArticleRatingSummaryItem(BaseModel):
+    article_name: str
+    ratings_count: int
+    avg_rating: float
+

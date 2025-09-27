@@ -1,6 +1,7 @@
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import LogoutIcon from "@mui/icons-material/Logout";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import TelegramIcon from "@mui/icons-material/Telegram";
 import {
   AppBar,
@@ -19,7 +20,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
@@ -37,22 +38,45 @@ export function DashboardPage() {
   const { logout } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const refreshIntervalRef = useRef<number | null>(null);
   const theme = useTheme();
   const { toggleMode, mode } = useColorMode();
 
-  const loadUsers = async () => {
-    setLoading(true);
+  const loadUsers = useCallback(async (showLoading = true) => {
+    if (showLoading) {
+      setLoading(true);
+    }
     try {
       const response = await api.get<User[]>("/users");
       setUsers(response.data);
+      setLastUpdated(new Date());
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
-  };
+  }, []);
+
+  const handleRefresh = useCallback(() => {
+    void loadUsers(true);
+  }, [loadUsers]);
 
   useEffect(() => {
     void loadUsers();
-  }, []);
+
+    // Устанавливаем интервал для автоматического обновления каждые 5 секунд
+    refreshIntervalRef.current = setInterval(() => {
+      void loadUsers(false); // Тихое обновление без индикатора загрузки
+    }, 5000);
+
+    // Очищаем интервал при размонтировании компонента
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+    };
+  }, [loadUsers]);
 
   return (
     <Box
@@ -74,6 +98,15 @@ export function DashboardPage() {
           </Typography>
           <IconButton
             color="inherit"
+            onClick={handleRefresh}
+            aria-label="Обновить"
+            sx={{ mr: 1 }}
+            disabled={loading}
+          >
+            <RefreshIcon />
+          </IconButton>
+          <IconButton
+            color="inherit"
             onClick={toggleMode}
             aria-label="Переключить тему"
             sx={{ mr: 1 }}
@@ -93,6 +126,11 @@ export function DashboardPage() {
               <Typography variant="h5" fontWeight={600}>
                 Пользователи
               </Typography>
+              {lastUpdated && (
+                <Typography variant="caption" color="text.secondary">
+                  Последнее обновление: {lastUpdated.toLocaleTimeString()}
+                </Typography>
+              )}
             </Box>
 
             <Paper

@@ -24,3 +24,12 @@ class User(Base):
     user_id = Column(BigInteger, unique=True, index=True)
     username = Column(String(100))
     fullname = Column(String(100))
+
+class ArticleRating(Base):
+    __tablename__ = "article_ratings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(BigInteger, ForeignKey("users.user_id"), nullable=False, index=True)
+    article_name = Column(String(255), nullable=False, index=True)
+    rating = Column(Integer, nullable=False)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
