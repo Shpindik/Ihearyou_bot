@@ -5,16 +5,22 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY requirements.txt ./
+# Установка Poetry
+RUN pip install --no-cache-dir poetry
 
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+# Копирование файлов Poetry
+COPY pyproject.toml poetry.lock ./
+
+# Установка зависимостей
+RUN poetry config virtualenvs.create false \
+    && poetry install --only=main --no-root
 
 COPY bot ./bot
-COPY backend ./backend
+COPY backend/ ./
 
 FROM base AS bot
 CMD ["python", "bot/main.py"]
 
 FROM base AS admin
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+WORKDIR /app
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
