@@ -8,18 +8,18 @@ from .v1.webhook import router as webhook_router
 # Публичные эндпоинты (без JWT)
 from .v1.public.menu import router as public_menu_router
 from .v1.public.search import router as public_search_router
-from .v1.public.user_activities import router as public_user_activities_router
-from .v1.public.user_questions import router as public_user_questions_router
+from .v1.public.user_activity import router as public_user_activities_router
+from .v1.public.user_question import router as public_user_questions_router
 from .v1.public.ratings import router as public_ratings_router
 
 # Административные эндпоинты (с JWT)
 from .v1.admin.auth import router as admin_auth_router
-from .v1.admin.users import router as admin_users_router
+from .v1.admin.user import router as admin_users_router
 from .v1.admin.menu import router as admin_menu_router
-from .v1.admin.questions import router as admin_questions_router
+from .v1.admin.question import router as admin_questions_router
 from .v1.admin.analytics import router as admin_analytics_router
-from .v1.admin.notifications import router as admin_notifications_router
-from .v1.admin.reminder_templates import router as admin_reminder_templates_router
+from .v1.admin.notification import router as admin_notifications_router
+from .v1.admin.reminder_template import router as admin_reminder_templates_router
 
 # Создание главного роутера API
 api_router = APIRouter(prefix="/api/v1")

@@ -42,12 +42,14 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
         if user:
             user.first_name = first_name
             user.last_name = last_name
+            user.username = username
             user.last_activity = datetime.now(timezone.utc)
             await db.commit()
             await db.refresh(user)
         else:
             user_data = {
                 "telegram_id": telegram_id,
+                "username": username,
                 "first_name": first_name,
                 "last_name": last_name,
                 "last_activity": datetime.now(timezone.utc)

@@ -18,24 +18,24 @@ from .menu import (
     AdminContentFileCreate,
     AdminContentFileUpdate,
 )
-from .notifications import (
+from .notification import (
     AdminNotificationRequest,
     AdminNotificationResponse,
     AdminNotificationListResponse,
     AdminNotificationUpdate,
 )
-from .questions import (
+from .question import (
     AdminQuestionResponse,
     AdminQuestionListResponse,
     AdminQuestionAnswer,
 )
-from .reminder_templates import (
+from .reminder_template import (
     AdminReminderTemplateResponse,
     AdminReminderTemplateListResponse,
     AdminReminderTemplateCreate,
     AdminReminderTemplateUpdate,
 )
-from .users import (
+from .user import (
     AdminTelegramUserResponse,
     AdminTelegramUserListResponse,
 )

@@ -25,19 +25,30 @@ async def handle_telegram_webhook(
     Автоматически создает/обновляет пользователей при получении сообщений
     """
     # Извлекаем данные пользователя из webhook
-    user_data = request.message.from_user
+    user_data = request.message["from"]
     
     # Создаем или обновляем пользователя
     user = await user_crud.get_or_create(
         db=db,
-        telegram_id=user_data.id,
-        first_name=user_data.first_name,
-        last_name=user_data.last_name,
-        username=user_data.username
+        telegram_id=user_data["id"],
+        first_name=user_data["first_name"],
+        last_name=user_data.get("last_name"),
+        username=user_data.get("username")
     )
     
     return TelegramWebhookResponse(
-        status="ok",
+        user={
+            "id": user.id,
+            "telegram_id": user.telegram_id,
+            "username": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "subscription_type": user.subscription_type,
+            "last_activity": user.last_activity.isoformat() if user.last_activity else None,
+            "reminder_sent_at": user.reminder_sent_at.isoformat() if user.reminder_sent_at else None,
+            "created_at": user.created_at.isoformat()
+        },
+        message_processed=True,
         user_created=user.id is not None,
         user_updated=True
     )

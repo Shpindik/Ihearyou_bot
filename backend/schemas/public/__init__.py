@@ -12,11 +12,11 @@ from .ratings import (
 from .search import (
     SearchListResponse,
 )
-from .user_activities import (
+from .user_activity import (
     UserActivityRequest,
     UserActivityResponse,
 )
-from .user_questions import (
+from .user_question import (
     UserQuestionCreate,
     UserQuestionResponse,
 )
