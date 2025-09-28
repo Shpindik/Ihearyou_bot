@@ -98,9 +98,6 @@ Thumbs.db
 # Docker
 .dockerignore
 
-# Alembic migrations (keep structure, ignore specific versions)
-backend/alembic/versions/*.py
-
 # Uploads and media
 uploads/
 media/
