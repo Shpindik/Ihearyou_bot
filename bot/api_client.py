@@ -34,13 +34,17 @@ class APIClient:
         if parent_id is not None:
             params["parent_id"] = parent_id
 
-        async with self.session.get(url, params=params) as response:
-            if response.status == 200:
-                data = await response.json()
-                return data.get("items", [])
-            else:
-                print(f"Ошибка получения меню: {response.status}")
-                return []
+        try:
+            async with self.session.get(url, params=params) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return data.get("items", [])
+                else:
+                    print(f"Ошибка получения меню: {response.status}")
+                    return []
+        except Exception as e:
+            print(f"Ошибка подключения к API: {e}")
+            return []
 
     async def get_menu_content(
         self, 
@@ -51,12 +55,16 @@ class APIClient:
         url = f"{self.base_url}/menu-items/{menu_item_id}/content"
         params = {"telegram_user_id": telegram_user_id}
 
-        async with self.session.get(url, params=params) as response:
-            if response.status == 200:
-                return await response.json()
-            else:
-                print(f"Ошибка получения контента: {response.status}")
-                return None
+        try:
+            async with self.session.get(url, params=params) as response:
+                if response.status == 200:
+                    return await response.json()
+                else:
+                    print(f"Ошибка получения контента: {response.status}")
+                    return None
+        except Exception as e:
+            print(f"Ошибка подключения к API: {e}")
+            return None
 
     async def record_activity(
         self,
@@ -75,8 +83,44 @@ class APIClient:
         if search_query:
             data["search_query"] = search_query
 
-        async with self.session.post(url, json=data) as response:
-            return response.status == 201
+        try:
+            async with self.session.post(url, json=data) as response:
+                return response.status == 201
+        except Exception as e:
+            print(f"Ошибка записи активности: {e}")
+            return False
+
+    async def rate_material(
+        self,
+        telegram_user_id: int,
+        menu_item_id: int,
+        rating: int
+    ) -> bool:
+        """Оценить материал (заглушка - endpoint не реализован)."""
+        # TODO: Реализовать когда endpoint будет готов
+        print(f"Оценка материала {menu_item_id} пользователем {telegram_user_id}: {rating}/5")
+        return True
+
+    async def search_materials(
+        self,
+        telegram_user_id: int,
+        query: str,
+        limit: int = 10
+    ) -> List[Dict]:
+        """Поиск по материалам (заглушка - endpoint не реализован)."""
+        # TODO: Реализовать когда endpoint будет готов
+        print(f"Поиск '{query}' пользователем {telegram_user_id}")
+        return []
+
+    async def create_user_question(
+        self,
+        telegram_user_id: int,
+        question: str
+    ) -> bool:
+        """Создать вопрос пользователя (заглушка - endpoint не реализован)."""
+        # TODO: Реализовать когда endpoint будет готов
+        print(f"Вопрос от пользователя {telegram_user_id}: {question}")
+        return True
 
     async def create_telegram_user(
         self,
@@ -106,5 +150,9 @@ class APIClient:
             }
         }
 
-        async with self.session.post(url, json=data) as response:
-            return response.status == 200
+        try:
+            async with self.session.post(url, json=data) as response:
+                return response.status == 200
+        except Exception as e:
+            print(f"Ошибка создания пользователя: {e}")
+            return False
