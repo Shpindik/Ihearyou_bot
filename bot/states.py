@@ -1,4 +1,4 @@
-from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.state import StatesGroup
 
 
 class States(StatesGroup):
