@@ -25,15 +25,11 @@ class FlowDataLoader:
         """Очистить существующие данные."""
         print("🧹 Очистка существующих данных...")
         
-        # Удаляем контент для основных пунктов меню
-        await session.execute(
-            delete(ContentFile).where(ContentFile.menu_item_id.in_([52, 53, 54, 65]))
-        )
+        # Удаляем все контентные файлы
+        await session.execute(delete(ContentFile))
         
-        # Удаляем подразделы
-        await session.execute(
-            delete(MenuItem).where(MenuItem.parent_id.in_([52, 53, 54, 65]))
-        )
+        # Удаляем все пункты меню
+        await session.execute(delete(MenuItem))
         
         await session.commit()
         print("✅ Данные очищены")
@@ -101,12 +97,14 @@ class FlowDataLoader:
         
         # Находим ID пункта "Диагноз"
         diagnosis_item = await session.execute(
-            select(MenuItem).where(MenuItem.title == "Диагноз")
+            select(MenuItem).where(MenuItem.title == "Диагноз").limit(1)
         )
-        diagnosis_item = diagnosis_item.scalar_one_or_none()
+        diagnosis_item = diagnosis_item.first()
         if not diagnosis_item:
             print("❌ Пункт 'Диагноз' не найден")
             return
+        
+        diagnosis_item = diagnosis_item[0]  # Получаем объект из кортежа
         
         subitems = [
             {
@@ -144,12 +142,14 @@ class FlowDataLoader:
         
         # Находим ID пункта "Слуховые аппараты"
         hearing_aids_item = await session.execute(
-            select(MenuItem).where(MenuItem.title == "Слуховые аппараты")
+            select(MenuItem).where(MenuItem.title == "Слуховые аппараты").limit(1)
         )
-        hearing_aids_item = hearing_aids_item.scalar_one_or_none()
+        hearing_aids_item = hearing_aids_item.first()
         if not hearing_aids_item:
             print("❌ Пункт 'Слуховые аппараты' не найден")
             return
+        
+        hearing_aids_item = hearing_aids_item[0]  # Получаем объект из кортежа
         
         subitems = [
             {
@@ -187,12 +187,14 @@ class FlowDataLoader:
         
         # Находим ID пункта "Обучение"
         education_item = await session.execute(
-            select(MenuItem).where(MenuItem.title == "Обучение")
+            select(MenuItem).where(MenuItem.title == "Обучение").limit(1)
         )
-        education_item = education_item.scalar_one_or_none()
+        education_item = education_item.first()
         if not education_item:
             print("❌ Пункт 'Обучение' не найден")
             return
+        
+        education_item = education_item[0]  # Получаем объект из кортежа
         
         subitems = [
             {
@@ -230,12 +232,14 @@ class FlowDataLoader:
         
         # Находим ID пункта "Помощь специалиста"
         specialist_item = await session.execute(
-            select(MenuItem).where(MenuItem.title == "Помощь специалиста")
+            select(MenuItem).where(MenuItem.title == "Помощь специалиста").limit(1)
         )
-        specialist_item = specialist_item.scalar_one_or_none()
+        specialist_item = specialist_item.first()
         if not specialist_item:
             print("❌ Пункт 'Помощь специалиста' не найден")
             return
+        
+        specialist_item = specialist_item[0]  # Получаем объект из кортежа
         
         subitems = [
             {

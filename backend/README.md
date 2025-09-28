@@ -169,7 +169,7 @@ poetry run alembic upgrade head
 
 ```bash
 # Загрузка структуры меню
-poetry run python load_flow_data.py
+docker-compose run --rm bot_api python load_flow_data.py
 ```
 
 ## 🧪 Тестирование
