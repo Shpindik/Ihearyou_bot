@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.db import get_session
 from crud import user_crud, activity_crud
-from schemas.public.user_activities import (
+from schemas.public.user_activity import (
     UserActivityRequest,
     UserActivityResponse,
 )

@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, status
 
-from schemas.public.user_questions import (
+from schemas.public.user_question import (
     UserQuestionCreate,
     UserQuestionResponse,
 )

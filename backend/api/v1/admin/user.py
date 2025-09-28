@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, Query, status
 from fastapi.security import HTTPBearer
 
-from schemas.admin.users import (
+from schemas.admin.user import (
     AdminTelegramUserResponse,
     AdminTelegramUserListResponse,
 )

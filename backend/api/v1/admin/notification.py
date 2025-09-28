@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, Query, status
 from fastapi.security import HTTPBearer
 
-from schemas.admin.notifications import (
+from schemas.admin.notification import (
     AdminNotificationRequest,
     AdminNotificationResponse,
     AdminNotificationListResponse,

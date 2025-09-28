@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, status
 from fastapi.security import HTTPBearer
 
-from schemas.admin.reminder_templates import (
+from schemas.admin.reminder_template import (
     AdminReminderTemplateResponse,
     AdminReminderTemplateListResponse,
     AdminReminderTemplateCreate,

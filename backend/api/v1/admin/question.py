@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, Query, status
 from fastapi.security import HTTPBearer
 
-from schemas.admin.questions import (
+from schemas.admin.question import (
     AdminQuestionResponse,
     AdminQuestionListResponse,
     AdminQuestionAnswer,
