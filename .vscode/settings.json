@@ -1,21 +1,4 @@
 {
-    // Python настройки
-    "python.defaultInterpreterPath": "./venv/bin/python",
-    "python.formatting.provider": "black",
-    "python.formatting.blackArgs": [
-        "--line-length",
-        "118"
-    ],
-    "python.linting.enabled": true,
-    "python.linting.flake8Enabled": true,
-    "python.linting.flake8Args": [
-        "--config=.conf/.flake8"
-    ],
-    "python.sortImports.args": [
-        "--profile",
-        "black"
-    ],
-    "python.linting.pylintEnabled": false,
     // Автосохранение
     "files.autoSave": "afterDelay",
     "files.autoSaveDelay": 1000,
@@ -25,29 +8,26 @@
     "editor.formatOnPaste": true,
     "editor.formatOnType": false,
     "editor.codeActionsOnSave": {
-        "source.organizeImports": true
+        "source.organizeImports": "explicit"
     },
     // Настройки для Python файлов
     "[python]": {
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.tabSize": 4,
         "editor.insertSpaces": true,
         "editor.rulers": [
-            118
+            120
         ],
         "files.autoSave": "afterDelay",
         "files.autoSaveDelay": 500
     },
     // Настройки для JSON файлов
     "[json]": {
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.formatOnSave": true
     },
     // Настройки для YAML файлов
     "[yaml]": {
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "redhat.vscode-yaml"
+        "editor.formatOnSave": true
     },
     // Исключения из автоформатирования
     "files.exclude": {
@@ -58,9 +38,8 @@
         "**/node_modules": true
     },
     // Настройки терминала
-    "terminal.integrated.defaultProfile.osx": "zsh",
-    "terminal.integrated.env.osx": {
-        "PYTHONPATH": "${workspaceFolder}"
+    "terminal.integrated.env.linux": {
+        "PYTHONPATH": "${workspaceFolder}:${workspaceFolder}/backend"
     },
     // Дополнительные настройки автосохранения
     "files.hotExit": "onExitAndWindowClose",
