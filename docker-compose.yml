@@ -72,7 +72,7 @@ services:
         - action: rebuild
           path: ./frontend/package-lock.json
         - action: rebuild
-          path: ./frontend/Dockerfile
+          path: frontend/docker/Dockerfile
 
 volumes:
   pg_data:

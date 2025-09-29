@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .container-main {
+    @apply flex flex-col overflow-hidden h-full;
+  }
+
+  .container-scroll {
+    @apply flex flex-col overflow-auto h-full;
+  }
+
+  .flex-base {
+    @apply flex items-center;
+  }
+
+  .flex-between {
+    @apply flex items-center justify-between;
+  }
+
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .flex-end {
+    @apply flex items-center justify-end;
+  }
+
+  .full-size {
+    @apply w-full h-full;
+  }
+
+  .input-focus {
+    @apply focus:outline-none focus:ring-2 focus:ring-cyan-800;
+  }
+
+  .input-disabled {
+    @apply disabled:bg-gray-400 disabled:cursor-not-allowed disabled:text-gray;
+  }
+
+  .input-error {
+    @apply border-red focus:ring-red;
+  }
+
+  .button-disabled {
+    @apply disabled:bg-gray-400 disabled:bg-gray-500 disabled:cursor-not-allowed disabled:hover:bg-gray-600;
+  }
+
+  .click-press {
+    @apply transition-all active:translate-y-0.5 disabled:active:translate-y-0;
+  }
+
+
+  @layer base {
+    html {
+      @apply container-main antialiased w-full box-border;
+    }
+
+    body {
+      @apply container-main w-full text-black font-sans text-lg;
+    }
+
+    #root {
+      @apply container-main w-full;
+    }
+
+    h1 {}
+
+    h2 {}
+
+    h3 {}
+
+    h4 {}
+
+    p {}
+
+    p.slim {}
+
+    input {}
+
+    button {}
+
+    video {}
+  }
+
+  @layer utilities {
+    .no-input-arrows {
+      -moz-appearance: textfield;
+
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    }
+  }
+}
