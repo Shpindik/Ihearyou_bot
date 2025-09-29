@@ -9,6 +9,7 @@ venv/
 # Node modules
 node_modules/
 frontend/node_modules/
+frontend/dist
 
 # Python cache
 __pycache__/
