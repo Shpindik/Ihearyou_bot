@@ -5,7 +5,7 @@ import {
 } from 'axios';
 import { getItem } from '@/shared/utils';
 import { TRequest } from '@/shared/api/types';
-import { IToken, TOKEN_STORE_KEY } from '@/entities/user';
+import { IToken, TOKEN_STORE_KEY } from '@/entities/admin';
 
 export interface ConsoleError {
   status: number;

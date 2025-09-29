@@ -3,15 +3,19 @@ import {
   ITokenRefreshRequest,
   ITokenResponse,
   tokenMapper,
-} from '@/entities/user';
+} from '@/entities/admin';
 import { api } from '@/shared/api';
 
-export const login = async (token: string): Promise<IToken> => {
+export const login = async (
+  username: string,
+  password: string,
+): Promise<IToken> => {
   return api
     .post<ITokenResponse>(
       '/admin/auth/login',
       {
-        token,
+        username,
+        password,
       },
       {
         baseURL: import.meta.env.SERVICE_AUTH_API,
