@@ -7,6 +7,7 @@ class IHearYouException(Exception):
     """Базовое исключение приложения."""
 
     def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        """Инициализация базового исключения."""
         self.message = message
         self.details = details or {}
         super().__init__(self.message)

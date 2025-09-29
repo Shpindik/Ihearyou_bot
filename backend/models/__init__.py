@@ -1,9 +1,9 @@
 """Инициализация моделей и экспорт."""
 
+from backend.core.db import Base
+
 from .admin_user import AdminUser
-from .user_activity import UserActivity
 from .content_file import ContentFile
-from core.db import Base
 from .enums import (
     AccessLevel,
     ActivityType,
@@ -11,13 +11,15 @@ from .enums import (
     ContentType,
     NotificationStatus,
     QuestionStatus,
-    SubscriptionType
+    SubscriptionType,
 )
 from .menu import MenuItem
-from .question import UserQuestion
 from .notification import Notification
+from .question import UserQuestion
 from .reminder_template import ReminderTemplate
 from .telegram_user import TelegramUser
+from .user_activity import UserActivity
+
 
 __all__ = [
     "Base",
@@ -35,5 +37,5 @@ __all__ = [
     "ContentType",
     "NotificationStatus",
     "QuestionStatus",
-    "SubscriptionType"
+    "SubscriptionType",
 ]

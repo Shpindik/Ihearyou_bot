@@ -1,25 +1,11 @@
 """Публичные схемы API."""
 
-from .menu import (
-    MenuItemResponse,
-    MenuContentResponse,
-    ContentFileResponse,
-)
-from .ratings import (
-    RatingRequest,
-    RatingResponse,
-)
-from .search import (
-    SearchListResponse,
-)
-from .user_activity import (
-    UserActivityRequest,
-    UserActivityResponse,
-)
-from .user_question import (
-    UserQuestionCreate,
-    UserQuestionResponse,
-)
+from .menu import ContentFileResponse, MenuContentResponse, MenuItemResponse
+from .ratings import RatingRequest, RatingResponse
+from .search import SearchListResponse
+from .user_activity import UserActivityRequest, UserActivityResponse
+from .user_question import UserQuestionCreate, UserQuestionResponse
+
 
 __all__ = [
     # Menu

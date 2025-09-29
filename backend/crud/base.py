@@ -7,9 +7,9 @@ from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import DeclarativeBase
 
-from core.db import Base
+from backend.core.db import Base
+
 
 ModelType = TypeVar("ModelType", bound=Base)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
@@ -20,9 +20,8 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """Базовый класс для CRUD операций."""
 
     def __init__(self, model: Type[ModelType]):
-        """
-        CRUD объект с методами для создания, чтения, обновления и удаления.
-        
+        """CRUD объект с методами для создания, чтения, обновления и удаления.
+
         Args:
             model: SQLAlchemy модель
         """
@@ -34,16 +33,10 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return result.scalar_one_or_none()
 
     async def get_multi(
-        self, 
-        db: AsyncSession, 
-        *, 
-        skip: int = 0, 
-        limit: int = 100
+        self, db: AsyncSession, *, skip: int = 0, limit: int = 100
     ) -> List[ModelType]:
         """Получить список объектов с пагинацией."""
-        result = await db.execute(
-            select(self.model).offset(skip).limit(limit)
-        )
+        result = await db.execute(select(self.model).offset(skip).limit(limit))
         return result.scalars().all()
 
     async def create(self, db: AsyncSession, *, obj_in: CreateSchemaType) -> ModelType:
@@ -60,7 +53,7 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db: AsyncSession,
         *,
         db_obj: ModelType,
-        obj_in: Union[UpdateSchemaType, Dict[str, Any]]
+        obj_in: Union[UpdateSchemaType, Dict[str, Any]],
     ) -> ModelType:
         """Обновить объект."""
         obj_data = db_obj.__dict__
@@ -68,11 +61,11 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             update_data = obj_in
         else:
             update_data = obj_in.model_dump(exclude_unset=True)
-        
+
         for field in obj_data:
             if field in update_data:
                 setattr(db_obj, field, update_data[field])
-        
+
         db.add(db_obj)
         await db.commit()
         await db.refresh(db_obj)

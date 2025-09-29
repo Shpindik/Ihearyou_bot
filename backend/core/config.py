@@ -8,41 +8,29 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     """Настройки приложения."""
-    
+
     # База данных
-    database_url: str = Field(
-        description="URL подключения к PostgreSQL"
-    )
+    database_url: str = Field(description="URL подключения к PostgreSQL")
     postgres_password: Optional[str] = Field(
-        default=None,
-        description="Пароль PostgreSQL"
+        default=None, description="Пароль PostgreSQL"
     )
     postgres_user: Optional[str] = Field(
-        default=None,
-        description="Пользователь PostgreSQL"
+        default=None, description="Пользователь PostgreSQL"
     )
     postgres_db: Optional[str] = Field(
-        default=None,
-        description="База данных PostgreSQL"
+        default=None, description="База данных PostgreSQL"
     )
-    
+
     # JWT настройки
-    jwt_secret_key: str = Field(
-        description="Секретный ключ для JWT токенов"
-    )
-    jwt_algorithm: str = Field(
-        default="HS256",
-        description="Алгоритм шифрования JWT"
-    )
+    jwt_secret_key: str = Field(description="Секретный ключ для JWT токенов")
+    jwt_algorithm: str = Field(default="HS256", description="Алгоритм шифрования JWT")
     jwt_access_token_expire_minutes: int = Field(
-        default=60,
-        description="Время жизни access токена в минутах"
+        default=60, description="Время жизни access токена в минутах"
     )
     jwt_refresh_token_expire_days: int = Field(
-        default=7,
-        description="Время жизни refresh токена в днях"
+        default=7, description="Время жизни refresh токена в днях"
     )
-    
+
     # Rate limiting (не используется)
     # rate_limit_enabled: bool = Field(
     #     default=True,
@@ -52,7 +40,7 @@ class Settings(BaseSettings):
     #     default=60,
     #     description="Количество запросов в минуту"
     # )
-    
+
     # Медиафайлы (не используется)
     # media_max_file_size: int = Field(
     #     default=50 * 1024 * 1024,  # 50MB
@@ -62,27 +50,21 @@ class Settings(BaseSettings):
     #     default="image/*,video/*,application/pdf",
     #     description="Разрешенные типы файлов"
     # )
-    
+
     # Администратор по умолчанию
     admin_username: str = Field(
-        default="admin",
-        description="Имя пользователя администратора по умолчанию"
+        default="admin", description="Имя пользователя администратора по умолчанию"
     )
     admin_password: str = Field(
-        default="admin12345",
-        description="Пароль администратора по умолчанию"
+        default="admin12345", description="Пароль администратора по умолчанию"
     )
     admin_email: Optional[str] = Field(
-        default=None,
-        description="Email администратора по умолчанию"
+        default=None, description="Email администратора по умолчанию"
     )
 
     # Telegram Bot
-    bot_token: Optional[str] = Field(
-        default=None,
-        description="Токен Telegram бота"
-    )
-    
+    bot_token: Optional[str] = Field(default=None, description="Токен Telegram бота")
+
     # Медиафайлы - дополнительные настройки (не используется)
     # media_storage_path: str = Field(
     #     default="./media",
@@ -90,10 +72,7 @@ class Settings(BaseSettings):
     # )
 
     # Логирование
-    log_level: str = Field(
-        default="INFO",
-        description="Уровень логирования"
-    )
+    log_level: str = Field(default="INFO", description="Уровень логирования")
     # log_file_path: Optional[str] = Field(
     #     default=None,
     #     description="Путь к файлу логов"

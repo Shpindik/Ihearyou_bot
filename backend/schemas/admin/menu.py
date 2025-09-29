@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional, List
+from typing import List, Optional
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
-from models.enums import AccessLevel, ContentType
+from backend.models.enums import AccessLevel, ContentType
 
 
 class AdminMenuItemResponse(BaseModel):
-    """Схема данных пункта меню для GET /api/v1/admin/menu-items/{id}, POST /api/v1/admin/menu-items, PUT /api/v1/admin/menu-items/{id}."""
-    
+    """Схема данных пункта меню для админ API."""
+
     id: int = Field(..., description="ID пункта меню")
     title: str = Field(..., description="Название пункта меню")
     description: Optional[str] = Field(None, description="Описание пункта меню")
@@ -27,20 +27,24 @@ class AdminMenuItemResponse(BaseModel):
     average_rating: Optional[float] = Field(None, description="Средняя оценка")
     created_at: datetime = Field(..., description="Дата создания")
     updated_at: datetime = Field(..., description="Дата обновления")
-    
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class AdminMenuItemCreate(BaseModel):
     """Схема запроса создания пункта меню для POST /api/v1/admin/menu-items."""
-    
-    title: str = Field(..., min_length=1, max_length=255, description="Название пункта меню")
+
+    title: str = Field(
+        ..., min_length=1, max_length=255, description="Название пункта меню"
+    )
     description: Optional[str] = Field(None, description="Описание пункта меню")
     parent_id: Optional[int] = Field(None, description="ID родительского пункта")
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
-    access_level: AccessLevel = Field(default=AccessLevel.FREE, description="Уровень доступа")
+    access_level: AccessLevel = Field(
+        default=AccessLevel.FREE, description="Уровень доступа"
+    )
     is_active: bool = Field(default=True, description="Активен ли пункт")
-    
+
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -49,7 +53,7 @@ class AdminMenuItemCreate(BaseModel):
                 "parent_id": 1,
                 "bot_message": "Сообщение бота для этого раздела",
                 "access_level": "free",
-                "is_active": True
+                "is_active": True,
             }
         }
     )
@@ -57,14 +61,16 @@ class AdminMenuItemCreate(BaseModel):
 
 class AdminMenuItemUpdate(BaseModel):
     """Схема запроса обновления пункта меню для PUT /api/v1/admin/menu-items/{id}."""
-    
-    title: Optional[str] = Field(None, min_length=1, max_length=255, description="Название пункта меню")
+
+    title: Optional[str] = Field(
+        None, min_length=1, max_length=255, description="Название пункта меню"
+    )
     description: Optional[str] = Field(None, description="Описание пункта меню")
     parent_id: Optional[int] = Field(None, description="ID родительского пункта")
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
     access_level: Optional[AccessLevel] = Field(None, description="Уровень доступа")
     is_active: Optional[bool] = Field(None, description="Активен ли пункт")
-    
+
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -72,7 +78,7 @@ class AdminMenuItemUpdate(BaseModel):
                 "description": "Обновленное описание",
                 "bot_message": "Обновленное сообщение бота",
                 "access_level": "premium",
-                "is_active": True
+                "is_active": True,
             }
         }
     )
@@ -80,13 +86,13 @@ class AdminMenuItemUpdate(BaseModel):
 
 class AdminMenuItemListResponse(BaseModel):
     """Схема ответа списка пунктов меню для GET /api/v1/admin/menu-items."""
-    
+
     items: List[AdminMenuItemResponse] = Field(..., description="Список пунктов меню")
     total: int = Field(..., description="Общее количество")
     page: int = Field(..., description="Текущая страница")
     limit: int = Field(..., description="Лимит на странице")
     pages: int = Field(..., description="Общее количество страниц")
-    
+
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -105,21 +111,21 @@ class AdminMenuItemListResponse(BaseModel):
                         "rating_count": 100,
                         "average_rating": 4.5,
                         "created_at": "2024-01-01T12:00:00Z",
-                        "updated_at": "2024-01-15T16:00:00Z"
+                        "updated_at": "2024-01-15T16:00:00Z",
                     }
                 ],
                 "total": 50,
                 "page": 1,
                 "limit": 20,
-                "pages": 3
+                "pages": 3,
             }
         }
     )
 
 
 class AdminContentFileResponse(BaseModel):
-    """Схема данных файла контента для GET /api/v1/admin/menu-items/{id}/content-files, POST /api/v1/admin/menu-items/{id}/content-files, PUT /api/v1/admin/menu-items/content-files/{file_id}."""
-    
+    """Схема данных файла контента для админ API."""
+
     id: int = Field(..., description="ID файла")
     menu_item_id: int = Field(..., description="ID пункта меню")
     content_type: ContentType = Field(..., description="Тип контента")
@@ -132,13 +138,13 @@ class AdminContentFileResponse(BaseModel):
     is_primary: bool = Field(..., description="Основной файл")
     sort_order: int = Field(..., description="Порядок сортировки")
     created_at: datetime = Field(..., description="Дата создания")
-    
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class AdminContentFileCreate(BaseModel):
     """Схема запроса создания файла контента для POST /api/v1/admin/menu-items/{id}/content-files."""
-    
+
     content_type: ContentType = Field(..., description="Тип контента")
     content_text: Optional[str] = Field(None, description="Текстовый контент")
     content_url: Optional[str] = Field(None, description="URL контента")
@@ -148,13 +154,13 @@ class AdminContentFileCreate(BaseModel):
     thumbnail_url: Optional[str] = Field(None, description="URL превью")
     is_primary: bool = Field(default=False, description="Основной файл")
     sort_order: int = Field(default=0, description="Порядок сортировки")
-    
+
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
                 "content_type": "text",
                 "content_text": "Новый текстовый контент",
-                "sort_order": 3
+                "sort_order": 3,
             }
         }
     )
@@ -162,7 +168,7 @@ class AdminContentFileCreate(BaseModel):
 
 class AdminContentFileUpdate(BaseModel):
     """Схема запроса обновления файла контента для PUT /api/v1/admin/menu-items/content-files/{file_id}."""
-    
+
     content_type: Optional[ContentType] = Field(None, description="Тип контента")
     content_text: Optional[str] = Field(None, description="Текстовый контент")
     content_url: Optional[str] = Field(None, description="URL контента")
@@ -172,12 +178,12 @@ class AdminContentFileUpdate(BaseModel):
     thumbnail_url: Optional[str] = Field(None, description="URL превью")
     is_primary: Optional[bool] = Field(None, description="Основной файл")
     sort_order: Optional[int] = Field(None, description="Порядок сортировки")
-    
+
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
                 "content_text": "Обновленный текстовый контент",
-                "sort_order": 1
+                "sort_order": 1,
             }
         }
     )

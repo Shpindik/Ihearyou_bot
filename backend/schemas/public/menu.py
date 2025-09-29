@@ -4,14 +4,14 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
-from models.enums import AccessLevel, ContentType
+from backend.models.enums import AccessLevel, ContentType
 
 
 class MenuItemResponse(BaseModel):
     """Схема ответа пункта меню для GET /api/v1/menu-items."""
-    
+
     id: int = Field(..., description="ID пункта меню")
     title: str = Field(..., description="Название пункта меню")
     description: Optional[str] = Field(None, description="Описание пункта меню")
@@ -19,8 +19,10 @@ class MenuItemResponse(BaseModel):
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
     is_active: bool = Field(..., description="Активен ли пункт")
     access_level: AccessLevel = Field(..., description="Уровень доступа")
-    children: list["MenuItemResponse"] = Field(default=[], description="Дочерние пункты")
-    
+    children: list["MenuItemResponse"] = Field(
+        default=[], description="Дочерние пункты"
+    )
+
     model_config = ConfigDict(
         from_attributes=True,
         json_schema_extra={
@@ -41,19 +43,19 @@ class MenuItemResponse(BaseModel):
                         "bot_message": "Выберите тип:",
                         "is_active": True,
                         "access_level": "free",
-                        "children": []
+                        "children": [],
                     }
-                ]
+                ],
             }
-        }
+        },
     )
 
 
 class MenuItemListResponse(BaseModel):
     """Схема ответа списка пунктов меню для GET /api/v1/menu-items."""
-    
+
     items: list[MenuItemResponse] = Field(..., description="Список пунктов меню")
-    
+
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
@@ -75,9 +77,9 @@ class MenuItemListResponse(BaseModel):
                                 "bot_message": "Выберите тип:",
                                 "is_active": True,
                                 "access_level": "free",
-                                "children": []
+                                "children": [],
                             }
-                        ]
+                        ],
                     }
                 ]
             }
@@ -87,7 +89,7 @@ class MenuItemListResponse(BaseModel):
 
 class ContentFileResponse(BaseModel):
     """Схема данных файла контента."""
-    
+
     id: int = Field(..., description="ID файла контента")
     menu_item_id: int = Field(..., description="ID пункта меню")
     content_type: ContentType = Field(..., description="Тип контента")
@@ -99,20 +101,20 @@ class ContentFileResponse(BaseModel):
     thumbnail_url: Optional[str] = Field(None, description="URL превью")
     is_primary: bool = Field(..., description="Основной ли файл")
     sort_order: int = Field(..., description="Порядок сортировки")
-    
+
     model_config = ConfigDict(from_attributes=True)
 
 
 class MenuContentResponse(BaseModel):
     """Схема ответа контента пункта меню для GET /api/v1/menu-items/{id}/content."""
-    
+
     id: int = Field(..., description="ID пункта меню")
     title: str = Field(..., description="Название пункта меню")
     description: Optional[str] = Field(None, description="Описание пункта меню")
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
     content_files: list[ContentFileResponse] = Field(..., description="Файлы контента")
     children: list[MenuItemResponse] = Field(default=[], description="Дочерние пункты")
-    
+
     model_config = ConfigDict(
         from_attributes=True,
         json_schema_extra={
@@ -133,7 +135,7 @@ class MenuContentResponse(BaseModel):
                         "mime_type": None,
                         "thumbnail_url": None,
                         "is_primary": True,
-                        "sort_order": 1
+                        "sort_order": 1,
                     },
                     {
                         "id": 2,
@@ -146,12 +148,9 @@ class MenuContentResponse(BaseModel):
                         "mime_type": "image/jpeg",
                         "thumbnail_url": "https://example.com/thumb.jpg",
                         "is_primary": False,
-                        "sort_order": 2
-                    }
-                ]
+                        "sort_order": 2,
+                    },
+                ],
             }
-        }
+        },
     )
-
-
-

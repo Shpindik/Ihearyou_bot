@@ -8,8 +8,10 @@ from typing import TYPE_CHECKING, Optional
 from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from core.db import Base
+from backend.core.db import Base
+
 from .enums import ContentType
+
 
 if TYPE_CHECKING:
     from .menu import MenuItem
@@ -17,7 +19,7 @@ if TYPE_CHECKING:
 
 class ContentFile(Base):
     """Модель файлов контента."""
-    
+
     __tablename__ = "content_files"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -38,10 +40,14 @@ class ContentFile(Base):
     )
 
     # Связи
-    menu_item: Mapped["MenuItem"] = relationship("MenuItem", back_populates="content_files")
+    menu_item: Mapped["MenuItem"] = relationship(
+        "MenuItem", back_populates="content_files"
+    )
 
     def __repr__(self) -> str:
+        """Строковое представление для отладки."""
         return f"<ContentFile(id={self.id}, menu_item_id={self.menu_item_id}, content_type={self.content_type})>"
 
     def __str__(self) -> str:
+        """Человекочитаемое строковое представление."""
         return f"Content file: {self.content_type} for menu item {self.menu_item_id}"

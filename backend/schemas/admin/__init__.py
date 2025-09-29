@@ -1,44 +1,40 @@
 """Административные схемы API."""
 
+from .analytics import AdminAnalyticsResponse
 from .auth import (
     AdminLoginRequest,
     AdminLoginResponse,
     AdminRefreshRequest,
     AdminRefreshResponse,
 )
-from .analytics import (
-    AdminAnalyticsResponse,
-)
 from .menu import (
-    AdminMenuItemResponse,
-    AdminMenuItemCreate,
-    AdminMenuItemUpdate,
-    AdminMenuItemListResponse,
-    AdminContentFileResponse,
     AdminContentFileCreate,
+    AdminContentFileResponse,
     AdminContentFileUpdate,
+    AdminMenuItemCreate,
+    AdminMenuItemListResponse,
+    AdminMenuItemResponse,
+    AdminMenuItemUpdate,
 )
 from .notification import (
+    AdminNotificationListResponse,
     AdminNotificationRequest,
     AdminNotificationResponse,
-    AdminNotificationListResponse,
     AdminNotificationUpdate,
 )
 from .question import (
-    AdminQuestionResponse,
-    AdminQuestionListResponse,
     AdminQuestionAnswer,
+    AdminQuestionListResponse,
+    AdminQuestionResponse,
 )
 from .reminder_template import (
-    AdminReminderTemplateResponse,
-    AdminReminderTemplateListResponse,
     AdminReminderTemplateCreate,
+    AdminReminderTemplateListResponse,
+    AdminReminderTemplateResponse,
     AdminReminderTemplateUpdate,
 )
-from .user import (
-    AdminTelegramUserResponse,
-    AdminTelegramUserListResponse,
-)
+from .user import AdminTelegramUserListResponse, AdminTelegramUserResponse
+
 
 __all__ = [
     # Auth

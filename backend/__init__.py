@@ -1,1 +1,1 @@
-# empty init to mark package
+"""Backend пакет для API бота "Я тебя слышу"."""
