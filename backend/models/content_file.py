@@ -14,7 +14,7 @@ from .enums import ContentType
 
 
 if TYPE_CHECKING:
-    from .menu import MenuItem
+    from .menu_item import MenuItem
 
 
 class ContentFile(Base):
@@ -23,9 +23,7 @@ class ContentFile(Base):
     __tablename__ = "content_files"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    menu_item_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("menu_items.id"), nullable=False, index=True
-    )
+    menu_item_id: Mapped[int] = mapped_column(Integer, ForeignKey("menu_items.id"), nullable=False, index=True)
     content_type: Mapped[ContentType] = mapped_column(String(50), nullable=False)
     content_text: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     content_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
@@ -35,14 +33,10 @@ class ContentFile(Base):
     thumbnail_url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     is_primary: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     # Связи
-    menu_item: Mapped["MenuItem"] = relationship(
-        "MenuItem", back_populates="content_files"
-    )
+    menu_item: Mapped["MenuItem"] = relationship("MenuItem", back_populates="content_files")
 
     def __repr__(self) -> str:
         """Строковое представление для отладки."""

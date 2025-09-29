@@ -13,7 +13,7 @@ from .enums import (
     QuestionStatus,
     SubscriptionType,
 )
-from .menu import MenuItem
+from .menu_item import MenuItem
 from .notification import Notification
 from .question import UserQuestion
 from .reminder_template import ReminderTemplate

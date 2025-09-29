@@ -16,13 +16,34 @@ class ContentType(str, enum.Enum):
 
 
 class ActivityType(str, enum.Enum):
-    """Типы активности пользователей."""
+    """Типы активности пользователей"""
 
-    NAVIGATION = "navigation"
-    SEARCH = "search"
-    RATING = "rating"
-    QUESTION = "question"
-    MEDIA_VIEW = "media_view"
+    # Основная навигация и взаимодействие
+    START_COMMAND = "start_command"  # Команда /start - начало взаимодействия
+    NAVIGATION = "navigation"  # Навигация по меню
+    SEARCH = "search"  # Поиск по ключевым словам
+
+    # Работа с контентом
+    TEXT_VIEW = "text_view"  # Просмотр текстовых материалов
+    IMAGE_VIEW = "image_view"  # Просмотр изображений
+    VIDEO_VIEW = "video_view"  # Просмотр видео (YouTube, VK)
+    PDF_DOWNLOAD = "pdf_download"  # Скачивание PDF документов
+    MEDIA_VIEW = "media_view"  # Общий просмотр медиа
+
+    # Оценка и обратная связь
+    RATING = "rating"  # Оценка полезности материала (1-5)
+    QUESTION_ASK = "question_ask"  # Задавание вопросов
+    QUESTION_CLICK = "question_click"  # Клик "Задать вопрос"
+    LETTER_SEND = "letter_send"  # Отправка письма
+    LETTER_CLICK = "letter_click"  # Клик "Написать письмо"
+
+    # Аналитика и статистика
+    SECTION_ENTER = "section_enter"  # Вход в раздел
+    MATERIAL_OPEN = "material_open"  # Открытие конкретного материала
+
+    # WebApp взаимодействие (только факт открытия)
+    # WEBAPP_OPENED = "webapp_opened"         # Открытие WebApp кнопки
+    # (можно реализовать, если надо для статистики, просто чуть сложнее реализовать)
 
 
 class QuestionStatus(str, enum.Enum):
