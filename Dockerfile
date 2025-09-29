@@ -16,11 +16,11 @@ RUN poetry config virtualenvs.create false \
     && poetry install --only=main --no-root
 
 COPY bot ./bot
-COPY backend/ ./
+COPY backend ./backend
 
 FROM base AS bot
 CMD ["python", "bot/main.py"]
 
 FROM base AS admin
 WORKDIR /app
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -39,8 +39,8 @@ services:
     ports:
       - "${BOT_API_PORT:-8001}:8000"
     volumes:
-      - ./backend/alembic/versions:/app/alembic/versions
-      - ./backend/alembic.ini:/app/alembic.ini
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
     command: >
       sh -c "
         echo 'Waiting for database...' &&
@@ -48,7 +48,7 @@ services:
         echo 'Running migrations...' &&
         alembic upgrade head &&
         echo 'Starting API server...' &&
-        uvicorn main:app --host 0.0.0.0 --port 8000
+        uvicorn backend.main:app --host 0.0.0.0 --port 8000
       "
     develop:
       watch:
