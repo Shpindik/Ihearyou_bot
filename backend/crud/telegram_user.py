@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import datetime, timedelta, timezone
+from typing import List, Optional
 
 from sqlalchemy import select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -75,6 +75,17 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
 
         await db.execute(stmt)
         await db.flush()
+
+    async def get_inactive(self, db: AsyncSession, days: int = 10) -> List[TelegramUser]:
+        """Получение списка неактивных пользователей."""
+        threshold = datetime.now(timezone.utc) - timedelta(days=days)
+
+        query = select(TelegramUser).where(TelegramUser.last_activity < threshold)
+
+        result = await db.execute(query)
+        items = result.scalars().all()
+
+        return items
 
 
 telegram_user_crud = TelegramUserCRUD()
