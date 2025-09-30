@@ -5,7 +5,6 @@ import signal
 import sys
 from pathlib import Path
 
-import psycopg2
 from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 from handlers import router
@@ -13,12 +12,6 @@ from handlers import router
 load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-
-DB_NAME = os.getenv("POSTGRES_DB", "postgres_db")
-DB_USER = os.getenv("POSTGRES_USER", "postgres_user")
-DB_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgres_password")
-DB_HOST = os.getenv("DB_HOST", "db")
-DB_PORT = int(os.getenv("DB_PORT", 5432))
 
 LOG_DIR = os.path.join(os.path.dirname(__file__), "..", "logs")
 LOG_FILE = os.path.join(LOG_DIR, "bot_errors.log")
@@ -48,8 +41,6 @@ dp = Dispatcher()
 dp.include_router(router)
 
 
-def get_db_connection():
-    return psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASSWORD, host=DB_HOST, port=DB_PORT)
 
 
 async def main():

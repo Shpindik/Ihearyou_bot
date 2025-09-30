@@ -1,13 +1,12 @@
-version: "3.9"
-
 services:
   db:
     container_name: IHearYouDB
     image: postgres:13
     env_file: .env
+    ports:
+      - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
   bot:
     build:
@@ -22,7 +21,7 @@ services:
         - action: rebuild
           path: ./bot
         - action: rebuild
-          path: ./requirements.txt
+          path: ./pyproject.toml
         - action: rebuild
           path: ./Dockerfile
 
@@ -39,12 +38,24 @@ services:
       - db
     ports:
       - "${BOT_API_PORT:-8001}:8000"
+    volumes:
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 5 &&
+        echo 'Running migrations...' &&
+        alembic upgrade head &&
+        echo 'Starting API server...' &&
+        uvicorn backend.main:app --host 0.0.0.0 --port 8000
+      "
     develop:
       watch:
         - action: rebuild
           path: ./backend
         - action: rebuild
-          path: ./requirements.txt
+          path: ./pyproject.toml
         - action: rebuild
           path: ./Dockerfile
 
