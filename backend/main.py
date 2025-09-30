@@ -71,9 +71,7 @@ async def ensure_default_admin() -> None:
     try:
         async with AsyncSessionLocal() as session:
             # Проверяем существование администратора
-            result = await session.execute(
-                select(AdminUser).where(AdminUser.username == settings.admin_username)
-            )
+            result = await session.execute(select(AdminUser).where(AdminUser.username == settings.admin_username))
             admin_user = result.scalar_one_or_none()
 
             # Создаем или обновляем администратора
@@ -88,9 +86,7 @@ async def ensure_default_admin() -> None:
                     is_active=True,
                 )
                 session.add(admin_user)
-                logger.info(
-                    f"Создан администратор по умолчанию: {settings.admin_username}"
-                )
+                logger.info(f"Создан администратор по умолчанию: {settings.admin_username}")
             else:
                 # Обновляем пароль и активируем
                 admin_user.password_hash = password_hash
@@ -115,10 +111,23 @@ async def root():
     return {"message": "I Hear You Bot API", "version": "1.0.0", "docs": "/docs"}
 
 
-@app.get("/health")
-async def health_check():
-    """Проверка здоровья приложения."""
-    return {"status": "healthy"}
+@app.get("/health/api")
+async def api_health_check():
+    """Проверка работоспособности API."""
+    return {"status": "healthy", "service": "api"}
+
+
+@app.get("/health/db")
+async def database_health_check():
+    """Проверка подключения к базе данных."""
+    try:
+        async with AsyncSessionLocal() as session:
+            await session.execute(select(1))
+
+        return {"status": "healthy", "service": "database"}
+    except Exception as e:
+        logger.error(f"Database health check failed: {e}")
+        return {"status": "unhealthy", "service": "database", "error": str(e)}
 
 
 if __name__ == "__main__":
