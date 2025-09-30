@@ -129,8 +129,8 @@ class APIClient:
         last_name: Optional[str] = None,
         username: Optional[str] = None
     ) -> bool:
-        """Создать пользователя через webhook."""
-        url = f"{self.base_url}/webhook/telegram"
+        """Создать пользователя через Bot API."""
+        url = f"{self.base_url}/bot/telegram-user/register"
         data = {
             "update_id": 1,
             "message": {

@@ -19,6 +19,14 @@ bot = Bot(token=os.getenv("BOT_TOKEN"))
 @router.callback_query(F.data == "go_back_cd")
 async def handle_go_back_inline(callback: CallbackQuery, state: FSMContext):
     """Обработчик для inline кнопки 'Назад'"""
+    # Записываем активность - навигация назад
+    async with APIClient() as api:
+        await api.record_activity(
+            telegram_user_id=callback.from_user.id,
+            menu_item_id=1,  # Навигация
+            activity_type="navigation"
+        )
+    
     user_id = callback.from_user.id
 
     if user_id not in navigation_states or len(navigation_states[user_id].history) <= 1:
@@ -94,7 +102,7 @@ async def handle_ask_question_inline(callback: CallbackQuery):
     async with APIClient() as api:
         await api.record_activity(
             telegram_user_id=callback.from_user.id,
-            menu_item_id=0,  # Специальный ID для "Задать вопрос"
+            menu_item_id=1,  # Используем существующий ID пункта меню
             activity_type="question_click"
         )
     
@@ -122,7 +130,7 @@ async def handle_write_letter_inline(callback: CallbackQuery):
     async with APIClient() as api:
         await api.record_activity(
             telegram_user_id=callback.from_user.id,
-            menu_item_id=0,  # Специальный ID для "Написать письмо"
+            menu_item_id=2,  # Используем существующий ID пункта меню
             activity_type="letter_click"
         )
     
@@ -225,6 +233,13 @@ async def cmd_start(message: Message):
             last_name=message.from_user.last_name,
             username=message.from_user.username
         )
+        
+        # Записываем активность - команда /start
+        await api.record_activity(
+            telegram_user_id=message.from_user.id,
+            menu_item_id=1,  # Главное меню
+            activity_type="start_command"
+        )
 
     # Получаем главное меню из API
     async with APIClient() as api:
@@ -258,8 +273,15 @@ async def cmd_start(message: Message):
 
 @router.callback_query(F.data == "main_cd")
 async def handle_main_cd(callback: CallbackQuery):
-    # Получаем главное меню из API
+    # Записываем активность - возврат в главное меню
     async with APIClient() as api:
+        await api.record_activity(
+            telegram_user_id=callback.from_user.id,
+            menu_item_id=1,  # Главное меню
+            activity_type="navigation"
+        )
+        
+        # Получаем главное меню из API
         menu_items = await api.get_menu_items(
             telegram_user_id=callback.from_user.id,
             parent_id=None
@@ -286,14 +308,29 @@ async def handle_menu_item(callback: CallbackQuery):
     # Извлекаем ID пункта меню из callback_data
     menu_item_id = int(callback.data.replace("menu_item_", "").replace("_cd", ""))
     
-    # Получаем контент пункта меню
+    # Записываем активность - навигация по меню
     async with APIClient() as api:
+        await api.record_activity(
+            telegram_user_id=callback.from_user.id,
+            menu_item_id=menu_item_id,
+            activity_type="navigation"
+        )
+        
+        # Получаем контент пункта меню
         content = await api.get_menu_content(
             menu_item_id=menu_item_id,
             telegram_user_id=callback.from_user.id
         )
     
     if content:
+        # Записываем активность - открытие материала
+        async with APIClient() as api:
+            await api.record_activity(
+                telegram_user_id=callback.from_user.id,
+                menu_item_id=menu_item_id,
+                activity_type="material_open"
+            )
+        
         # Если есть контент, показываем его
         message_text = content.get("bot_message", "Выберите раздел:")
         
@@ -308,7 +345,14 @@ async def handle_menu_item(callback: CallbackQuery):
         await edit_message(callback, message_text, keyboard)
     else:
         # Если контента нет, показываем подпункты
+        # Записываем активность - вход в раздел
         async with APIClient() as api:
+            await api.record_activity(
+                telegram_user_id=callback.from_user.id,
+                menu_item_id=menu_item_id,
+                activity_type="section_enter"
+            )
+            
             submenu_items = await api.get_menu_items(
                 telegram_user_id=callback.from_user.id,
                 parent_id=menu_item_id
