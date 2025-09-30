@@ -45,25 +45,7 @@ class UserActivityService:
                 search_query=request.search_query,
             )
 
-        return self._build_activity_response(activity)
-
-    def _build_activity_response(self, activity) -> UserActivityResponse:
-        """Формирование ответа записи активности.
-
-        Args:
-            activity: Объект активности из базы данных
-
-        Returns:
-            Ответ с данными активности
-        """
-        return UserActivityResponse(
-            id=activity.id,
-            telegram_user_id=activity.telegram_user_id,
-            menu_item_id=activity.menu_item_id,
-            activity_type=activity.activity_type,
-            rating=activity.rating,
-            search_query=activity.search_query,
-        )
+        return UserActivityResponse.model_validate(activity)
 
 
 user_activity_service = UserActivityService()

@@ -46,30 +46,8 @@ class TelegramUserService:
                 username=user_data.get("username") if user_data else None,
             )
 
-        return self._build_user_response(user, user_created)
-
-    def _build_user_response(self, user, user_created: bool) -> TelegramUserResponse:
-        """Формирование ответа регистрации пользователя.
-
-        Args:
-            user: Объект пользователя из базы данных
-            user_created: Флаг создания нового пользователя
-
-        Returns:
-            Ответ с данными пользователя
-        """
         return TelegramUserResponse(
-            user={
-                "id": user.id,
-                "telegram_id": user.telegram_id,
-                "username": user.username,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "subscription_type": user.subscription_type,
-                "last_activity": user.last_activity.isoformat() if user.last_activity else None,
-                "reminder_sent_at": user.reminder_sent_at.isoformat() if user.reminder_sent_at else None,
-                "created_at": user.created_at.isoformat(),
-            },
+            user=user,
             message_processed=True,
             user_created=user_created,
             user_updated=not user_created,

@@ -47,6 +47,7 @@ class TelegramUserResponse(BaseModel):
     user_updated: bool = Field(..., description="Пользователь обновлен")
 
     model_config = ConfigDict(
+        from_attributes=True,
         json_schema_extra={
             "example": {
                 "user": {
@@ -64,5 +65,5 @@ class TelegramUserResponse(BaseModel):
                 "user_created": True,
                 "user_updated": True,
             }
-        }
+        },
     )
