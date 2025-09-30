@@ -51,8 +51,17 @@ class MenuItemCRUD(BaseCRUD[MenuItem, dict, dict]):
         parent_id: Optional[int] = None,
         is_active: bool = True,
         access_level: Optional[AccessLevel] = None,
+        max_depth: int = 1,
     ) -> List[MenuItem]:
-        """Получить дочерние пункты меню с их детьми одним запросом."""
+        """Получить дочерние пункты меню с их детьми с настраиваемой глубиной.
+
+        Args:
+            db: Сессия базы данных
+            parent_id: ID родительского элемента (None для корневого уровня)
+            is_active: Фильтр по активности
+            access_level: Уровень доступа пользователя
+            max_depth: Максимальная глубина загрузки
+        """
         from sqlalchemy.orm import selectinload
 
         query = select(MenuItem).options(selectinload(MenuItem.children)).where(MenuItem.parent_id == parent_id)
@@ -69,18 +78,9 @@ class MenuItemCRUD(BaseCRUD[MenuItem, dict, dict]):
         result = await db.execute(query)
         items = result.scalars().all()
 
+        # Применяем фильтрацию и ограничение глубины к каждому элементу
         for item in items:
-            if access_level is not None:
-                filtered_children = [
-                    child
-                    for child in item.children
-                    if child.is_active
-                    and (access_level == AccessLevel.PREMIUM or child.access_level == AccessLevel.FREE)
-                ]
-                item.children = filtered_children
-
-            for child in item.children:
-                child.children = []
+            self._filter_and_limit_depth(item, access_level or AccessLevel.FREE, max_depth, current_depth=0)
 
         return items
 
@@ -92,9 +92,16 @@ class MenuItemCRUD(BaseCRUD[MenuItem, dict, dict]):
         return result.scalar_one_or_none()
 
     async def get_with_content_and_children(
-        self, db: AsyncSession, menu_id: int, access_level: AccessLevel
+        self, db: AsyncSession, menu_id: int, access_level: AccessLevel, max_depth: int = 1
     ) -> Optional[MenuItem]:
-        """Получить пункт меню с контентом и дочерними элементами одним запросом."""
+        """Получить пункт меню с контентом и дочерними элементами с настраиваемой глубиной.
+
+        Args:
+            db: Сессия базы данных
+            menu_id: ID пункта меню
+            access_level: Уровень доступа пользователя
+            max_depth: Максимальная глубина загрузки (1 = только прямые дети, 2 = дети + внуки, и т.д.)
+        """
         query = (
             select(MenuItem)
             .options(selectinload(MenuItem.content_files), selectinload(MenuItem.children))
@@ -105,16 +112,32 @@ class MenuItemCRUD(BaseCRUD[MenuItem, dict, dict]):
         menu_item = result.scalar_one_or_none()
 
         if menu_item:
-            filtered_children = [
-                child
-                for child in menu_item.children
-                if child.is_active and (access_level == AccessLevel.PREMIUM or child.access_level == AccessLevel.FREE)
-            ]
-            menu_item.children = filtered_children
+            # Рекурсивная фильтрация и обрезка по глубине
+            menu_item = self._filter_and_limit_depth(menu_item, access_level, max_depth, current_depth=0)
 
-            for child in menu_item.children:
+        return menu_item
+
+    def _filter_and_limit_depth(
+        self, menu_item: MenuItem, access_level: AccessLevel, max_depth: int, current_depth: int
+    ) -> MenuItem:
+        """Рекурсивная фильтрация и ограничение глубины загрузки."""
+        # Фильтрация дочерних элементов по доступу
+        filtered_children = [
+            child
+            for child in menu_item.children
+            if child.is_active and (access_level == AccessLevel.PREMIUM or child.access_level == AccessLevel.FREE)
+        ]
+
+        # Если достигли максимальной глубины, обнуляем children
+        if current_depth >= max_depth:
+            for child in filtered_children:
                 child.children = []
+        else:
+            # Рекурсивно обрабатываем дочерние элементы
+            for child in filtered_children:
+                self._filter_and_limit_depth(child, access_level, max_depth, current_depth + 1)
 
+        menu_item.children = filtered_children
         return menu_item
 
     async def increment_view_count(self, db: AsyncSession, menu_id: int) -> None:
