@@ -44,6 +44,7 @@ class UserActivityService:
                 activity_type=request.activity_type,
                 search_query=request.search_query,
             )
+            await telegram_user_crud.update_activity(db=db, telegram_id=user.telegram_id)
 
         return self._build_activity_response(activity)
 
