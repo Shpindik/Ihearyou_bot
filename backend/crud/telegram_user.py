@@ -5,7 +5,8 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import TelegramUser
@@ -20,9 +21,7 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
         """Инициализация CRUD для пользователей Telegram."""
         super().__init__(TelegramUser)
 
-    async def get_by_telegram_id(
-        self, db: AsyncSession, telegram_id: int
-    ) -> Optional[TelegramUser]:
+    async def get_by_telegram_id(self, db: AsyncSession, telegram_id: int) -> Optional[TelegramUser]:
         """Получить пользователя по Telegram ID."""
         query = select(TelegramUser).where(TelegramUser.telegram_id == telegram_id)
         result = await db.execute(query)
@@ -36,37 +35,46 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
         last_name: Optional[str] = None,
         username: Optional[str] = None,
     ) -> TelegramUser:
-        """Получить или создать пользователя."""
-        user = await self.get_by_telegram_id(db, telegram_id)
+        """Получить или создать пользователя с использованием UPSERT для атомарности."""
+        current_time = datetime.now(timezone.utc)
 
-        if user:
-            user.first_name = first_name
-            user.last_name = last_name
-            user.username = username
-            user.last_activity = datetime.now(timezone.utc)
-            await db.commit()
-            await db.refresh(user)
-        else:
-            user_data = {
-                "telegram_id": telegram_id,
-                "username": username,
-                "first_name": first_name,
-                "last_name": last_name,
-                "last_activity": datetime.now(timezone.utc),
-            }
-            user = TelegramUser(**user_data)
-            db.add(user)
-            await db.commit()
-            await db.refresh(user)
+        stmt = pg_insert(TelegramUser).values(
+            telegram_id=telegram_id,
+            first_name=first_name,
+            last_name=last_name,
+            username=username,
+            last_activity=current_time,
+            created_at=current_time,
+        )
+
+        stmt = stmt.on_conflict_do_update(
+            index_elements=["telegram_id"],
+            set_={
+                "first_name": stmt.excluded.first_name,
+                "last_name": stmt.excluded.last_name,
+                "username": stmt.excluded.username,
+                "last_activity": stmt.excluded.last_activity,
+            },
+        )
+
+        stmt = stmt.returning(TelegramUser)
+
+        result = await db.execute(stmt)
+        user = result.scalar_one()
+
+        await db.flush()
+        await db.refresh(user)
 
         return user
 
     async def update_activity(self, db: AsyncSession, telegram_id: int) -> None:
-        """Обновить время последней активности."""
-        user = await self.get_by_telegram_id(db, telegram_id)
-        if user:
-            user.last_activity = datetime.now(timezone.utc)
-            await db.commit()
+        """Обновить время последней активности с использованием транзакции."""
+        current_time = datetime.now(timezone.utc)
+
+        stmt = update(TelegramUser).where(TelegramUser.telegram_id == telegram_id).values(last_activity=current_time)
+
+        await db.execute(stmt)
+        await db.flush()
 
 
-user_crud = TelegramUserCRUD()
+telegram_user_crud = TelegramUserCRUD()

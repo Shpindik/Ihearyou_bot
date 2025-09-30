@@ -24,7 +24,7 @@ class UserActivityCRUD(BaseCRUD[UserActivity, dict, dict]):
         self,
         db: AsyncSession,
         telegram_user_id: int,
-        menu_item_id: int,
+        menu_item_id: Optional[int],
         activity_type: ActivityType,
         search_query: Optional[str] = None,
         rating: Optional[int] = None,
@@ -40,13 +40,11 @@ class UserActivityCRUD(BaseCRUD[UserActivity, dict, dict]):
 
         activity = UserActivity(**activity_data)
         db.add(activity)
-        await db.commit()
+        await db.flush()
         await db.refresh(activity)
         return activity
 
-    async def get_user_activities(
-        self, db: AsyncSession, telegram_user_id: int, limit: int = 50
-    ) -> List[UserActivity]:
+    async def get_user_activities(self, db: AsyncSession, telegram_user_id: int, limit: int = 50) -> List[UserActivity]:
         """Получить активность пользователя."""
         query = (
             select(UserActivity)
@@ -59,7 +57,7 @@ class UserActivityCRUD(BaseCRUD[UserActivity, dict, dict]):
         return result.scalars().all()
 
     async def get_menu_activities(
-        self, db: AsyncSession, menu_item_id: int, limit: int = 100
+        self, db: AsyncSession, menu_item_id: Optional[int], limit: int = 100
     ) -> List[UserActivity]:
         """Получить активность по пункту меню."""
         query = (
