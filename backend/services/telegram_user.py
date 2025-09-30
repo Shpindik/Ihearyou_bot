@@ -26,28 +26,41 @@ class TelegramUserService:
             Ответ с данными пользователя и статусом обработки
         """
         if request.message:
-            user_data = request.message["from"]
+            user_data = request.message.get("from")
         elif request.callback_query:
-            user_data = request.callback_query["from"]
+            user_data = request.callback_query.get("from")
         else:
             user_data = None
 
-        telegram_user_validator.validate_telegram_id(user_data["id"] if user_data else None)
+        telegram_id = user_data.get("id") if user_data else None
+        telegram_user_validator.validate_telegram_id(telegram_id)
 
-        existing_user = await telegram_user_crud.get_by_telegram_id(db, user_data["id"] if user_data else None)
+        existing_user = await telegram_user_crud.get_by_telegram_id(db, telegram_id)
         user_created = existing_user is None
 
-        async with db.begin():
-            user = await telegram_user_crud.get_or_create(
-                db=db,
-                telegram_id=user_data["id"] if user_data else None,
-                first_name=user_data["first_name"] if user_data else None,
-                last_name=user_data.get("last_name") if user_data else None,
-                username=user_data.get("username") if user_data else None,
-            )
+        user = await telegram_user_crud.get_or_create(
+            db=db,
+            telegram_id=telegram_id,
+            first_name=user_data.get("first_name") if user_data else None,
+            last_name=user_data.get("last_name") if user_data else None,
+            username=user_data.get("username") if user_data else None,
+        )
+
+        # Создаем словарь с данными пользователя для сериализации
+        user_data = {
+            "id": user.id,
+            "telegram_id": user.telegram_id,
+            "username": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "subscription_type": user.subscription_type,
+            "last_activity": user.last_activity,
+            "reminder_sent_at": user.reminder_sent_at,
+            "created_at": user.created_at,
+        }
 
         return TelegramUserResponse(
-            user=user,
+            user=user_data,
             message_processed=True,
             user_created=user_created,
             user_updated=not user_created,

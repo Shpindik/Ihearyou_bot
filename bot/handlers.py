@@ -316,35 +316,14 @@ async def handle_menu_item(callback: CallbackQuery):
             activity_type="navigation"
         )
         
-        # Получаем контент пункта меню
-        content = await api.get_menu_content(
-            menu_item_id=menu_item_id,
-            telegram_user_id=callback.from_user.id
+        # Сначала проверяем наличие дочерних элементов
+        submenu_items = await api.get_menu_items(
+            telegram_user_id=callback.from_user.id,
+            parent_id=menu_item_id
         )
     
-    if content:
-        # Записываем активность - открытие материала
-        async with APIClient() as api:
-            await api.record_activity(
-                telegram_user_id=callback.from_user.id,
-                menu_item_id=menu_item_id,
-                activity_type="material_open"
-            )
-        
-        # Если есть контент, показываем его
-        message_text = content.get("bot_message", "Выберите раздел:")
-        
-        # Если есть контентные файлы, добавляем их текст к сообщению
-        content_files = content.get("content_files", [])
-        if content_files:
-            primary_content = next((cf for cf in content_files if cf.get("is_primary")), content_files[0])
-            if primary_content and primary_content.get("content_text"):
-                message_text += "\n\n" + primary_content["content_text"]
-        
-        keyboard = kb.create_content_keyboard(content)
-        await edit_message(callback, message_text, keyboard)
-    else:
-        # Если контента нет, показываем подпункты
+    if submenu_items:
+        # Если есть дочерние элементы, показываем их
         # Записываем активность - вход в раздел
         async with APIClient() as api:
             await api.record_activity(
@@ -352,17 +331,40 @@ async def handle_menu_item(callback: CallbackQuery):
                 menu_item_id=menu_item_id,
                 activity_type="section_enter"
             )
-            
-            submenu_items = await api.get_menu_items(
-                telegram_user_id=callback.from_user.id,
-                parent_id=menu_item_id
+        
+        keyboard = kb.create_dynamic_keyboard(submenu_items, parent_id=menu_item_id)
+        # Получаем сообщение бота из первого подпункта или используем стандартное
+        bot_message = submenu_items[0].get("bot_message", "Выберите раздел:") if submenu_items else "Выберите раздел:"
+        await edit_message(callback, bot_message, keyboard)
+    else:
+        # Если дочерних элементов нет, показываем контент
+        async with APIClient() as api:
+            content = await api.get_menu_content(
+                menu_item_id=menu_item_id,
+                telegram_user_id=callback.from_user.id
             )
         
-        if submenu_items:
-            keyboard = kb.create_dynamic_keyboard(submenu_items, parent_id=menu_item_id)
-            # Получаем сообщение бота из первого подпункта или используем стандартное
-            bot_message = submenu_items[0].get("bot_message", "Выберите раздел:") if submenu_items else "Выберите раздел:"
-            await edit_message(callback, bot_message, keyboard)
+        if content:
+            # Записываем активность - открытие материала
+            async with APIClient() as api:
+                await api.record_activity(
+                    telegram_user_id=callback.from_user.id,
+                    menu_item_id=menu_item_id,
+                    activity_type="material_open"
+                )
+            
+            # Если есть контент, показываем его
+            message_text = content.get("bot_message", "Выберите раздел:")
+            
+            # Если есть контентные файлы, добавляем их текст к сообщению
+            content_files = content.get("content_files", [])
+            if content_files:
+                primary_content = next((cf for cf in content_files if cf.get("is_primary")), content_files[0])
+                if primary_content and primary_content.get("content_text"):
+                    message_text += "\n\n" + primary_content["content_text"]
+            
+            keyboard = kb.create_content_keyboard(content)
+            await edit_message(callback, message_text, keyboard)
         else:
             await edit_message(
                 callback,

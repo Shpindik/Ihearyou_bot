@@ -1,6 +1,7 @@
 """Bot API эндпоинты для работы с пользователями."""
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.db import get_session
@@ -40,7 +41,9 @@ async def register_telegram_user(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f"Отсутствует обязательное поле в запросе: {str(e)}"
         )
-    except Exception as e:
+    except SQLAlchemyError:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Ошибка при регистрации пользователя: {str(e)}"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Ошибка базы данных при регистрации пользователя"
         )
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Внутренняя ошибка сервера")

@@ -62,7 +62,7 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
         result = await db.execute(stmt)
         user = result.scalar_one()
 
-        await db.flush()
+        await db.commit()
         await db.refresh(user)
 
         return user
@@ -74,7 +74,7 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
         stmt = update(TelegramUser).where(TelegramUser.telegram_id == telegram_id).values(last_activity=current_time)
 
         await db.execute(stmt)
-        await db.flush()
+        await db.commit()
 
 
 telegram_user_crud = TelegramUserCRUD()

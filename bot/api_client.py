@@ -130,7 +130,7 @@ class APIClient:
         username: Optional[str] = None
     ) -> bool:
         """Создать пользователя через Bot API."""
-        url = f"{self.base_url}/bot/telegram-user/register"
+        url = f"{self.base_url}/telegram-user/register"
         data = {
             "update_id": 1,
             "message": {

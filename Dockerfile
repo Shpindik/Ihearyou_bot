@@ -15,12 +15,12 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry config virtualenvs.create false \
     && poetry install --only=main --no-root
 
-COPY bot ./bot
-COPY backend ./backend
-
+# Bot stage - только код бота
 FROM base AS bot
+COPY bot ./bot
 CMD ["python", "bot/main.py"]
 
+# API stage - только код бэкенда
 FROM base AS admin
-WORKDIR /app
+COPY backend ./backend
 CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -40,7 +40,7 @@ class UserActivityCRUD(BaseCRUD[UserActivity, dict, dict]):
 
         activity = UserActivity(**activity_data)
         db.add(activity)
-        await db.flush()
+        await db.commit()
         await db.refresh(activity)
         return activity
 

@@ -19,9 +19,7 @@ class MenuItemResponse(BaseModel):
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
     is_active: bool = Field(..., description="Активен ли пункт")
     access_level: AccessLevel = Field(..., description="Уровень доступа")
-    children: list["MenuItemResponse"] = Field(
-        default=[], description="Дочерние пункты"
-    )
+    children: list["MenuItemResponse"] = Field(default_factory=list, description="Дочерние пункты")
 
     model_config = ConfigDict(
         from_attributes=True,
@@ -113,7 +111,7 @@ class MenuContentResponse(BaseModel):
     description: Optional[str] = Field(None, description="Описание пункта меню")
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
     content_files: list[ContentFileResponse] = Field(..., description="Файлы контента")
-    children: list[MenuItemResponse] = Field(default=[], description="Дочерние пункты")
+    children: list[MenuItemResponse] = Field(default_factory=list, description="Дочерние пункты")
 
     model_config = ConfigDict(
         from_attributes=True,

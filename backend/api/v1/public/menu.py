@@ -1,6 +1,9 @@
 """Публичные эндпоинты для работы с меню."""
 
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.db import get_session
@@ -26,25 +29,28 @@ router = APIRouter(prefix="/menu-items", tags=["Public Menu"])
 )
 async def get_menu_items(
     telegram_user_id: int = Query(..., description="ID пользователя в Telegram"),
-    parent_id: int = Query(None, description="ID родительского пункта меню (null для корневого уровня)"),
-    include_children: bool = Query(False, description="Включить дочерние элементы в ответ"),
+    parent_id: Optional[int] = Query(None, description="ID родительского пункта меню (null для корневого уровня)"),
     db: AsyncSession = Depends(get_session),
 ) -> MenuItemListResponse:
-    """Получение структуры меню для пользователя.
+    """Получение пунктов меню для пользователя (один уровень).
 
     Пользователь должен быть зарегистрирован через Bot API.
-    Поддерживает иерархическую структуру меню с опциональной загрузкой дочерних элементов.
+    Возвращает только один уровень меню для простоты MVP.
     """
     try:
-        return await menu_item_service.get_menu_items(
-            telegram_user_id=telegram_user_id, parent_id=parent_id, include_children=include_children, db=db
-        )
+        return await menu_item_service.get_menu_items(telegram_user_id=telegram_user_id, parent_id=parent_id, db=db)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except ValidationError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Ошибка базы данных при получении меню"
+        )
     except IHearYouException as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Внутренняя ошибка сервера")
 
 
 @router.get(
@@ -66,16 +72,27 @@ async def get_menu_item_content(
     telegram_user_id: int = Query(..., description="ID пользователя в Telegram"),
     db: AsyncSession = Depends(get_session),
 ) -> MenuContentResponse:
-    """Получение контента конкретного пункта меню.
+    """Получение контента конкретного пункта меню с дочерними элементами.
 
-    Проверяет права доступа пользователя к контенту, записывает активность
-    и увеличивает счетчик просмотров.
+    Проверяет права доступа пользователя к контенту.
+    Возвращает контент и прямых дочерних элементов.
     """
     try:
         return await menu_item_service.get_menu_item_content(menu_id=id, telegram_user_id=telegram_user_id, db=db)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except ValidationError as e:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
+        # Проверяем тип ошибки для корректного маппирования статус-кода
+        error_message = str(e)
+        if "доступ" in error_message.lower() or "премиум" in error_message.lower():
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=error_message)
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error_message)
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Ошибка базы данных при получении контента"
+        )
     except IHearYouException as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Внутренняя ошибка сервера")
