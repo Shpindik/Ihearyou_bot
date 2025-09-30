@@ -6,10 +6,10 @@ import sys
 from pathlib import Path
 
 from aiogram import Bot, Dispatcher
-from api_client import APIClient
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dotenv import load_dotenv
 from handlers import router
+from reminders import send_reimnders
 
 
 load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
@@ -44,20 +44,6 @@ dp = Dispatcher()
 dp.include_router(router)
 
 scheduler = AsyncIOScheduler()
-
-
-async def send_reimnders():
-    async with APIClient() as api:
-        users = await api.get_inactive_users()
-
-    for user in users:
-        try:
-            await bot.send_message(user["id"], f"Привет, {user['first_name']}. Ты давно не появлялся у нас!")
-            print(f"Reminder sent to {user['id']}")
-        except Exception as e:
-            print(f"Ошибка отправки напоминания: {e}")
-
-        await asyncio.sleep(0.5)
 
 
 async def main():
