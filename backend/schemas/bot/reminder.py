@@ -8,20 +8,6 @@ from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class InactiveUserRequest(BaseModel):
-    """Схема запроса неактивных пользователей для GET /api/v1/bot/reminders/inactive_users."""
-
-    inactive_days: int = Field(..., gt=0, description="Количество неактивных дней")
-
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "inactive_days": 10,
-            }
-        }
-    )
-
-
 class InactiveUserResponse(BaseModel):
     """Схема данных пользователя Telegram для GET GET /api/v1/bot/reminders/inactive_users."""
 
