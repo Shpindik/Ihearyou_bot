@@ -6,8 +6,11 @@ import sys
 from pathlib import Path
 
 from aiogram import Bot, Dispatcher
+from api_client import APIClient
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dotenv import load_dotenv
 from handlers import router
+
 
 load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
 
@@ -30,8 +33,8 @@ def check_tokens():
     ]
     if missing_tokens:
         logging.critical(
-            f'Отсутствуют обязательные переменные окружения: \
-                         {", ".join(missing_tokens)}'
+            f"Отсутствуют обязательные переменные окружения: \
+                         {', '.join(missing_tokens)}"
         )
     return not missing_tokens
 
@@ -40,7 +43,21 @@ bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 dp.include_router(router)
 
+scheduler = AsyncIOScheduler()
 
+
+async def send_reimnders():
+    async with APIClient() as api:
+        users = await api.get_inactive_users()
+
+    for user in users:
+        try:
+            await bot.send_message(user["id"], f"Привет, {user['first_name']}. Ты давно не появлялся у нас!")
+            print(f"Reminder sent to {user['id']}")
+        except Exception as e:
+            print(f"Ошибка отправки напоминания: {e}")
+
+        await asyncio.sleep(0.5)
 
 
 async def main():
@@ -49,8 +66,13 @@ async def main():
     await bot.delete_webhook(drop_pending_updates=True)
     polling_task = asyncio.create_task(dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types()))
 
+    # поставил интревал минуту для теста, сменить на время дня
+    scheduler.add_job(send_reimnders, "interval", minutes=1)
+    scheduler.start()
+
     def shutdown():
         polling_task.cancel()
+        scheduler.shutdown()
 
     for sig in (signal.SIGINT, signal.SIGTERM):
         asyncio.get_event_loop().add_signal_handler(sig, shutdown)
