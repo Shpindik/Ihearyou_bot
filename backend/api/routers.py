@@ -12,6 +12,9 @@ from .v1.admin.question import router as admin_questions_router
 from .v1.admin.reminder_template import router as admin_reminder_templates_router
 from .v1.admin.user import router as admin_users_router
 
+# Bot API эндпоинты
+from .v1.bot.telegram_user import router as bot_telegram_user_router
+
 # Публичные эндпоинты (без JWT)
 from .v1.public.menu import router as public_menu_router
 from .v1.public.ratings import router as public_ratings_router
@@ -19,15 +22,12 @@ from .v1.public.search import router as public_search_router
 from .v1.public.user_activity import router as public_user_activities_router
 from .v1.public.user_question import router as public_user_questions_router
 
-# Webhook эндпоинты
-from .v1.webhook import router as webhook_router
-
 
 # Создание главного роутера API
 api_router = APIRouter(prefix="/api/v1")
 
-# Подключение webhook эндпоинтов
-api_router.include_router(webhook_router)
+# Подключение Bot API эндпоинтов
+api_router.include_router(bot_telegram_user_router)
 
 # Подключение публичных эндпоинтов (без JWT)
 api_router.include_router(public_menu_router)

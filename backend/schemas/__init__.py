@@ -29,6 +29,9 @@ from .admin import (
     AdminTelegramUserResponse,
 )
 
+# Bot API схемы
+from .bot.telegram_user import TelegramUserRequest, TelegramUserResponse
+
 # Публичные схемы
 from .public import (
     ContentFileResponse,
@@ -42,9 +45,6 @@ from .public import (
     UserQuestionCreate,
     UserQuestionResponse,
 )
-
-# Webhook схемы
-from .webhook import TelegramWebhookRequest, TelegramWebhookResponse
 
 
 __all__ = [
@@ -85,7 +85,7 @@ __all__ = [
     "UserActivityResponse",
     "UserQuestionCreate",
     "UserQuestionResponse",
-    # Webhook schemas
-    "TelegramWebhookRequest",
-    "TelegramWebhookResponse",
+    # Bot API schemas
+    "TelegramUserRequest",
+    "TelegramUserResponse",
 ]

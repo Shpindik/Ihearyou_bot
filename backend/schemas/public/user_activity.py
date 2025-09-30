@@ -13,7 +13,7 @@ class UserActivityRequest(BaseModel):
     """Схема запроса записи активности пользователя для POST /api/v1/user-activities."""
 
     telegram_user_id: int = Field(..., description="ID пользователя Telegram")
-    menu_item_id: int = Field(..., description="ID пункта меню")
+    menu_item_id: Optional[int] = Field(None, description="ID пункта меню")
     activity_type: ActivityType = Field(..., description="Тип активности")
     search_query: Optional[str] = Field(None, description="Поисковый запрос")
 
@@ -34,7 +34,7 @@ class UserActivityResponse(BaseModel):
 
     id: int = Field(..., description="ID активности")
     telegram_user_id: int = Field(..., description="ID пользователя Telegram")
-    menu_item_id: int = Field(..., description="ID пункта меню")
+    menu_item_id: Optional[int] = Field(None, description="ID пункта меню")
     activity_type: ActivityType = Field(..., description="Тип активности")
     rating: Optional[int] = Field(None, description="Оценка полезности материала")
     search_query: Optional[str] = Field(None, description="Поисковый запрос")
