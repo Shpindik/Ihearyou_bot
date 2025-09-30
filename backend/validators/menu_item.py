@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Optional
 
 from backend.core.exceptions import ValidationError
@@ -10,6 +11,9 @@ from backend.models.enums import AccessLevel
 
 class MenuItemValidator:
     """Валидатор бизнес-логики для пунктов меню."""
+
+    UNSAFE_PATTERN = re.compile(r'[<>{}[\]\\|`]')
+    REPEATING_PATTERN = re.compile(r'(.)\1{3,}')
 
     def __init__(self):
         """Инициализация валидатора Menu Item."""
@@ -76,6 +80,32 @@ class MenuItemValidator:
         """
         if required_access_level == AccessLevel.PREMIUM and user_access_level != AccessLevel.PREMIUM:
             raise ValidationError("Требуется доступ к премиум контенту")
+
+    def validate_search_query(self, query: str) -> str:
+        """Валидация поискового запроса.
+
+        Args:
+            query: Поисковый запрос
+
+        Raises:
+            ValidationError: Если запрос не прошел валидацию
+        """
+        normalized_query = ' '.join(query.split())
+
+        if len(normalized_query) < 2 or len(normalized_query) > 100:
+            raise ValidationError("Поисковый запрос должен содержать от 2 до 100 символов")
+
+        if self.UNSAFE_PATTERN.search(normalized_query):
+            raise ValidationError(
+                "Поисковый запрос содержит недопустимые символы: < > { } [ ] \\ | `"
+            )
+
+        if self.REPEATING_PATTERN.search(normalized_query):
+            raise ValidationError(
+                "Поисковый запрос содержит слишком много повторяющихся символов"
+            )
+
+        return normalized_query
 
 
 menu_item_validator = MenuItemValidator()

@@ -6,9 +6,10 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.crud import menu_crud, telegram_user_crud
-from backend.models.enums import AccessLevel
+from backend.crud import menu_crud, telegram_user_crud, activity_crud
+from backend.models.enums import AccessLevel, ActivityType
 from backend.schemas.public.menu import MenuContentResponse, MenuItemListResponse, MenuItemResponse
+from backend.schemas.public.search import SearchItemResponse, SearchListResponse
 from backend.validators.menu_item import menu_item_validator
 
 
@@ -114,6 +115,74 @@ class MenuItemService:
             content_files=menu_item.content_files,
             children=children,
         )
+
+    async def search_menu_items(
+        self,
+        telegram_user_id: int,
+        query: str,
+        limit: int,
+        db: AsyncSession,
+    ) -> SearchListResponse:
+        """Поиск по материалам (пунктам меню).
+
+        Args:
+            telegram_user_id: ID пользователя в Telegram
+            query: Поисковый запрос (будет валидирован)
+            limit: Максимальное количество результатов
+            db: Сессия базы данных
+
+        Returns:
+            SearchListResponse: Список найденных пунктов меню
+
+        Raises:
+            ValidationError: Если пользователь не найден или запрос некорректен
+        """
+        user = await telegram_user_crud.get_by_telegram_id(db, telegram_user_id)
+        menu_item_validator.validate_user_exists(user)
+
+        normalized_query = menu_item_validator.validate_search_query(query)
+
+        user_access_level = (
+            AccessLevel.PREMIUM
+            if getattr(user, "subscription_type", None) == "premium"
+            else AccessLevel.FREE
+        )
+
+        items = await menu_crud.search_by_query(
+            db=db,
+            query=normalized_query,
+            access_level=user_access_level,
+            limit=limit,
+        )
+
+        try:
+            await activity_crud.create(
+                db=db,
+                obj_in={
+                    "telegram_user_id": telegram_user_id,
+                    "menu_item_id": None,
+                    "activity_type": ActivityType.SEARCH,
+                    "search_query": {"query": normalized_query, "results_count": len(items)},
+                }
+            )
+            await db.commit()
+        except Exception as e:
+            await db.rollback()
+
+        items_data = [
+            SearchItemResponse(
+                id=item.id,
+                title=item.title,
+                description=item.description,
+                parent_id=item.parent_id,
+                bot_message=item.bot_message,
+                is_active=item.is_active,
+                access_level=item.access_level,
+            )
+            for item in items
+        ]
+
+        return SearchListResponse(items=items_data)
 
 
 menu_item_service = MenuItemService()
