@@ -9,6 +9,11 @@ services:
       - pg_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
+  redis:
+    image: redis:7-alpine
+    container_name: IHearYouRedis
+    command: ["redis-server", "--appendonly", "yes"]
+
   bot:
     build:
       context: .
@@ -27,10 +32,24 @@ services:
     environment:
       ADMIN_SECRET_KEY: ${ADMIN_SECRET_KEY}
       BOT_TOKEN: ${BOT_TOKEN}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
     ports:
       - "${BOT_API_PORT:-8000}:8000"
     depends_on:
       - db
+      - redis
+    volumes:
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
+    command: >
+      sh -c "
+        echo 'Installing deps from poetry.lock...' &&
+        poetry install --only=main --no-root &&
+        echo 'Running migrations...' &&
+        alembic upgrade head &&
+        echo 'Starting API server...' &&
+        uvicorn backend.main:app --host 0.0.0.0 --port 8000
+      "
 
   bot_frontend:
     build:
@@ -45,6 +64,20 @@ services:
     command: ["serve", "-s", "dist", "-l", "4173"]
     depends_on:
       - bot_api
+
+  celery_worker:
+    build:
+      context: .
+      target: admin
+    container_name: IHearYouCelery
+    env_file: .env.stage
+    environment:
+      ADMIN_SECRET_KEY: ${ADMIN_SECRET_KEY}
+      BOT_TOKEN: ${BOT_TOKEN}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+    depends_on:
+      - redis
+    command: ["celery", "-A", "backend.core.celery_app.celery_app", "worker", "-l", "info", "-Q", "celery"]
 
 volumes:
   pg_data:

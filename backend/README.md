@@ -2,9 +2,9 @@
 
 ## 📋 Обзор
 
-FastAPI приложение для Telegram-бота поддержки родителей детей с нарушением слуха.
+FastAPI-приложение для Telegram-бота поддержки родителей детей с нарушением слуха.
 
-**Текущее состояние:** Базовая структура готова, большинство эндпоинтов не реализованы.
+**Текущее состояние:** Основные публичные и административные эндпоинты реализованы, добавлены кэширование (Redis) и фоновая доставка уведомлений через Celery.
 
 ## Структура каталога
 - `main.py` — точка входа FastAPI-приложения. Подключает маршруты, настраивает CORS и на старте гарантирует наличие учётной записи администратора.
@@ -30,10 +30,11 @@ FastAPI приложение для Telegram-бота поддержки род�
 - `ADMIN_TOKEN_EXPIRE` — время жизни токена в минутах (по умолчанию 60).
 - `ADMIN_USERNAME`, `ADMIN_PASSWORD` — данные администратора, которые будут созданы/обновлены при старте сервера.
 - `BOT_TOKEN` — токен Telegram-бота для получения аватаров пользователей.
+- `REDIS_URL` — строка подключения к Redis (например, `redis://redis:6379/0`).
 
 
 
-## Примеры API-запросов: оценки материалов
+## Примеры API-запросов
 
 Все запросы (кроме логина) требуют заголовок `Authorization: Bearer <TOKEN>`.
 
@@ -56,72 +57,65 @@ curl -X POST \
 
 Сохраните значение `access_token` и используйте его в следующих запросах.
 
-### 2) Список оценок материалов
+### Публичные
 
-GET `/api/article-ratings`
+- Получить меню (1 уровень):
+```bash
+curl "http://localhost:8001/api/v1/menu-items?telegram_user_id=123456789"
+```
 
+- Получить контент пункта:
+```bash
+curl "http://localhost:8001/api/v1/menu-items/1/content?telegram_user_id=123456789"
+```
+
+- Записать активность:
+```bash
+curl -X POST "http://localhost:8001/api/v1/user-activities" \
+  -H "Content-Type: application/json" \
+  -d '{"telegram_user_id":123456789, "menu_item_id":1, "activity_type":"navigation"}'
+```
+
+- Оценить материал:
+```bash
+curl -X POST "http://localhost:8001/api/v1/ratings" \
+  -H "Content-Type: application/json" \
+  -d '{"telegram_user_id":123456789, "menu_item_id":42, "rating":5}'
+```
+
+- Создать вопрос пользователя:
+```bash
+curl -X POST "http://localhost:8001/api/v1/user-questions" \
+  -H "Content-Type: application/json" \
+  -d '{"telegram_user_id":123456789, "question_text":"Как выбрать аппарат?"}'
+```
+
+### Админ
+
+- Получить список вопросов (JWT требуется):
 ```bash
 curl -H "Authorization: Bearer <JWT>" \
-  http://localhost:8001/api/article-ratings
+  "http://localhost:8001/api/v1/admin/user-questions?page=1&limit=20&status=pending"
 ```
 
-Пример ответа (обратите внимание: возвращается `fullname`, а не `user_id`):
-
-```json
-[
-  {
-    "id": 3,
-    "fullname": "Alexander Prokofiev",
-    "article_name": "Пройти онлайн-тест",
-    "rating": 5,
-    "created_at": "2025-09-27T07:31:04.212936Z"
-  },
-  {
-    "id": 1,
-    "fullname": "Alexander Prokofiev",
-    "article_name": "Прочитать статью «8 причин»",
-    "rating": 4,
-    "created_at": "2025-09-27T07:22:45.801842Z"
-  }
-]
-```
-
-### 3) Сводка по оценкам
-
-GET `/api/article-ratings/summary`
-
+- Ответить на вопрос (JWT требуется):
 ```bash
-curl -H "Authorization: Bearer <JWT>" \
-  http://localhost:8001/api/article-ratings/summary
-```
-
-Пример ответа:
-
-```json
-[
-  {
-    "article_name": "Прочитать статью «8 причин»",
-    "ratings_count": 1,
-    "avg_rating": 4.0
-  },
-  {
-    "article_name": "Пройти онлайн-тест",
-    "ratings_count": 1,
-    "avg_rating": 5.0
-  }
-]
+curl -X PUT -H "Authorization: Bearer <JWT>" \
+  -H "Content-Type: application/json" \
+  -d '{"answer_text":"Спасибо за вопрос! ..."}' \
+  "http://localhost:8001/api/v1/admin/user-questions/10"
 ```
 
 ## 📁 Структура
 
 ```
 backend/
-├── api/                    # HTTP эндпоинты
-├── core/                   # Конфигурация и утилиты
-├── crud/                   # Операции с БД (только чистые crud операции)
+├── api/                    # HTTP-эндпоинты (v1/public, v1/admin, v1/bot)
+├── core/                   # Конфигурация и утилиты (config, db, cache, celery_app)
+├── crud/                   # Операции с БД
 ├── models/                 # SQLAlchemy модели
 ├── schemas/                # Pydantic схемы
-├── services/               # Сервисы со сложной логикой (будут написаны потом)
+├── services/               # Бизнес-логика (menu_item, user_activity, question, notification)
 ├── alembic/               # Миграции БД
 ├── main.py                # Точка входа
 └── load_flow_data.py      # Загрузка данных
@@ -165,7 +159,7 @@ poetry run alembic revision --autogenerate -m "описание"
 poetry run alembic upgrade head
 ```
 
-### Загрузка данных
+### Загрузка данных (flow)
 
 ```bash
 # Загрузка структуры меню
@@ -181,35 +175,29 @@ docker-compose run --rm bot_api python backend/load_flow_data.py
 curl http://localhost:8001/health
 ```
 
-### Работающие эндпоинты
+### Работающие эндпоинты (сводка)
 
-```bash
-# Получение меню
-curl "http://localhost:8001/api/v1/menu-items/?telegram_user_id=123456789"
-
-# Контент раздела
-curl "http://localhost:8001/api/v1/menu-items/1/content?telegram_user_id=123456789"
-
-# Запись активности
-curl -X POST "http://localhost:8001/api/v1/user-activities/" \
-  -H "Content-Type: application/json" \
-  -d '{"telegram_user_id": 123456789, "menu_item_id": 1, "activity_type": "navigation"}'
-```
+- Публичные: `GET /api/v1/menu-items`, `GET /api/v1/menu-items/{id}/content`, `POST /api/v1/user-activities`, `POST /api/v1/ratings`, `POST /api/v1/user-questions`
+- Админ: `GET /api/v1/admin/user-questions`, `PUT /api/v1/admin/user-questions/{id}`
 
 ## 📚 API Документация
 
 - **Swagger UI**: http://localhost:8001/docs
 - **ReDoc**: http://localhost:8001/redoc
 
-## ⚠️ Статус эндпоинтов
+## ⚙️ Кэширование (Redis)
 
-**✅ Реализованы:**
-- `GET /api/v1/menu-items/` - Меню
-- `GET /api/v1/menu-items/{id}/content` - Контент
-- `POST /api/v1/user-activities/` - Активность
-- `POST /api/v1/webhook/telegram` - Webhook
+- Включается переменной `REDIS_URL`.
+- Ключи:
+  - `menu_items:{telegram_user_id}:{parent_id|root}` — список пунктов меню (TTL 300 сек)
+  - `menu_content:{telegram_user_id}:{menu_id}` — контент пункта (TTL 300 сек)
+- Инвалидация: выполняется в конце `backend/load_flow_data.py` (очистка по префиксам `menu_items:` и `menu_content:`).
 
-**❌ Остальные заглушки:**
+## 📨 Уведомления (Celery)
+
+- При ответе админа на вопрос ставится Celery-задача `backend.tasks.send_telegram_message`.
+- Брокер и результат — Redis (`REDIS_URL`).
+- Запуск worker: `docker compose up -d celery_worker`.
 
 ## 🔧 Разработка
 
