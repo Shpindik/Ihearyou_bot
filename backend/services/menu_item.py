@@ -10,6 +10,7 @@ from backend.crud import menu_crud, telegram_user_crud
 from backend.models.enums import AccessLevel
 from backend.schemas.public.menu import MenuContentResponse, MenuItemListResponse, MenuItemResponse
 from backend.validators.menu_item import menu_item_validator
+from backend.core.cache import cache
 
 
 class MenuItemService:
@@ -34,6 +35,12 @@ class MenuItemService:
         Returns:
             Список пунктов меню одного уровня
         """
+        # Пробуем кэш
+        cache_key = f"menu_items:{telegram_user_id}:{parent_id or 'root'}"
+        cached = cache.get_json(cache_key)
+        if cached:
+            return MenuItemListResponse.model_validate(cached)
+
         user = await telegram_user_crud.get_by_telegram_id(db, telegram_user_id)
         menu_item_validator.validate_user_exists(user)
 
@@ -64,7 +71,9 @@ class MenuItemService:
             for item in items
         ]
 
-        return MenuItemListResponse(items=items_data)
+        resp = MenuItemListResponse(items=items_data)
+        cache.set_json(cache_key, resp.model_dump(), ttl_sec=300)
+        return resp
 
     async def get_menu_item_content(
         self, menu_id: int, telegram_user_id: int, db: AsyncSession = None
@@ -79,6 +88,12 @@ class MenuItemService:
         Returns:
             Контент пункта меню с дочерними элементами
         """
+        # Пробуем кэш
+        cache_key = f"menu_content:{telegram_user_id}:{menu_id}"
+        cached = cache.get_json(cache_key)
+        if cached:
+            return MenuContentResponse.model_validate(cached)
+
         user = await telegram_user_crud.get_by_telegram_id(db, telegram_user_id)
         menu_item_validator.validate_user_exists(user)
 
@@ -108,7 +123,7 @@ class MenuItemService:
         ]
 
         # Создаем ответ с использованием Pydantic
-        return MenuContentResponse(
+        resp = MenuContentResponse(
             id=menu_item.id,
             title=menu_item.title,
             description=menu_item.description,
@@ -117,6 +132,8 @@ class MenuItemService:
             content_files=menu_item.content_files,
             children=children,
         )
+        cache.set_json(cache_key, resp.model_dump(), ttl_sec=300)
+        return resp
 
 
 menu_item_service = MenuItemService()

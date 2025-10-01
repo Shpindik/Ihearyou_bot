@@ -12,6 +12,7 @@ from sqlalchemy import delete, select
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.core.db import AsyncSessionLocal
+from backend.core.cache import cache
 from backend.crud import ContentFileCRUD, MenuItemCRUD
 from backend.models.content_file import ContentFile
 from backend.models.enums import AccessLevel, ContentType
@@ -1031,6 +1032,9 @@ class FlowDataLoader:
                 await self.create_child_subitems(session)
 
                 print("\n🎉 Все данные успешно загружены!")
+                # Инвалидация кэша меню
+                cache.delete_prefix("menu_items:")
+                cache.delete_prefix("menu_content:")
 
             except Exception as e:
                 print(f"❌ Ошибка при загрузке данных: {e}")

@@ -36,6 +36,8 @@ class UserActivityService:
             self._validator.validate_menu_item_exists(menu_item)
 
         self._validator.validate_search_query(request.search_query)
+        # Валидация оценки, если тип активности — rating
+        self._validator.validate_rating(getattr(request, "rating", None), request.activity_type)
 
         activity = await activity_crud.create_activity(
             db=db,
@@ -43,6 +45,7 @@ class UserActivityService:
             menu_item_id=request.menu_item_id,
             activity_type=request.activity_type,
             search_query=request.search_query,
+            rating=getattr(request, "rating", None),
         )
 
         # Обновляем view_count для активности просмотра (пока что так)

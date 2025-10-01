@@ -40,8 +40,15 @@ POSTGRES_PASSWORD=postgres_password
 DB_HOST=db
 DB_PORT=5432
 
+# База данных
+DATABASE_URL=postgresql+asyncpg://postgres_user:postgres_password@db:5432/ihearyou_db
+
+# Redis
+REDIS_URL=redis://redis:6379/0
+
+
 # Bot Configuration
-BOT_TOKEN=<Используйте токен, полученный у botfather>
+BOT_TOKEN=8057235872:AAEFboQbq8-ftUEDVghmaj5xXiAf6wGnUzc
 
 # Admin Configuration
 ADMIN_SECRET_KEY=changeme_secret_key_please_change_in_production
@@ -54,6 +61,12 @@ BOT_API_PORT=8001
 # Frontend Configuration
 FRONTEND_API_URL=http://localhost:8001/api
 FRONTEND_PORT=3001
+
+# JWT настройки
+JWT_SECRET_KEY=your_secret_key_here
+JWT_ALGORITHM=HS256
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=60
+JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
 ```
 
 ## Быстрый старт через Docker Compose
