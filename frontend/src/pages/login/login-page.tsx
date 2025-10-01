@@ -1,9 +1,6 @@
-import { UIInput } from '@/shared/ui';
-
 const LoginPage = () => {
   return (
     <div>
-      <UIInput />
       <div>Страница входа</div>
     </div>
   );
