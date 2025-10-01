@@ -6,7 +6,6 @@ const config: Config = {
     extend: {
       screens: {
         fine: { raw: '(hover: hover) and (pointer: fine)' },
-        '3xl': '1920px',
       },
       colors: {
         ui: {
@@ -15,7 +14,8 @@ const config: Config = {
           },
           purple: {
             primary: '#8028aa',
-            secondary: '#C192D3',
+            secondary: '#f6f2ff',
+            tertiary: '#F6F2FF',
             disabled: '#c192d3',
           },
           gray: {
@@ -23,6 +23,8 @@ const config: Config = {
           },
           text: {
             disabled: '#A7A7A7',
+            secondary: '#2B2735',
+            tertiary: '#C192D3',
           },
           red: {
             error: '#FF003B',

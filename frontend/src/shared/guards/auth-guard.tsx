@@ -1,7 +1,7 @@
 import { useTokenStore } from '@/entities/admin';
+import { UIFullBackDropLoader } from '@/shared/ui';
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { UIFullBackDropLoader } from '@/shared/ui';
 
 const AuthGuard = ({ children }: PropsWithChildren) => {
   const { token, refresh, logged } = useTokenStore();
@@ -11,7 +11,13 @@ const AuthGuard = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (logged) return;
 
+    //MOCK
     if (token) {
+      if (token.access === 'mock-access-token') {
+        setError(false);
+        return;
+      }
+
       setLoading(true);
 
       refresh({ refresh_token: token.refresh })
