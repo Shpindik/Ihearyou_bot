@@ -19,7 +19,7 @@ const PageSwitcher: FC<ComponentPropsWithoutRef<'div'>> = ({
           key={value}
           theme="none"
           size="S"
-          className={`w-full text-white ${state === value ? 'bg-ui-purple-primary' : 'bg-ui-purple-disabled'}`}
+          className={`text-white ${state === value ? 'bg-ui-purple-primary' : 'bg-ui-purple-disabled'}`}
           onClick={() => setState(value)}
         >
           {MLabels[value]}

@@ -1,9 +1,9 @@
-import {usePageStore} from '@/entities/page';
+import { usePageStore } from '@/entities/page';
 import AccessRights from '@/features/access-rights/access-rights.tsx';
 import Analytics from '@/features/analytics/analytics.tsx';
 import Materials from '@/features/materials';
 import Notifications from '@/features/notifications';
-import {ComponentPropsWithoutRef, FC} from 'react';
+import { ComponentPropsWithoutRef, FC } from 'react';
 
 const Content: FC<ComponentPropsWithoutRef<'div'>> = ({
   className = '',
@@ -25,7 +25,10 @@ const Content: FC<ComponentPropsWithoutRef<'div'>> = ({
   };
 
   return (
-    <div className={`container-scroll w-full ${className}`} {...props}>
+    <div
+      className={`container-scroll w-full flex-1 min-h-0 ${className}`}
+      {...props}
+    >
       {renderContent()}
     </div>
   );

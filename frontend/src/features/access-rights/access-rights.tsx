@@ -1,6 +1,11 @@
-import {getAdminList, TUserItem, userListMapper, userListMock,} from '@/entities/user/list';
-import {ComponentPropsWithoutRef, FC, useEffect, useState} from 'react';
-import {AdminAccessRights} from './ui';
+import {
+  getAdminList,
+  TUserItem,
+  userListMapper,
+  userListMock,
+} from '@/entities/user/list';
+import { ComponentPropsWithoutRef, FC, useEffect, useState } from 'react';
+import { AdminAccessRights } from './ui';
 
 export const AccessRights: FC<ComponentPropsWithoutRef<'div'>> = ({
   className,
@@ -34,8 +39,16 @@ export const AccessRights: FC<ComponentPropsWithoutRef<'div'>> = ({
   }, []);
 
   return (
-    <div className={className}>
-      <AdminAccessRights admins={admins} total={total} loading={loading} />
+    <div className={`${className} w-full flex flex-col h-full`}>
+      <div className="p-4">
+        <h1>Список пользователей</h1>
+      </div>
+
+      <div className="flex-1 min-h-0 overflow-auto scrollbar-hide">
+        <div className="w-full pb-8">
+          <AdminAccessRights admins={admins} total={total} loading={loading} />
+        </div>
+      </div>
     </div>
   );
 };

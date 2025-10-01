@@ -1,10 +1,13 @@
-import {deleteNotification, sendNotification,} from '@/entities/notifications/actions/api/notification-actions.api';
-import {useNotificationActionsStore} from '@/entities/notifications/actions/store';
-import {getNotificationsList} from '@/entities/notifications/list/api/notifications-list.api';
-import {TNotificationItem} from '@/entities/notifications/list/types/notification-item.type';
+import {
+  deleteNotification,
+  sendNotification,
+} from '@/entities/notifications/actions/api/notification-actions.api';
+import { useNotificationActionsStore } from '@/entities/notifications/actions/store';
+import { getNotificationsList } from '@/entities/notifications/list/api/notifications-list.api';
+import { TNotificationItem } from '@/entities/notifications/list/types/notification-item.type';
 import UIFullBackdropLoader from '@/shared/ui/full-backdrop-loader';
-import {ComponentPropsWithoutRef, FC, useEffect, useState} from 'react';
-import {CreateNotificationCard, NotificationCard} from './ui';
+import { ComponentPropsWithoutRef, FC, useEffect, useState } from 'react';
+import { CreateNotificationCard, NotificationCard } from './ui';
 import Modal from './ui/create-notification/modal/modal';
 
 export const Notifications: FC<ComponentPropsWithoutRef<'div'>> = ({
@@ -76,23 +79,27 @@ export const Notifications: FC<ComponentPropsWithoutRef<'div'>> = ({
   };
 
   return (
-    <div className={className}>
+    <div className={`${className} w-full flex flex-col h-full`}>
       <div className="p-4">
         <div className="flex items-center justify-between mb-6">
           <h1>Уведомления</h1>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[24px]">
-          <CreateNotificationCard onClick={handleOpenModal} />
+      <div className="flex-1 min-h-0 overflow-auto scrollbar-hide">
+        <div className="p-4 pb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[24px]">
+            <CreateNotificationCard onClick={handleOpenModal} />
 
-          {notifications.map((notification) => (
-            <NotificationCard
-              key={notification.id}
-              notification={notification}
-              onDelete={handleDelete}
-              isDeleting={card === notification.id}
-            />
-          ))}
+            {notifications.map((notification) => (
+              <NotificationCard
+                key={notification.id}
+                notification={notification}
+                onDelete={handleDelete}
+                isDeleting={card === notification.id}
+              />
+            ))}
+          </div>
         </div>
       </div>
 

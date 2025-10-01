@@ -1,9 +1,19 @@
-import {analyticsMapper, analyticsMock, getAnalytics,} from '@/entities/analytics';
-import {TAnalyticsItem} from '@/entities/analytics/models/types/analytics-item.type';
-import {usePageStore} from '@/entities/page';
+import {
+  analyticsMapper,
+  analyticsMock,
+  getAnalytics,
+} from '@/entities/analytics';
+import { TAnalyticsItem } from '@/entities/analytics/models/types/analytics-item.type';
+import { usePageStore } from '@/entities/page';
 import AnalyticsDashboard from '@/features/analytics/ui/analytics-dashboard.tsx';
 import ContentEmpty from '@/shared/ui/content-empty/table-empty.tsx';
-import {ComponentPropsWithoutRef, FC, useCallback, useEffect, useState,} from 'react';
+import {
+  ComponentPropsWithoutRef,
+  FC,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 
 export const Analytics: FC<ComponentPropsWithoutRef<'div'>> = ({
   className,
@@ -31,19 +41,22 @@ export const Analytics: FC<ComponentPropsWithoutRef<'div'>> = ({
   }, [loadAnalytics]);
 
   return (
-    <div className={`${className} w-full relative`}>
-      <div className="w-full pb-8">
+    <div className={`${className} w-full flex flex-col h-full`}>
+      <div className="p-4">
         {/*Тут будет дродпаун*/}
-
         <h1>Статистика за моковый период</h1>
+      </div>
 
-        <AnalyticsDashboard data={analyticsData} />
+      <div className="flex-1 min-h-0 overflow-auto scrollbar-hide">
+        <div className="w-full">
+          <AnalyticsDashboard data={analyticsData} />
 
-        <ContentEmpty
-          title="Нет данных"
-          text="Не удалось загрузить данные аналитики"
-          items={!analyticsData}
-        />
+          <ContentEmpty
+            title="Нет данных"
+            text="Не удалось загрузить данные аналитики"
+            items={!analyticsData}
+          />
+        </div>
       </div>
     </div>
   );

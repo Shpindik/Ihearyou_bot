@@ -20,6 +20,15 @@
     /* Chrome, Safari, Opera */
   }
 
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   .flex-base {
     @apply flex items-center;
   }
