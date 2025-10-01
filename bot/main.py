@@ -41,8 +41,6 @@ dp = Dispatcher()
 dp.include_router(router)
 
 
-
-
 async def main():
     print("Бот запущен. Для остановки нажмите Ctrl+C.")
 

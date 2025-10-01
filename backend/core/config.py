@@ -78,11 +78,11 @@ class Settings(BaseSettings):
     #     description="Путь к файлу логов"
     # )
 
-    # Redis (не используется)
-    # redis_url: Optional[str] = Field(
-    #     default=None,
-    #     description="URL подключения к Redis"
-    # )
+    # Redis
+    redis_url: Optional[str] = Field(
+        default=None,
+        description="URL подключения к Redis"
+    )
 
     class Config:
         """Конфигурация Pydantic."""

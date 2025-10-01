@@ -5,6 +5,7 @@ class States(StatesGroup):
     """Состояния бота"""
 
     waiting_for_article_rating = State()  # Ожидание выбора оценки для статьи
+    waiting_for_user_question = State()  # Ожидание текста вопроса от пользователя
 
 
 class NavigationState:
