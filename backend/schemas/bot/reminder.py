@@ -24,7 +24,7 @@ class InactiveUserResponse(BaseModel):
 class InactiveListUserResponse(BaseModel):
     """Схема ответа неактивных пользователей для GET /api/v1/bot/reminders/inactive_users."""
 
-    users: List[InactiveUserResponse] = Field(..., description="Список пользователей")
+    users: List[InactiveUserResponse] = Field([], description="Список пользователей")
 
     model_config = ConfigDict(
         json_schema_extra={
