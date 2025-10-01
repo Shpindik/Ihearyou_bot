@@ -115,13 +115,12 @@ class APIClient:
             print(f"Ошибка создания пользователя: {e}")
             return False
 
-    async def get_inactive_users(self, days: int = 10) -> List[Dict]:
+    async def get_inactive_users(self, days: int = 10) -> Dict:
         """Получить пользователей, которые неактивны <days> дней."""
         url = f"{self.base_url}/bot/reminders/inactive_users"
-        data = {"inactive_days": days}
-
+        query = {"inactive_days": days}
         try:
-            async with self.session.get(url, json=data) as response:
+            async with self.session.get(url, params=query) as response:
                 if response.status == 200:
                     return await response.json()
                 else:
@@ -129,4 +128,4 @@ class APIClient:
                     return None
         except Exception as e:
             print(f"Ошибка подключения к API: {e}")
-            return []
+            return {"users": []}

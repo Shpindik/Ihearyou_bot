@@ -9,7 +9,7 @@ from aiogram import Bot, Dispatcher
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dotenv import load_dotenv
 from handlers import router
-from reminders import send_reimnders
+from reminders import send_reminders
 
 
 load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
@@ -52,8 +52,8 @@ async def main():
     await bot.delete_webhook(drop_pending_updates=True)
     polling_task = asyncio.create_task(dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types()))
 
-    # поставил интревал минуту для теста, сменить на время дня
-    scheduler.add_job(send_reimnders, "interval", minutes=1)
+    # поставил 15 sec для теста, сменить на время дня
+    scheduler.add_job(send_reminders, "interval", seconds=15, args=[BOT_TOKEN])
     scheduler.start()
 
     def shutdown():
