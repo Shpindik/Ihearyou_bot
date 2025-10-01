@@ -9,7 +9,7 @@ interface IProps extends ComponentPropsWithoutRef<'button'> {
 
 const UIButton: FC<IProps> = ({
   theme = 'primary-fill',
-  size = 'L',
+  size = 'S',
   icon,
   className = '',
   children,

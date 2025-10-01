@@ -85,7 +85,9 @@
 
     input {}
 
-    button {}
+    button:disabled {
+      @apply bg-ui-gray-disabled text-ui-text-disabled;
+    }
 
     video {}
   }
