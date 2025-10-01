@@ -19,7 +19,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       console.error('ErrorInfo:', errorInfo?.componentStack);
     }
 
-    window.location.href = '/error/500';
+    // Убрана обработка 500 ошибки
   }
 
   render() {

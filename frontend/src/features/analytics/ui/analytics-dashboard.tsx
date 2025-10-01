@@ -1,12 +1,12 @@
 import { TAnalyticsItem } from '@/entities/analytics/models/types/analytics-item.type.ts';
 import { UIBlock } from '@/shared/ui';
+import { FC } from 'react';
 import {
   AntiTopRatings,
   MainStats,
   TopMaterials,
   TopRatings,
 } from './index.ts';
-import { FC } from 'react';
 
 interface AnalyticsDashboardProps {
   data: TAnalyticsItem;
@@ -20,9 +20,10 @@ const AnalyticsDashboard: FC<AnalyticsDashboardProps> = ({ data }) => {
   return (
     <div className="p-6 pb-48">
       <div className="grid grid-cols-12 gap-6">
-        {/* Основная статистика */}
+        <UIBlock className="col-span-12 md:col-span-6">
+          <TopMaterials materials={data.content.mostViewed} />
+        </UIBlock>
 
-        {/* Топ материалы по просмотрам */}
         <UIBlock className="col-span-12 md:col-span-6">
           <TopMaterials materials={data.content.mostViewed} />
         </UIBlock>
@@ -45,12 +46,10 @@ const AnalyticsDashboard: FC<AnalyticsDashboardProps> = ({ data }) => {
           />
         </UIBlock>
 
-        {/* Топ материалы по рейтингу */}
         <UIBlock className="col-span-12 md:col-span-6">
           <TopRatings materials={data.content.mostRated} />
         </UIBlock>
 
-        {/* АнтиТоп материалы по рейтингу (ниже 3.0) */}
         <UIBlock className="col-span-12 md:col-span-6">
           <AntiTopRatings
             materials={data.content.mostRated.filter(

@@ -1,8 +1,8 @@
-import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
+import { defineConfig, loadEnv } from 'vite';
 import svgr from 'vite-plugin-svgr';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 const envDir = path.resolve(__dirname, 'environment');
 const loadEnvVariables = (mode: string): void => {
@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
     },
     envPrefix: ['VITE_', 'APP', 'SERVICE'],
     server: {
-      port: 5174,
+      port: 3001,
     },
     preview: {
       port: 4173,

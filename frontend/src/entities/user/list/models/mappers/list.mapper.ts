@@ -1,4 +1,4 @@
-import { UserItemDto } from '../dtos';
+import { UserItemDto, UserListDto } from '../dtos';
 import { IListResponse } from '../interfaces';
 
 export const userItemMapper = (dto: UserItemDto) => ({
@@ -12,8 +12,13 @@ export const userItemMapper = (dto: UserItemDto) => ({
   createdAt: dto.created_at,
 });
 
-export const userListMapper = (response: IListResponse) => {
-  if (!response || (response && 'error' in response)) return [];
+export const userListMapper = (
+  response: IListResponse | { list: UserListDto },
+) => {
+  if (!response?.list?.items) return { items: [], total: 0 };
 
-  return response.list.items.map(userItemMapper);
+  return {
+    items: response.list.items.map(userItemMapper),
+    total: response.list.total,
+  };
 };

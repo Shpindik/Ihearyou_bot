@@ -29,7 +29,7 @@ const UIFullBackdropLoader: FC<IProps> = ({
       </div>
 
       {!!text && (
-        <div className="bg-black/[0.52] rounded-lg max-w-full font-semibold py-1 px-r-3 text-sm text-white">
+        <div className="bg-black/[0.52] rounded-lg max-w-full font-semibold py-1 px-3 text-sm text-white">
           {text}
         </div>
       )}
