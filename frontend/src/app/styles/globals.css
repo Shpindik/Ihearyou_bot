@@ -40,7 +40,6 @@
   }
 
   .input-error {
-    @apply border-red focus:ring-red;
   }
 
   .button-disabled {
