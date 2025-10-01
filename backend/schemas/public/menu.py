@@ -17,6 +17,7 @@ class MenuItemResponse(BaseModel):
     description: Optional[str] = Field(None, description="Описание пункта меню")
     parent_id: Optional[int] = Field(None, description="ID родительского пункта")
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
+    web_app_url: Optional[str] = Field(None, description="URL для Web App кнопки")
     is_active: bool = Field(..., description="Активен ли пункт")
     access_level: AccessLevel = Field(..., description="Уровень доступа")
     children: list["MenuItemResponse"] = Field(default_factory=list, description="Дочерние пункты")
@@ -110,6 +111,7 @@ class MenuContentResponse(BaseModel):
     title: str = Field(..., description="Название пункта меню")
     description: Optional[str] = Field(None, description="Описание пункта меню")
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
+    web_app_url: Optional[str] = Field(None, description="URL для Web App кнопки")
     content_files: list[ContentFileResponse] = Field(..., description="Файлы контента")
     children: list[MenuItemResponse] = Field(default_factory=list, description="Дочерние пункты")
 

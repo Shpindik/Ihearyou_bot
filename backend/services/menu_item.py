@@ -56,6 +56,7 @@ class MenuItemService:
                 description=item.description,
                 parent_id=item.parent_id,
                 bot_message=item.bot_message,
+                web_app_url=item.web_app_url,
                 is_active=item.is_active,
                 access_level=item.access_level,
                 children=[],  # Всегда пустой список для MVP
@@ -98,6 +99,7 @@ class MenuItemService:
                 description=child.description,
                 parent_id=child.parent_id,
                 bot_message=child.bot_message,
+                web_app_url=child.web_app_url,
                 is_active=child.is_active,
                 access_level=child.access_level,
                 children=[],  # Всегда пустой список для MVP
@@ -111,6 +113,7 @@ class MenuItemService:
             title=menu_item.title,
             description=menu_item.description,
             bot_message=menu_item.bot_message,
+            web_app_url=menu_item.web_app_url,
             content_files=menu_item.content_files,
             children=children,
         )

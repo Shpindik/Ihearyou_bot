@@ -331,10 +331,18 @@ async def handle_menu_item(callback: CallbackQuery):
                 menu_item_id=menu_item_id,
                 activity_type="section_enter"
             )
-        
+
+        # Получаем сообщение бота из самого пункта меню
+        async with APIClient() as api:
+            parent_content = await api.get_menu_content(
+                menu_item_id=menu_item_id,
+                telegram_user_id=callback.from_user.id
+            )
+
+        # Используем сообщение из самого пункта меню
+        bot_message = parent_content.get("bot_message") if parent_content else "Выберите раздел:"
+
         keyboard = kb.create_dynamic_keyboard(submenu_items, parent_id=menu_item_id)
-        # Получаем сообщение бота из первого подпункта или используем стандартное
-        bot_message = submenu_items[0].get("bot_message", "Выберите раздел:") if submenu_items else "Выберите раздел:"
         await edit_message(callback, bot_message, keyboard)
     else:
         # Если дочерних элементов нет, показываем контент

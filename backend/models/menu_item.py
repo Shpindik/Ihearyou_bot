@@ -34,6 +34,9 @@ class MenuItem(Base):
     # Сообщение бота
     bot_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
+    # Web App URL для кнопок
+    web_app_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+
     # Управление
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, index=True)
     access_level: Mapped[AccessLevel] = mapped_column(String(20), default=AccessLevel.FREE, nullable=False, index=True)
