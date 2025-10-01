@@ -43,19 +43,27 @@ export const Auth: FC<ComponentPropsWithoutRef<'div'>> = ({ className }) => {
 
         <UIInput
           placeholder="Логин"
+          error={!!error}
           className="w-full"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => {
+            setUsername(e.target.value);
+            setError('');
+          }}
           required
         />
 
         <UIInput
           placeholder="Пароль"
+          error={!!error}
           type="password"
           postfix={<EyeShowIcon />}
           className="w-full"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            setError('');
+          }}
           required
         />
 

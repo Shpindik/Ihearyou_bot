@@ -16,6 +16,7 @@ const MainPage = () => {
   return (
     <div className="container-main p-r-4 gap-r-4">
       <Header onExit={handleLogout} />
+
       <div className="px-28">
         <PageSwitcher />
 
