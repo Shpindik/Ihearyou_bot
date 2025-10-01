@@ -17,7 +17,7 @@ const UIButton: FC<IProps> = ({
 }) => {
   return (
     <button
-      className={`flex-center gap-2 select-none outline-none click-press ${MSizes[size]} ${MThemes[theme]} ${className}`}
+      className={`flex-center gap-2 select-none outline-none click-press rounded-full ${MSizes[size]} ${MThemes[theme]} ${className}`}
       {...props}
     >
       {!!icon && icon}
