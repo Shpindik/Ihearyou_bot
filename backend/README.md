@@ -312,29 +312,125 @@ make stop
 6. Эндпоинт в `api/v1/`
 7. Роутер в `api/routers.py`
 
-### Полезные команды
+### Make команды
 
-```bash
-# Полная очистка и перезапуск
-make reset
+#### Помощь
+| Команда | Описание |
+|---------|----------|
+| `make help` | Показать справку по всем командам |
 
-# Остановка сервисов
-make stop
+#### Poetry и зависимости
+| Команда | Описание |
+|---------|----------|
+| `make poetry-install` | Установить Poetry версии 1.7.1 |
+| `make poetry-reinstall` | Переустановить Poetry (удаляет старую версию) |
+| `make poetry-config` | Настроить Poetry (включая virtualenvs.in-project) |
+| `make poetry-lock` | Обновить lock файл с обновлением версий зависимостей |
+| `make poetry-lock-no-update` | Обновить lock файл без обновления версий |
+| `make poetry-update` | Обновить все зависимости до последних версий |
+| `make poetry-show` | Показать установленные пакеты |
+| `make poetry-export` | Экспортировать зависимости в requirements.txt |
+| `make poetry-shell` | Открыть shell в виртуальном окружении |
 
-# Перезапуск конкретного сервиса
-make restart-api
-make restart-bot
-make restart-db
+#### Установка и настройка
+| Команда | Описание |
+|---------|----------|
+| `make install` | Установить зависимости через Poetry |
+| `make install-dev` | Установить зависимости для разработки (включая dev) |
+| `make install-prod` | Установить только продакшн зависимости |
 
-# Подключение к контейнерам
-make shell-api
-make shell-bot
-make shell-db
+#### Добавление зависимостей
+| Команда | Описание |
+|---------|----------|
+| `make add-main PACKAGE=requests` | Добавить зависимость в main группу |
+| `make add-dev PACKAGE=pytest` | Добавить зависимость в dev группу |
+| `make remove-package PACKAGE=requests` | Удалить зависимость |
 
-# Экспорт зависимостей
-make poetry-export
+#### Выполнение команд в виртуальном окружении
+| Команда | Описание |
+|---------|----------|
+| `make run-uvicorn` | Запустить uvicorn локально (порт 8000, reload) |
+| `make run-bot` | Запустить бота локально |
+| `make run-tests` | Запустить тесты через pytest |
+| `make run-tests-coverage` | Запустить тесты с покрытием кода |
+| `make run-lint` | Запустить линтер (ruff) для backend/ и bot/ |
+| `make run-lint-fix` | Исправить ошибки линтера автоматически |
+| `make run-format` | Форматировать код (ruff format) |
+| `make run-alembic COMMAND=upgrade head` | Запустить alembic команды |
 
-# Добавление зависимостей
-make add-main PACKAGE=requests
-make add-dev PACKAGE=pytest
-```
+#### Docker команды
+| Команда | Описание |
+|---------|----------|
+| `make build` | Собрать все контейнеры |
+| `make build-no-cache` | Собрать контейнеры без кэша |
+| `make up` | Запустить все сервисы в фоне |
+| `make up-build` | Запустить сервисы с пересборкой |
+| `make down` | Остановить все сервисы |
+| `make down-volumes` | Остановить сервисы и удалить volumes |
+| `make restart` | Перезапустить все сервисы |
+| `make restart-api` | Перезапустить только API контейнер |
+| `make restart-bot` | Перезапустить только Bot контейнер |
+| `make restart-db` | Перезапустить только базу данных |
+
+#### Логи и мониторинг
+| Команда | Описание |
+|---------|----------|
+| `make logs` | Показать логи всех сервисов (follow) |
+| `make logs-api` | Показать логи API контейнера |
+| `make logs-bot` | Показать логи Bot контейнера |
+| `make logs-db` | Показать логи базы данных |
+| `make logs-frontend` | Показать логи фронтенда |
+| `make status` | Показать статус всех контейнеров |
+
+#### Работа с контейнерами
+| Команда | Описание |
+|---------|----------|
+| `make shell-api` | Подключиться к контейнеру API (bash) |
+| `make shell-bot` | Подключиться к контейнеру Bot (bash) |
+| `make shell-db` | Подключиться к базе данных (psql) |
+
+#### Alembic миграции
+| Команда | Описание |
+|---------|----------|
+| `make migrate` | Применить все миграции (ждет готовности API) |
+| `make migrate-create MESSAGE="описание"` | Создать новую миграцию с автогенерацией |
+| `make migrate-history` | Показать историю миграций |
+| `make migrate-current` | Показать текущую версию миграции |
+| `make migrate-downgrade` | Откатить миграцию на один шаг |
+| `make migrate-reset` | Сбросить все миграции (ОСТОРОЖНО! удаляет данные) |
+
+#### Данные и тестирование
+| Команда | Описание |
+|---------|----------|
+| `make load-data` | Загрузить тестовые данные (ждет готовности API) |
+| `make db-backup` | Создать бэкап базы данных с timestamp |
+| `make db-restore FILE=backup.sql` | Восстановить базу данных из файла |
+
+#### Очистка
+| Команда | Описание |
+|---------|----------|
+| `make clean` | Очистить неиспользуемые Docker ресурсы |
+| `make clean-all` | Полная очистка Docker (включая volumes) - ОСТОРОЖНО! |
+| `make clean-containers` | Удалить все контейнеры проекта с volumes |
+
+#### Развертывание
+| Команда | Описание |
+|---------|----------|
+| `make deploy-stage` | Развернуть на staging окружении |
+| `make deploy-stage-down` | Остановить staging окружение |
+
+#### Утилиты
+| Команда | Описание |
+|---------|----------|
+| `make health-check` | Проверить здоровье всех сервисов (HTTP коды) |
+| `make env-check` | Проверить переменные окружения (.env файл) |
+| `make build-poetry` | Полная настройка Poetry с нуля (install + config + lock + install-dev) |
+| `make rebuild-poetry` | Переустановка Poetry с удалением .venv |
+
+#### Быстрые команды
+| Команда | Описание |
+|---------|----------|
+| `make setup` | Первоначальная настройка проекта (env + poetry + build + up + migrate) |
+| `make dev` | Быстрый старт для разработки (up-build + wait + migrate + logs) |
+| `make stop` | Быстрая остановка (alias для down) |
+| `make reset` | Полный сброс проекта (удаляет все данные! down-volumes + clean + rebuild) |
