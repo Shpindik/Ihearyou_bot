@@ -13,8 +13,20 @@ def create_dynamic_keyboard(
     # Добавляем кнопки меню
     for item in menu_items:
         button_text = item.get("title", "Без названия")
-        callback_data = f"menu_item_{item['id']}_cd"
-        buttons.append([InlineKeyboardButton(text=button_text, callback_data=callback_data)])
+        item_id = item.get("id")
+
+        # Проверяем, есть ли WebApp URL
+        web_app_url = item.get("web_app_url")
+        if web_app_url:
+            # Создаем WebApp кнопку
+            buttons.append([InlineKeyboardButton(text=button_text, web_app=WebAppInfo(url=web_app_url))])
+            # Добавляем кнопку оценки для конкретного материала
+            rate_cb = f"rate_item_{item_id}_cd"
+            buttons.append([InlineKeyboardButton(text=dict_kb["rate_material"], callback_data=rate_cb)])
+        else:
+            # Создаем обычную callback кнопку
+            callback_data = f"menu_item_{item_id}_cd"
+            buttons.append([InlineKeyboardButton(text=button_text, callback_data=callback_data)])
     
     # Добавляем навигационные кнопки
     if show_navigation:
