@@ -32,7 +32,7 @@
   }
 
   .input-focus {
-    @apply focus:outline-none focus:ring-2 focus:ring-cyan-800;
+    @apply focus:outline-none focus:ring-2 focus:ring-ui-purple-secondary;
   }
 
   .input-disabled {
@@ -40,11 +40,11 @@
   }
 
   .input-error {
-    @apply border-red focus:ring-red;
+    @apply border-red-500 text-red-500;
   }
 
   .button-disabled {
-    @apply disabled:bg-gray-400 disabled:bg-gray-500 disabled:cursor-not-allowed disabled:hover:bg-gray-600;
+    @apply disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-600;
   }
 
   .click-press {
@@ -73,7 +73,9 @@
       @apply text-[20px] leading-[120%] font-medium text-[#2B2735];
     }
 
-    h3 {}
+    h3 {
+      @apply text-[20px] leading-[120%] font-normal;
+    }
 
     h4 {}
 
@@ -81,11 +83,14 @@
       @apply text-base leading-[140%] font-normal text-[#2B2735];
     }
 
-    p.slim {}
 
-    input {}
+    input {
+      @apply border border-black rounded-full h-[56px] placeholder:text-ui-purple-secondary;
+    }
 
-    button {}
+    button:disabled {
+      @apply bg-ui-gray-disabled text-ui-text-disabled;
+    }
 
     video {}
   }

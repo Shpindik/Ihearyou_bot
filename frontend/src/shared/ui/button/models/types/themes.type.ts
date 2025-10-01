@@ -1,18 +1,5 @@
 export type TThemes =
   | 'primary-fill'
-  | 'primary-outline'
   | 'secondary-fill'
-  | 'secondary-outline'
-  | 'success-fill'
-  | 'success-outline'
-  | 'error-fill'
-  | 'error-outline'
-  | 'warning-fill'
-  | 'warning-outline'
-  | 'info-fill'
-  | 'info-outline'
-  | 'grey-fill'
-  | 'grey-outline'
-  | 'black-fill'
   | 'black-outline'
   | 'none';

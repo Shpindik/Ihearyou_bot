@@ -15,7 +15,7 @@ const config: Config = {
           },
           purple: {
             primary: '#8028aa',
-            secondary: '#f6f2ff',
+            secondary: '#C192D3',
             disabled: '#c192d3',
           },
           gray: {
