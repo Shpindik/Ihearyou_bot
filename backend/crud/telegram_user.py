@@ -62,8 +62,9 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
         result = await db.execute(stmt)
         user = result.scalar_one()
 
-        await db.flush()
+        await db.commit()
         await db.refresh(user)
+        print(user)
 
         return user
 
@@ -74,17 +75,18 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
         stmt = update(TelegramUser).where(TelegramUser.telegram_id == telegram_id).values(last_activity=current_time)
 
         await db.execute(stmt)
-        await db.flush()
+        await db.commit()
 
     async def get_inactive(self, db: AsyncSession, days: int = 10) -> List[TelegramUser]:
         """Получение списка неактивных пользователей."""
         threshold = datetime.now(timezone.utc) - timedelta(days=days)
 
-        query = select(TelegramUser).where(TelegramUser.last_activity < threshold)
-
+        query = select(TelegramUser).where(
+            TelegramUser.last_activity < threshold, TelegramUser.reminder_sent_at < threshold
+        )
+        query = select(TelegramUser)
         result = await db.execute(query)
         items = result.scalars().all()
-
         return items
 
 

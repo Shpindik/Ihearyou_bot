@@ -31,8 +31,7 @@ class ReminderService:
         users = await telegram_user_crud.get_inactive(db=db, days=inactive_days)
 
         users_data = [InactiveUserResponse.model_validate(user) for user in users]
-
-        return InactiveListUserResponse(items=users_data)
+        return InactiveListUserResponse(users=users_data)
 
 
 reminder_service = ReminderService()
