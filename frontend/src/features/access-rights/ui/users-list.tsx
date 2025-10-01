@@ -25,7 +25,7 @@ const UsersList: FC<UsersListProps> = ({
         text="Загрузка администраторов..."
       />
 
-      <h1>Права доступа</h1>
+      <h1>Список пользователей</h1>
 
       <div className="flex flex-col gap-4 w-full mt-10">
         {admins.map((admin) => (

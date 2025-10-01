@@ -3,7 +3,7 @@ import { TPageState } from '@/entities/page';
 export type TOrder = readonly [
   'ANALYTICS',
   'MATERIALS',
-  'ACCESS_RIGHTS',
+  'USERS_LIST',
   'NOTIFICATIONS',
 ];
 
