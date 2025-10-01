@@ -1,8 +1,8 @@
-import { TUserItem, userListMapper } from '@/entities/user/list';
-import { IListRequest } from '@/entities/user/list/models/interfaces/list-request.interface.ts';
-import { IListResponse } from '@/entities/user/list/models/interfaces/list-response.interface.ts';
-import { api } from '@/shared/api';
-import { convertQuery } from '@/shared/utils';
+import {TUserItem, userListMapper} from '@/entities/user/list';
+import {IListRequest} from '@/entities/user/list/models/interfaces/list-request.interface.ts';
+import {IListResponse} from '@/entities/user/list/models/interfaces/list-response.interface.ts';
+import {api} from '@/shared/api';
+import {convertQuery} from '@/shared/utils';
 
 export const getAdminList = async (
   body: IListRequest,

@@ -1,4 +1,4 @@
-import { TLabels, TOrder } from '../types/tabs.type';
+import {TLabels, TOrder} from '../types/tabs.type';
 
 export const MOrder: TOrder = [
   'ANALYTICS',

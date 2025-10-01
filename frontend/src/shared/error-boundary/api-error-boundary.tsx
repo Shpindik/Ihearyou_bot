@@ -1,7 +1,7 @@
-import { api } from '@/shared/api/api.ts';
-import { TRequest } from '@/shared/api/types';
-import { AxiosError } from 'axios';
-import { PropsWithChildren, useCallback, useEffect } from 'react';
+import {api} from '@/shared/api/api.ts';
+import {TRequest} from '@/shared/api/types';
+import {AxiosError} from 'axios';
+import {PropsWithChildren, useCallback, useEffect} from 'react';
 
 const ApiErrorBoundary = ({ children }: PropsWithChildren) => {
   const errorHandler = useCallback((error: Error) => {

@@ -1,9 +1,5 @@
-import {
-  TTemplateItem,
-  templateListMapper,
-  templatesListMock,
-} from '@/entities/notifications';
-import { api } from '@/shared/api';
+import {templateListMapper, templatesListMock, TTemplateItem,} from '@/entities/notifications';
+import {api} from '@/shared/api';
 
 export const getTemplatesList = async (): Promise<{
   items: TTemplateItem[];

@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, FC } from 'react';
+import {ComponentPropsWithoutRef, FC} from 'react';
 
 const DropdownArrowIcon: FC<ComponentPropsWithoutRef<'svg'>> = ({
   ...props

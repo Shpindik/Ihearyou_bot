@@ -1,3 +1,3 @@
-import { AnalyticsDto } from '@/entities/analytics';
+import {AnalyticsDto} from '@/entities/analytics';
 
 export type IAnalyticsResponse = AnalyticsDto;

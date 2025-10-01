@@ -1,5 +1,5 @@
-import { ComponentPropsWithoutRef, FC } from 'react';
-import { UIBlock } from '@/shared/ui';
+import {ComponentPropsWithoutRef, FC} from 'react';
+import {UIBlock} from '@/shared/ui';
 
 interface IProps extends ComponentPropsWithoutRef<'div'> {
   count: number;

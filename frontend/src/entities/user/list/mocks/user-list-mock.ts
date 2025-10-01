@@ -1,4 +1,4 @@
-import { UserListDto } from '@/entities/user/list/models/dtos';
+import {UserListDto} from '@/entities/user/list/models/dtos';
 
 export const userListMock: UserListDto = {
   items: [

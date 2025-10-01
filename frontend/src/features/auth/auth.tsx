@@ -1,8 +1,8 @@
-import { useTokenStore } from '@/entities/admin';
-import { EyeShowIcon } from '@/shared/svg';
-import { UIButton, UIError, UIInput } from '@/shared/ui';
-import { ComponentPropsWithoutRef, FC, FormEvent, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {useTokenStore} from '@/entities/admin';
+import {EyeShowIcon} from '@/shared/svg';
+import {UIButton, UIError, UIInput} from '@/shared/ui';
+import {ComponentPropsWithoutRef, FC, FormEvent, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 
 export const Auth: FC<ComponentPropsWithoutRef<'div'>> = ({ className }) => {
   const [username, setUsername] = useState('');

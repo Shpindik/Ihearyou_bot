@@ -1,4 +1,4 @@
-import { IToken, ITokenResponse } from '../interfaces';
+import {IToken, ITokenResponse} from '../interfaces';
 
 export const tokenMapper = (response: ITokenResponse): IToken => ({
   access: response.access_token.access_token,

@@ -1,4 +1,4 @@
-import { AnalyticsDto } from '@/entities/analytics';
+import {AnalyticsDto} from '@/entities/analytics';
 
 export const analyticsMock: AnalyticsDto = {
   users: {

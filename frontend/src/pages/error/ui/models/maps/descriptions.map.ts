@@ -1,4 +1,4 @@
-import { EErrors } from '@/pages/error/ui/models/enums';
+import {EErrors} from '@/pages/error/ui/models/enums';
 
 export const MDescriptions: Record<EErrors, string> = {
   [EErrors.NOT_AUTHORIZED]: 'Для авторизации перезагрузите страницу.',

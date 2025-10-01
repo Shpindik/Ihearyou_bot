@@ -1,12 +1,12 @@
 import {
-  INotificationListRequest,
-  INotificationListResponse,
-  TNotificationItem,
-  notificationListMapper,
-  notificationsListMock,
+    INotificationListRequest,
+    INotificationListResponse,
+    notificationListMapper,
+    notificationsListMock,
+    TNotificationItem,
 } from '@/entities/notifications';
-import { api } from '@/shared/api';
-import { convertQuery } from '@/shared/utils';
+import {api} from '@/shared/api';
+import {convertQuery} from '@/shared/utils';
 
 export const getNotificationsList = async (
   body: INotificationListRequest,

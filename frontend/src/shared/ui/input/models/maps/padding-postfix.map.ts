@@ -1,4 +1,4 @@
-import { TSize } from '../types';
+import {TSize} from '../types';
 
 export const MPaddingPostfix: Record<TSize, string> = {
   M: 'pr-12',

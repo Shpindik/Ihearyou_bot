@@ -1,19 +1,9 @@
-import {
-  analyticsMapper,
-  analyticsMock,
-  getAnalytics,
-} from '@/entities/analytics';
-import { TAnalyticsItem } from '@/entities/analytics/models/types/analytics-item.type';
-import { usePageStore } from '@/entities/page';
+import {analyticsMapper, analyticsMock, getAnalytics,} from '@/entities/analytics';
+import {TAnalyticsItem} from '@/entities/analytics/models/types/analytics-item.type';
+import {usePageStore} from '@/entities/page';
 import AnalyticsDashboard from '@/features/analytics/ui/analytics-dashboard.tsx';
 import ContentEmpty from '@/shared/ui/content-empty/table-empty.tsx';
-import {
-  ComponentPropsWithoutRef,
-  FC,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react';
+import {ComponentPropsWithoutRef, FC, useCallback, useEffect, useState,} from 'react';
 
 export const Analytics: FC<ComponentPropsWithoutRef<'div'>> = ({
   className,

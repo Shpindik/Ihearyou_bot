@@ -1,4 +1,4 @@
-import { UserDetailsResponseDto } from '../dtos';
+import {UserDetailsResponseDto} from '../dtos';
 
 export const userDetailsMapper = (dto: UserDetailsResponseDto) => {
   return {

@@ -1,10 +1,5 @@
-import {
-  analyticsMapper,
-  IAnalyticsRequest,
-  IAnalyticsResponse,
-  TAnalyticsItem,
-} from '@/entities/analytics';
-import { api } from '@/shared/api';
+import {analyticsMapper, IAnalyticsRequest, IAnalyticsResponse, TAnalyticsItem,} from '@/entities/analytics';
+import {api} from '@/shared/api';
 
 export const getAnalytics = async (
   params?: IAnalyticsRequest,

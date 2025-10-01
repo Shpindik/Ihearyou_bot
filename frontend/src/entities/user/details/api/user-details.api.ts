@@ -1,7 +1,7 @@
-import { TUserDetailsItem, userDetailsMapper } from '@/entities/user/details';
-import { UserDetailsResponseDto } from '@/entities/user/details/models/dtos/user-details-response.dto';
-import { IUserDetailsRequest } from '@/entities/user/details/models/interfaces/user-details-request.interface';
-import { api } from '@/shared/api';
+import {TUserDetailsItem, userDetailsMapper} from '@/entities/user/details';
+import {UserDetailsResponseDto} from '@/entities/user/details/models/dtos/user-details-response.dto';
+import {IUserDetailsRequest} from '@/entities/user/details/models/interfaces/user-details-request.interface';
+import {api} from '@/shared/api';
 
 export const getUserDetails = async (
   params: IUserDetailsRequest,

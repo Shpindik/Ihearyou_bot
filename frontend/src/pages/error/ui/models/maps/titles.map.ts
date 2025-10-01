@@ -1,4 +1,4 @@
-import { EErrors } from '@/pages/error/ui/models/enums';
+import {EErrors} from '@/pages/error/ui/models/enums';
 
 export const MTitles: Record<EErrors, string> = {
   [EErrors.NOT_AUTHORIZED]: 'Вы не авторизованы',

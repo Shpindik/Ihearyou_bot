@@ -1,5 +1,5 @@
-import { ComponentPropsWithoutRef, FC, ReactNode } from 'react';
-import { MSizes, MThemes, TSizes, TThemes } from './models';
+import {ComponentPropsWithoutRef, FC, ReactNode} from 'react';
+import {MSizes, MThemes, TSizes, TThemes} from './models';
 
 interface IProps extends ComponentPropsWithoutRef<'button'> {
   theme?: TThemes;

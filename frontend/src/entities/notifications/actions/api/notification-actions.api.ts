@@ -1,5 +1,5 @@
-import { TNotificationItem } from '@/entities/notifications';
-import { api } from '@/shared/api';
+import {TNotificationItem} from '@/entities/notifications';
+import {api} from '@/shared/api';
 
 export const sendNotification = async (data: {
   telegram_user_id: number;

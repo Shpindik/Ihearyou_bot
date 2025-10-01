@@ -1,4 +1,4 @@
-import { RatingResponseDto } from '../dtos';
+import {RatingResponseDto} from '../dtos';
 
 export const ratingMapper = (dto: RatingResponseDto) => ({
   id: dto.id,

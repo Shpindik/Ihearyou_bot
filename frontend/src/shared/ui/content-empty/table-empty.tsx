@@ -1,5 +1,5 @@
-import { ComponentPropsWithoutRef, FC } from 'react';
-import { CloseIcon } from '@/shared/svg';
+import {ComponentPropsWithoutRef, FC} from 'react';
+import {CloseIcon} from '@/shared/svg';
 
 interface IProps extends ComponentPropsWithoutRef<'div'> {
   title?: string;

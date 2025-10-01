@@ -1,12 +1,6 @@
-import {
-  ComponentPropsWithoutRef,
-  FC,
-  ReactNode,
-  useEffect,
-  useState,
-} from 'react';
-import { createPortal } from 'react-dom';
-import { CloseIcon } from '@/shared/svg';
+import {ComponentPropsWithoutRef, FC, ReactNode, useEffect, useState,} from 'react';
+import {createPortal} from 'react-dom';
+import {CloseIcon} from '@/shared/svg';
 import UIBlock from '../block';
 
 interface IProps extends Omit<ComponentPropsWithoutRef<'div'>, 'title'> {

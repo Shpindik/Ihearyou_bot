@@ -1,5 +1,6 @@
 import ErrorMessage from '@/pages/error/ui/error.tsx';
-import { useParams } from 'react-router-dom';
+import {useParams} from 'react-router-dom';
+
 const STATUS_PARAM_KEY = 'status';
 
 export const ErrorPage = () => {

@@ -1,4 +1,4 @@
-import { UserListDto } from '../dtos';
+import {UserListDto} from '../dtos';
 
 /**
  * @example

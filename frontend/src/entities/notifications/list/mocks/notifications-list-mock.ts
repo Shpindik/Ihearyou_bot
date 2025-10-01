@@ -1,4 +1,4 @@
-import { NotificationsListDto } from '@/entities/notifications/list/models/dtos';
+import {NotificationsListDto} from '@/entities/notifications/list/models/dtos';
 
 export const notificationsListMock: NotificationsListDto = {
   items: [

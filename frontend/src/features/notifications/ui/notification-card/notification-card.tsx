@@ -1,8 +1,8 @@
-import { TNotificationItem } from '@/entities/notifications/list/types/notification-item.type';
+import {TNotificationItem} from '@/entities/notifications/list/types/notification-item.type';
 import CloseIcon from '@/shared/svg/close.icon';
 import UIBlock from '@/shared/ui/block/ui-block';
 import UIFullBackdropLoader from '@/shared/ui/full-backdrop-loader';
-import { ComponentPropsWithoutRef, FC, MouseEvent } from 'react';
+import {ComponentPropsWithoutRef, FC, MouseEvent} from 'react';
 
 interface IProps extends ComponentPropsWithoutRef<'div'> {
   notification: TNotificationItem;

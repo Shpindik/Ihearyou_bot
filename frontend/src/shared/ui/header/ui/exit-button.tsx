@@ -1,6 +1,6 @@
-import { ExitIcon } from '@/shared/svg';
-import { UIButton } from '@/shared/ui';
-import { ComponentPropsWithoutRef, FC } from 'react';
+import {ExitIcon} from '@/shared/svg';
+import {UIButton} from '@/shared/ui';
+import {ComponentPropsWithoutRef, FC} from 'react';
 
 interface IProps extends ComponentPropsWithoutRef<'div'> {
   display?: boolean;

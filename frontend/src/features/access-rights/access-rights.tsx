@@ -1,11 +1,6 @@
-import {
-  getAdminList,
-  TUserItem,
-  userListMapper,
-  userListMock,
-} from '@/entities/user/list';
-import { ComponentPropsWithoutRef, FC, useEffect, useState } from 'react';
-import { AdminAccessRights } from './ui';
+import {getAdminList, TUserItem, userListMapper, userListMock,} from '@/entities/user/list';
+import {ComponentPropsWithoutRef, FC, useEffect, useState} from 'react';
+import {AdminAccessRights} from './ui';
 
 export const AccessRights: FC<ComponentPropsWithoutRef<'div'>> = ({
   className,

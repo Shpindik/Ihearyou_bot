@@ -1,4 +1,4 @@
-import { ActivityDto } from '../dtos';
+import {ActivityDto} from '../dtos';
 
 export const activityMapper = (dto: ActivityDto) => ({
   id: dto.id,

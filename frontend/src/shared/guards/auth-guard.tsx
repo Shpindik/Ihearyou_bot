@@ -1,7 +1,7 @@
-import { useTokenStore } from '@/entities/admin';
-import { UIFullBackDropLoader } from '@/shared/ui';
-import { PropsWithChildren, useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import {useTokenStore} from '@/entities/admin';
+import {UIFullBackDropLoader} from '@/shared/ui';
+import {PropsWithChildren, useEffect, useState} from 'react';
+import {Navigate} from 'react-router-dom';
 
 const AuthGuard = ({ children }: PropsWithChildren) => {
   const dev = import.meta.env.DEV && localStorage.getItem('DEV_BYPASS') === '1';

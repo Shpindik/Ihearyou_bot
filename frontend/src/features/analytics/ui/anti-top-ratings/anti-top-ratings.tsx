@@ -1,5 +1,5 @@
-import { MaterialRatingDto } from '@/entities/analytics';
-import { FC } from 'react';
+import {MaterialRatingDto} from '@/entities/analytics';
+import {FC} from 'react';
 
 interface AntiTopRatingsProps {
   materials: MaterialRatingDto[];

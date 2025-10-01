@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, FC } from 'react';
+import {ComponentPropsWithoutRef, FC} from 'react';
 
 interface IProps extends ComponentPropsWithoutRef<'div'> {
   padding?: string;

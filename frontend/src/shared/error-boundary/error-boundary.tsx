@@ -18,8 +18,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     if (errorInfo.componentStack) {
       console.error('ErrorInfo:', errorInfo?.componentStack);
     }
-
-    // Убрана обработка 500 ошибки
   }
 
   render() {

@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, FC } from 'react';
+import {ComponentPropsWithoutRef, FC} from 'react';
 
 const EyeShowIcon: FC<ComponentPropsWithoutRef<'svg'>> = ({ ...props }) => {
   return (

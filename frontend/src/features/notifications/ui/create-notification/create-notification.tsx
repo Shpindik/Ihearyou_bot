@@ -1,6 +1,6 @@
-import { PlusIcon } from '@/shared/svg';
+import {PlusIcon} from '@/shared/svg';
 import UIBlock from '@/shared/ui/block/ui-block';
-import { ComponentPropsWithoutRef, FC } from 'react';
+import {ComponentPropsWithoutRef, FC} from 'react';
 
 interface IProps extends ComponentPropsWithoutRef<'div'> {
   onClick: () => void;

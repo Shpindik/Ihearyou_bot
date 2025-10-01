@@ -1,13 +1,10 @@
-import {
-  deleteNotification,
-  sendNotification,
-} from '@/entities/notifications/actions/api/notification-actions.api';
-import { useNotificationActionsStore } from '@/entities/notifications/actions/store';
-import { getNotificationsList } from '@/entities/notifications/list/api/notifications-list.api';
-import { TNotificationItem } from '@/entities/notifications/list/types/notification-item.type';
+import {deleteNotification, sendNotification,} from '@/entities/notifications/actions/api/notification-actions.api';
+import {useNotificationActionsStore} from '@/entities/notifications/actions/store';
+import {getNotificationsList} from '@/entities/notifications/list/api/notifications-list.api';
+import {TNotificationItem} from '@/entities/notifications/list/types/notification-item.type';
 import UIFullBackdropLoader from '@/shared/ui/full-backdrop-loader';
-import { ComponentPropsWithoutRef, FC, useEffect, useState } from 'react';
-import { CreateNotificationCard, NotificationCard } from './ui';
+import {ComponentPropsWithoutRef, FC, useEffect, useState} from 'react';
+import {CreateNotificationCard, NotificationCard} from './ui';
 import Modal from './ui/create-notification/modal/modal';
 
 export const Notifications: FC<ComponentPropsWithoutRef<'div'>> = ({

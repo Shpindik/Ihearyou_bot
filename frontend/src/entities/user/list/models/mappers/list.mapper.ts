@@ -1,5 +1,5 @@
-import { UserItemDto, UserListDto } from '../dtos';
-import { IListResponse } from '../interfaces';
+import {UserItemDto, UserListDto} from '../dtos';
+import {IListResponse} from '../interfaces';
 
 export const userItemMapper = (dto: UserItemDto) => ({
   id: dto.id,

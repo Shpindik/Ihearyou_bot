@@ -1,4 +1,4 @@
-import { TThemes } from '../types';
+import {TThemes} from '../types';
 
 export const MThemes: Record<TThemes, string> = {
   'primary-fill':

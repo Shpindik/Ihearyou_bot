@@ -1,11 +1,6 @@
-import {
-  IToken,
-  ITokenRefreshRequest,
-  ITokenResponse,
-  tokenMapper,
-} from '@/entities/admin';
-import { api } from '@/shared/api';
-import { TRequest } from '@/shared/api/types';
+import {IToken, ITokenRefreshRequest, ITokenResponse, tokenMapper,} from '@/entities/admin';
+import {api} from '@/shared/api';
+import {TRequest} from '@/shared/api/types';
 
 export const login = async (
   username: string,

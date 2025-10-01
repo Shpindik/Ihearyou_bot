@@ -1,12 +1,7 @@
-import { TAnalyticsItem } from '@/entities/analytics/models/types/analytics-item.type.ts';
-import { UIBlock } from '@/shared/ui';
-import { FC } from 'react';
-import {
-  AntiTopRatings,
-  MainStats,
-  TopMaterials,
-  TopRatings,
-} from './index.ts';
+import {TAnalyticsItem} from '@/entities/analytics/models/types/analytics-item.type.ts';
+import {UIBlock} from '@/shared/ui';
+import {FC} from 'react';
+import {AntiTopRatings, MainStats, TopMaterials, TopRatings,} from './index.ts';
 
 interface AnalyticsDashboardProps {
   data: TAnalyticsItem;

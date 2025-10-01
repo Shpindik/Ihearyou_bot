@@ -1,3 +1,3 @@
-import { analyticsMapper } from '@/entities/analytics';
+import {analyticsMapper} from '@/entities/analytics';
 
 export type TAnalyticsItem = ReturnType<typeof analyticsMapper>;

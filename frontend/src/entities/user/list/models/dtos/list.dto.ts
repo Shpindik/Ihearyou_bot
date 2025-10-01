@@ -1,4 +1,4 @@
-import { UserItemDto } from './user-item.dto';
+import {UserItemDto} from './user-item.dto';
 
 export interface UserListDto {
   items: UserItemDto[];

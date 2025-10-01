@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, FC } from 'react';
+import {ComponentPropsWithoutRef, FC} from 'react';
 
 export const Materials: FC<ComponentPropsWithoutRef<'div'>> = ({
   className,

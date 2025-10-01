@@ -1,11 +1,7 @@
-import { IToken, TOKEN_STORE_KEY } from '@/entities/admin';
-import { TRequest } from '@/shared/api/types';
-import { getItem } from '@/shared/utils';
-import {
-  type AxiosError,
-  type AxiosResponse,
-  InternalAxiosRequestConfig,
-} from 'axios';
+import {IToken, TOKEN_STORE_KEY} from '@/entities/admin';
+import {TRequest} from '@/shared/api/types';
+import {getItem} from '@/shared/utils';
+import {type AxiosError, type AxiosResponse, InternalAxiosRequestConfig,} from 'axios';
 
 export interface ConsoleError {
   status: number;

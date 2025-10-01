@@ -1,8 +1,8 @@
-import { TUserItem } from '@/entities/user/list';
-import { UsersCount } from '@/features/access-rights/ui/index.ts';
-import { UIBlock, UIFullBackDropLoader } from '@/shared/ui';
+import {TUserItem} from '@/entities/user/list';
+import {UsersCount} from '@/features/access-rights/ui/index.ts';
+import {UIBlock, UIFullBackDropLoader} from '@/shared/ui';
 import ContentEmpty from '@/shared/ui/content-empty/table-empty.tsx';
-import { ComponentPropsWithoutRef, FC } from 'react';
+import {ComponentPropsWithoutRef, FC} from 'react';
 
 interface UsersListProps extends ComponentPropsWithoutRef<'div'> {
   admins: TUserItem[];

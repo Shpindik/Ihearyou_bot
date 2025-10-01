@@ -1,5 +1,5 @@
 import Auth from '@/features/auth';
-import { Header } from '@/shared/ui';
+import {Header} from '@/shared/ui';
 
 const LoginPage = () => {
   return (

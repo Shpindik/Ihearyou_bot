@@ -1,4 +1,4 @@
-import { EErrors } from '@/pages/error/ui/models';
+import {EErrors} from '@/pages/error/ui/models';
 
 export const MButtonTitles: Record<EErrors, string> = {
   [EErrors.NOT_AUTHORIZED]: 'Перезагрузите страницу',

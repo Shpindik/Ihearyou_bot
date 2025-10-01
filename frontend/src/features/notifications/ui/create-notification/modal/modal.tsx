@@ -1,10 +1,7 @@
-import {
-  categoryTuple,
-  notificationTuple,
-} from '@/features/notifications/models';
+import {categoryTuple, notificationTuple,} from '@/features/notifications/models';
 import UIButton from '@/shared/ui/button';
 import UIModal from '@/shared/ui/modal';
-import { ComponentPropsWithoutRef, FC } from 'react';
+import {ComponentPropsWithoutRef, FC} from 'react';
 
 interface INotificationForm {
   name: string;

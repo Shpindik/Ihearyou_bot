@@ -1,4 +1,4 @@
-import { NotificationItemDto } from './notification-item.dto';
+import {NotificationItemDto} from './notification-item.dto';
 
 export interface NotificationsListDto {
   items: NotificationItemDto[];

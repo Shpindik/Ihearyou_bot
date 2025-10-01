@@ -1,6 +1,6 @@
-import { useTokenStore } from '@/entities/admin';
+import {useTokenStore} from '@/entities/admin';
 import ExitButton from '@/shared/ui/header/ui/exit-button.tsx';
-import { ComponentPropsWithoutRef, FC } from 'react';
+import {ComponentPropsWithoutRef, FC} from 'react';
 import MainLogo from '../../../../public/logo.svg';
 
 interface IHeaderProps extends ComponentPropsWithoutRef<'div'> {

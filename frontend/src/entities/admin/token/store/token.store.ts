@@ -1,13 +1,7 @@
-import { create, StateCreator } from 'zustand';
-import { createJSONStorage, devtools, persist } from 'zustand/middleware';
-import {
-  ITokenRefreshRequest,
-  ITokenStore,
-  login,
-  refresh,
-  TOKEN_STORE_KEY,
-} from '@/entities/admin';
-import { logger } from '@/shared/utils';
+import {create, StateCreator} from 'zustand';
+import {createJSONStorage, devtools, persist} from 'zustand/middleware';
+import {ITokenRefreshRequest, ITokenStore, login, refresh, TOKEN_STORE_KEY,} from '@/entities/admin';
+import {logger} from '@/shared/utils';
 
 const middlewares = (f: StateCreator<ITokenStore>) =>
   devtools(

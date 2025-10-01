@@ -1,8 +1,8 @@
-import { ComponentPropsWithoutRef, FC } from 'react';
+import {ComponentPropsWithoutRef, FC} from 'react';
 import Icon from './icon';
-import { EErrors } from '@/pages/error/ui/models';
-import { MTitles, MDescriptions, MCodes, MButtonTitles } from './models';
-import { UIButton } from '@/shared/ui';
+import {EErrors} from '@/pages/error/ui/models';
+import {MButtonTitles, MCodes, MDescriptions, MTitles} from './models';
+import {UIButton} from '@/shared/ui';
 
 interface IProps extends ComponentPropsWithoutRef<'div'> {
   error: EErrors;

@@ -1,6 +1,6 @@
-import { ComponentPropsWithoutRef, FC } from 'react';
-import { EErrors } from '@/pages/error/ui/models';
-import { LopeCloseIcon, CrossCircleIcon } from '@/shared/svg';
+import {ComponentPropsWithoutRef, FC} from 'react';
+import {EErrors} from '@/pages/error/ui/models';
+import {CrossCircleIcon, LopeCloseIcon} from '@/shared/svg';
 
 interface IProps extends ComponentPropsWithoutRef<'div'> {
   error: EErrors;

@@ -1,4 +1,4 @@
-import { IToken, ITokenRefreshRequest } from '@/entities/admin';
+import {IToken, ITokenRefreshRequest} from '@/entities/admin';
 
 export interface ITokenStore {
   logged: boolean;

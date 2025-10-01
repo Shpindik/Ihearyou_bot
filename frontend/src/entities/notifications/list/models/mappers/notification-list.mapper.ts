@@ -1,5 +1,5 @@
-import { NotificationItemDto, NotificationsListDto } from '../dtos';
-import { INotificationListResponse } from '../interfaces';
+import {NotificationItemDto, NotificationsListDto} from '../dtos';
+import {INotificationListResponse} from '../interfaces';
 
 export const notificationItemMapper = (dto: NotificationItemDto) => ({
   id: dto.id,

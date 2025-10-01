@@ -1,3 +1,3 @@
-import { userDetailsMapper } from '../models/mappers';
+import { userDetailsMapper } from '@/entities/user';
 
 export type TUserDetailsItem = ReturnType<typeof userDetailsMapper>;

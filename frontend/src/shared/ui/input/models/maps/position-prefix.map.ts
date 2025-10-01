@@ -1,4 +1,4 @@
-import { TSize } from '../types';
+import {TSize} from '../types';
 
 export const MPositionPrefix: Record<TSize, string> = {
   M: 'left-4 top-3',

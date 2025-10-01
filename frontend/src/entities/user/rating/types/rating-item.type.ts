@@ -1,3 +1,3 @@
-import { ratingMapper } from '../models/mappers';
+import { ratingMapper } from '@/entities/user';
 
 export type TRatingItem = ReturnType<typeof ratingMapper>;

@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, FC } from 'react';
+import {ComponentPropsWithoutRef, FC} from 'react';
 
 const CloseIcon: FC<ComponentPropsWithoutRef<'svg'>> = ({ ...props }) => {
   return (

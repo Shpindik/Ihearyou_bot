@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, FC } from 'react';
+import {ComponentPropsWithoutRef, FC} from 'react';
 
 const CrossCloseCircleIcon: FC<ComponentPropsWithoutRef<'svg'>> = ({
   ...props

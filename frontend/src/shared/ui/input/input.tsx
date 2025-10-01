@@ -1,12 +1,5 @@
-import { ComponentPropsWithoutRef, forwardRef, ReactNode } from 'react';
-import {
-  MPaddingPostfix,
-  MPaddingPrefix,
-  MPositionPostfix,
-  MPositionPrefix,
-  MSize,
-  TSize,
-} from './models';
+import {ComponentPropsWithoutRef, forwardRef, ReactNode} from 'react';
+import {MPaddingPostfix, MPaddingPrefix, MPositionPostfix, MPositionPrefix, MSize, TSize,} from './models';
 
 interface IProps extends Omit<ComponentPropsWithoutRef<'input'>, 'prefix'> {
   sizes?: TSize;

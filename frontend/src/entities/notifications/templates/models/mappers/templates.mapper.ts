@@ -1,4 +1,4 @@
-import { TemplateItemDto, TemplatesListDto } from '../dtos';
+import {TemplateItemDto, TemplatesListDto} from '../dtos';
 
 export const templateItemMapper = (dto: TemplateItemDto) => ({
   id: dto.id,

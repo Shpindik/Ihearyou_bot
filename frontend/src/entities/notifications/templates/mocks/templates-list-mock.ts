@@ -1,4 +1,4 @@
-import { TemplatesListDto } from '@/entities/notifications/templates/models/dtos';
+import {TemplatesListDto} from '@/entities/notifications/templates/models/dtos';
 
 export const templatesListMock: TemplatesListDto = {
   items: [
