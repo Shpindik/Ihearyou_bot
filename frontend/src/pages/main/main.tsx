@@ -14,9 +14,10 @@ const MainPage = () => {
   };
 
   return (
-    <div className="container-main p-r-4 gap-r-4">
+    <div className="flex flex-col h-full">
       <Header onExit={handleLogout} />
-      <div className="px-28">
+
+      <div className="px-28 flex-1 overflow-hidden">
         <PageSwitcher />
 
         <Content />

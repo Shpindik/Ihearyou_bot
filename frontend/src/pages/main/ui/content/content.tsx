@@ -25,7 +25,7 @@ const Content: FC<ComponentPropsWithoutRef<'div'>> = ({
   };
 
   return (
-    <div className={`container-main w-3/4 ${className}`} {...props}>
+    <div className={`container-scroll w-full ${className}`} {...props}>
       {renderContent()}
     </div>
   );
