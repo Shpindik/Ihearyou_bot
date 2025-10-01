@@ -4,3 +4,4 @@ export { default as UIInput } from './input';
 export { default as Header } from './header';
 export { default as UIError } from './error';
 export { default as UIBlock } from './block';
+export { default as UIModal } from './modal';
