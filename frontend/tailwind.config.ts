@@ -9,12 +9,25 @@ const config: Config = {
         '3xl': '1920px',
       },
       colors: {
-        purple: {
-          primary: '#F8F0FF',
-          secondary: '#F8F0FF',
+        ui: {
+          green: {
+            primary: '#ddff95',
+          },
+          purple: {
+            primary: '#8028aa',
+            secondary: '#f6f2ff',
+            disabled: '#c192d3',
+          },
+          gray: {
+            disabled: '#dadada',
+          },
+          text: {
+            disabled: '#A7A7A7',
+          },
+          red: {
+            error: '#FF003B',
+          },
         },
-        secondary: '#F8F0FF',
-        secondaryHover: '#F8F0FF',
       },
       boxShadow: {
         ui: '0px 2px 16px 0px rgba(0, 0, 0, 0.24)',

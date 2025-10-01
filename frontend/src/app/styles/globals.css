@@ -65,15 +65,21 @@
       @apply container-main w-full;
     }
 
-    h1 {}
+    h1 {
+      @apply text-3xl font-semibold;
+    }
 
-    h2 {}
+    h2 {
+      @apply text-[20px] leading-[120%] font-medium text-[#2B2735];
+    }
 
     h3 {}
 
     h4 {}
 
-    p {}
+    p {
+      @apply text-base leading-[140%] font-normal text-[#2B2735];
+    }
 
     p.slim {}
 
