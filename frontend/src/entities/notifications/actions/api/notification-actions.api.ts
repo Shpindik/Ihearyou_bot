@@ -6,7 +6,7 @@ export const sendNotification = async (data: {
   message: string;
 }): Promise<TNotificationItem> => {
   return api
-    .post('/api/v1/admin/notifications', data)
+    .post('/v1/admin/notifications', data)
     .then((response) => response.data);
 };
 
@@ -14,7 +14,7 @@ export const getNotification = async (
   id: number,
 ): Promise<TNotificationItem> => {
   return api
-    .get(`/api/v1/admin/notifications/${id}`)
+    .get(`/v1/admin/notifications/${id}`)
     .then((response) => response.data);
 };
 
@@ -26,10 +26,10 @@ export const updateNotification = async (
   },
 ): Promise<TNotificationItem> => {
   return api
-    .put(`/admin/notifications/${id}`, data)
+    .put(`/v1/admin/notifications/${id}`, data)
     .then((response) => response.data);
 };
 
 export const deleteNotification = async (id: number): Promise<void> => {
-  return api.delete(`/admin/notifications/${id}`).then(() => {});
+  return api.delete(`/v1/admin/notifications/${id}`).then(() => {});
 };

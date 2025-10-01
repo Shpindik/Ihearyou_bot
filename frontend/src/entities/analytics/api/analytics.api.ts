@@ -10,7 +10,7 @@ export const getAnalytics = async (
   params?: IAnalyticsRequest,
 ): Promise<TAnalyticsItem | null> => {
   return api
-    .get<IAnalyticsResponse>('/api/v1/admin/analytics', {
+    .get<IAnalyticsResponse>('/v1/admin/analytics', {
       params,
     })
     .then((response) => {

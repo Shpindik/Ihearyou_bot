@@ -10,7 +10,7 @@ export const getTemplatesList = async (): Promise<{
   total: number;
 }> => {
   return api
-    .get('/api/v1/admin/reminder-templates')
+    .get('/v1/admin/reminder-templates')
     .then((response) => {
       return response.data;
     })
@@ -23,7 +23,7 @@ export const getTemplatesList = async (): Promise<{
 
 export const createTemplate = async (data: any): Promise<TTemplateItem> => {
   return api
-    .post('/api/v1/admin/reminder-templates', data)
+    .post('/v1/admin/reminder-templates', data)
     .then((response) => response.data);
 };
 
@@ -32,10 +32,10 @@ export const updateTemplate = async (
   data: any,
 ): Promise<TTemplateItem> => {
   return api
-    .put(`/api/v1/admin/reminder-templates/${id}`, data)
+    .put(`/v1/admin/reminder-templates/${id}`, data)
     .then((response) => response.data);
 };
 
 export const deleteTemplate = async (id: number): Promise<void> => {
-  return api.delete(`/api/v1/admin/reminder-templates/${id}`).then(() => {});
+  return api.delete(`/v1/admin/reminder-templates/${id}`).then(() => {});
 };

@@ -14,13 +14,13 @@ export const getNotificationsList = async (
   const query = convertQuery(body);
 
   return api
-    .get<INotificationListResponse>(`/api/v1/admin/notifications${query}`)
+    .get<INotificationListResponse>(`/v1/admin/notifications${query}`)
     .then((response) => {
       return response.data;
     })
     .then(notificationListMapper)
     .catch((e) => {
-      console.log('API недоступен, используем моки:', e);
+      console.log(e);
       return notificationListMapper({ list: notificationsListMock });
     });
 };

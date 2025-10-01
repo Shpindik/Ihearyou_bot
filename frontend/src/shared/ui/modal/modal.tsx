@@ -57,7 +57,7 @@ const UIModal: FC<IProps> = ({
         className={`relative shadow-xl flex flex-col ${animation ? 'animate-slide-up' : 'animate-slide-down'} ${className}`}
         {...props}
       >
-        <div className="flex-end">
+        <div className="flex-end p-6">
           {!!title && (
             <div className="flex-1 text-center">
               <h1>{title}</h1>

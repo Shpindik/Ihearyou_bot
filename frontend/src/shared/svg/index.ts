@@ -9,3 +9,4 @@ export { default as EyeShowIcon } from './eye-show.icon';
 export { default as LopeCloseIcon } from './lope-close.icon.tsx';
 export { default as MainIcon } from './main-logo';
 export { default as RefreshIcon } from './refresh.icon';
+export { default as PlusIcon } from './plus.icon.tsx';

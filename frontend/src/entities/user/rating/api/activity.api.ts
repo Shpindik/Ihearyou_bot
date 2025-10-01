@@ -4,7 +4,7 @@ import { IError } from '@/shared/models/interfaces/error.interface.ts';
 
 export const rateInformation = async (body: IRatingRequest) => {
   return api
-    .post<IRatingResponse | IError>('/api/v1/ratings', body, {
+    .post<IRatingResponse | IError>('/v1/ratings', body, {
       baseURL: import.meta.env.VITE_API_URL,
     })
     .then((response) => response.data)
