@@ -10,7 +10,7 @@ export const getUserList = async (
   const query = convertQuery(body);
 
   return api
-    .get(`/admin/telegram-users/${query}`, {
+    .get(`/api/v1/admin/telegram-users/${query}`, {
       baseURL: import.meta.env.VITE_API_URL,
     })
     .then((response) => response.data)

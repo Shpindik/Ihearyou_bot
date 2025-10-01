@@ -1,9 +1,8 @@
 import { useTokenStore } from '@/entities/admin';
 import { EyeShowIcon } from '@/shared/svg';
-import { UIButton, UIInput } from '@/shared/ui';
+import { UIButton, UIError, UIInput } from '@/shared/ui';
 import { ComponentPropsWithoutRef, FC, FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UIError } from '@/shared/ui';
 
 export const Auth: FC<ComponentPropsWithoutRef<'div'>> = ({ className }) => {
   const [username, setUsername] = useState('');
@@ -11,53 +10,25 @@ export const Auth: FC<ComponentPropsWithoutRef<'div'>> = ({ className }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const { login } = useTokenStore();
   const navigate = useNavigate();
-  // const { login } = useTokenStore(); // MOCK in use
 
   const handleLogin = (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    if (username.trim() && password.trim()) {
-      // MOCK
-      const mockToken = {
-        access: 'mock-access-token',
-        refresh: 'mock-refresh-token',
-        type: 'Bearer',
-        expires_in: 3600,
-      };
-
-      useTokenStore.setState({
-        logged: true,
-        token: mockToken,
+    login(username, password)
+      .then(() => {
+        navigate('/admin');
+      })
+      .catch((err) => {
+        console.log(err);
+        setError('Ошибка авторизации');
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-
-      Promise.resolve()
-        .then(() => {
-          console.log('Моковая успешная авторизация');
-          navigate('/admin');
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-
-      // login(username, password)
-      //   .then(() => {
-      //     console.log('Успешная авторизация');
-      //     navigate('/admin');
-      //   })
-      //   .catch((err) => {
-      //     console.log(err);
-      //     setError('Ошибка авторизации');
-      //   })
-      //   .finally(() => {
-      //     setIsLoading(false);
-      //   });
-    } else {
-      setError('Введите логин и пароль');
-      setIsLoading(false);
-    }
   };
 
   return (
@@ -68,7 +39,7 @@ export const Auth: FC<ComponentPropsWithoutRef<'div'>> = ({ className }) => {
       <div className="flex flex-col gap-4 w-full max-w-96">
         <h1 className="mb-6 text-center">Вход</h1>
 
-        <UIError display={error}>{error}</UIError>
+        <UIError display={!!error}>{error}</UIError>
 
         <UIInput
           placeholder="Логин"
