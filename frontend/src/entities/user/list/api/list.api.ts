@@ -10,7 +10,7 @@ export const getAdminList = async (
   const query = convertQuery(body);
 
   return api
-    .get<IListResponse>(`/api/v1/admin/telegram-users${query}`)
+    .get<IListResponse>(`/v1/admin/telegram-users${query}`)
     .then((response) => {
       return response.data;
     })

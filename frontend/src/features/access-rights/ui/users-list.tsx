@@ -25,11 +25,14 @@ const UsersList: FC<UsersListProps> = ({
         text="Загрузка администраторов..."
       />
 
-      <h1>Права доступа</h1>
+      <h1>Список пользователей</h1>
 
       <div className="flex flex-col gap-4 w-full mt-10">
         {admins.map((admin) => (
-          <UIBlock key={admin.id} className="flex p-6 justify-around">
+          <UIBlock
+            key={admin.id}
+            className="flex p-6 justify-around rounded-full"
+          >
             <p className="text-center">
               {admin.firstName} {admin.lastName}
             </p>

@@ -94,11 +94,15 @@
 
 
     input {
-      @apply border border-black rounded-full h-[56px] placeholder:text-ui-text-tertiary;
+      @apply border border-black rounded-full placeholder:text-ui-text-tertiary;
     }
 
     button:disabled {
       @apply bg-ui-gray-disabled text-ui-text-disabled;
+    }
+
+    button:disabled:hover {
+      @apply bg-ui-gray-disabled;
     }
 
     video {}

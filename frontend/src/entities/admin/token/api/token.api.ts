@@ -18,7 +18,7 @@ export const login = async (
 
   return api
     .post<ITokenResponse>(
-      '/api/v1/admin/auth/login',
+      '/v1/admin/auth/login',
       {
         username,
         password,
@@ -36,7 +36,7 @@ export const refresh = async (data: ITokenRefreshRequest): Promise<IToken> => {
   };
 
   return api
-    .post<ITokenResponse>('/api/v1/admin/auth/refresh', data, config)
+    .post<ITokenResponse>('/v1/admin/auth/refresh', data, config)
     .then((response) => response.data)
     .then(tokenMapper);
 };
