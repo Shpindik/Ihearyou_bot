@@ -5,15 +5,14 @@ import {
   MainStats,
   TopMaterials,
   TopRatings,
-  TopSummary,
-  TopViews,
 } from './index.ts';
+import { FC } from 'react';
 
 interface AnalyticsDashboardProps {
   data: TAnalyticsItem;
 }
 
-const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ data }) => {
+const AnalyticsDashboard: FC<AnalyticsDashboardProps> = ({ data }) => {
   if (!data) {
     return null;
   }
@@ -22,40 +21,42 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ data }) => {
     <div className="p-6 pb-48">
       <div className="grid grid-cols-12 gap-6">
         {/* Основная статистика */}
+
+        {/* Топ материалы по просмотрам */}
+        <UIBlock className="col-span-12 md:col-span-6">
+          <TopMaterials materials={data.content.mostViewed} />
+        </UIBlock>
+
         <UIBlock className="col-span-12">
           <MainStats
-            totalUsers={data.users.total}
-            newUsers={data.users.newUsers}
-            totalViews={data.content.totalViews}
-            averageViewsPerDay={data.content.averageViewsPerDay}
-            dailyViews={data.dailyViews}
+            materialsPercent={(() => {
+              const totalViews = data.content.mostViewed.reduce(
+                (sum, material) => sum + material.view_count,
+                0,
+              );
+              const top5Views = data.content.mostViewed
+                .slice(0, 5)
+                .reduce((sum, material) => sum + material.view_count, 0);
+              return totalViews > 0
+                ? Math.round((top5Views / totalViews) * 100)
+                : 0;
+            })()}
+            sectionsPercent={75}
           />
         </UIBlock>
 
-        {/* Топ материалы и разделы */}
+        {/* Топ материалы по рейтингу */}
         <UIBlock className="col-span-12 md:col-span-6">
-          <TopMaterials materials={data.content.topMaterials} />
+          <TopRatings materials={data.content.mostRated} />
         </UIBlock>
 
+        {/* АнтиТоп материалы по рейтингу (ниже 3.0) */}
         <UIBlock className="col-span-12 md:col-span-6">
-          <TopViews sections={data.content.topSections} />
-        </UIBlock>
-
-        {/* Сводка */}
-        <UIBlock className="col-span-12">
-          <TopSummary
-            materials={data.content.topMaterials}
-            sections={data.content.topSections}
+          <AntiTopRatings
+            materials={data.content.mostRated.filter(
+              (material) => material.average_rating < 3.0,
+            )}
           />
-        </UIBlock>
-
-        {/* Рейтинги */}
-        <UIBlock className="col-span-12 md:col-span-6">
-          <TopRatings materials={data.ratings.topMaterials} />
-        </UIBlock>
-
-        <UIBlock className="col-span-12 md:col-span-6">
-          <AntiTopRatings materials={data.ratings.antiTopMaterials} />
         </UIBlock>
       </div>
     </div>

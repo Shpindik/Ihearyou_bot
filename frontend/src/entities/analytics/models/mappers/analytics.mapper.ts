@@ -1,4 +1,4 @@
-import { IAnalyticsResponse } from '../interfaces/analytics-response.interface';
+import { IAnalyticsResponse } from '@/entities/analytics';
 
 export const analyticsMapper = (response: IAnalyticsResponse) => {
   console.log('analyticsMapper получил response:', response);
@@ -10,44 +10,39 @@ export const analyticsMapper = (response: IAnalyticsResponse) => {
   return {
     users: {
       total: response.users.total,
-      newUsers: response.users.new_users,
       activeToday: response.users.active_today,
       activeWeek: response.users.active_week,
       activeMonth: response.users.active_month,
     },
     content: {
-      totalViews: response.content.total_views,
-      averageViewsPerDay: response.content.average_views_per_day,
-      topMaterials: response.content.top_materials.map((material) => ({
+      totalMenuItems: response.content.total_menu_items,
+      mostViewed: response.content.most_viewed.map((material) => ({
         id: material.id,
         title: material.title,
-        count: material.count,
-        percentage: material.percentage,
+        view_count: material.view_count,
+        download_count: material.download_count,
+        average_rating: material.average_rating,
       })),
-      topSections: response.content.top_sections.map((section) => ({
-        id: section.id,
-        title: section.title,
-        count: section.count,
-        percentage: section.percentage,
+      mostRated: response.content.most_rated.map((material) => ({
+        id: material.id,
+        title: material.title,
+        average_rating: material.average_rating,
+        rating_count: material.rating_count,
       })),
     },
-    ratings: {
-      topMaterials: response.ratings.top_materials.map((material) => ({
-        id: material.id,
-        title: material.title,
-        rating: material.rating,
-        count: material.count,
-      })),
-      antiTopMaterials: response.ratings.anti_top_materials.map((material) => ({
-        id: material.id,
-        title: material.title,
-        rating: material.rating,
-        count: material.count,
+    activities: {
+      totalViews: response.activities.total_views,
+      totalDownloads: response.activities.total_downloads,
+      totalRatings: response.activities.total_ratings,
+      searchQueries: response.activities.search_queries.map((query) => ({
+        query: query.query,
+        count: query.count,
       })),
     },
-    dailyViews: response.daily_views.map((view) => ({
-      day: view.day,
-      views: view.views,
-    })),
+    questions: {
+      total: response.questions.total,
+      pending: response.questions.pending,
+      answered: response.questions.answered,
+    },
   };
 };

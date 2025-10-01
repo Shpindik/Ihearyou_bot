@@ -1,46 +1,44 @@
 export interface AnalyticsDto {
   users: {
     total: number;
-    new_users: number;
     active_today: number;
     active_week: number;
     active_month: number;
   };
   content: {
+    total_menu_items: number;
+    most_viewed: MaterialAnalyticsDto[];
+    most_rated: MaterialRatingDto[];
+  };
+  activities: {
     total_views: number;
-    average_views_per_day: number;
-    top_materials: MaterialAnalyticsDto[];
-    top_sections: SectionAnalyticsDto[];
+    total_downloads: number;
+    total_ratings: number;
+    search_queries: SearchQueryDto[];
   };
-  ratings: {
-    top_materials: MaterialRatingDto[];
-    anti_top_materials: MaterialRatingDto[];
+  questions: {
+    total: number;
+    pending: number;
+    answered: number;
   };
-  daily_views: DailyViewDto[];
 }
 
 export interface MaterialAnalyticsDto {
   id: number;
   title: string;
-  count: number;
-  percentage: number;
-}
-
-export interface SectionAnalyticsDto {
-  id: number;
-  title: string;
-  count: number;
-  percentage: number;
+  view_count: number;
+  download_count: number;
+  average_rating: number;
 }
 
 export interface MaterialRatingDto {
   id: number;
   title: string;
-  rating: number;
-  count: number;
+  average_rating: number;
+  rating_count: number;
 }
 
-export interface DailyViewDto {
-  day: string;
-  views: number;
+export interface SearchQueryDto {
+  query: string;
+  count: number;
 }
