@@ -84,6 +84,7 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
         query = select(TelegramUser).where(
             TelegramUser.last_activity < threshold, TelegramUser.reminder_sent_at < threshold
         )
+        # gives all users for testing
         query = select(TelegramUser)
         result = await db.execute(query)
         items = result.scalars().all()
