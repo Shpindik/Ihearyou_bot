@@ -171,15 +171,15 @@ class MenuItemService:
 
         items_data = [
             SearchItemResponse(
-                id=item.id,
-                title=item.title,
-                description=item.description,
-                parent_id=item.parent_id,
-                bot_message=item.bot_message,
-                is_active=item.is_active,
-                access_level=item.access_level,
+                id=row.id,
+                title=row.title,
+                description=row.description,
+                parent_id=row.parent_id,
+                bot_message=row.bot_message,
+                is_active=row.is_active,
+                access_level=row.access_level,
             )
-            for item in items
+            for row in items
         ]
 
         return SearchListResponse(items=items_data)

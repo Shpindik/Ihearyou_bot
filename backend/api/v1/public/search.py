@@ -14,9 +14,9 @@ router = APIRouter(prefix="/search", tags=["Public Search"])
 
 @router.get("/", response_model=SearchListResponse, status_code=status.HTTP_200_OK)
 async def search_materials(
-    telegram_user_id: int = Query(..., description="ID пользователя в Telegram"),
-    query: str = Query(..., description="Поисковый запрос"),
-    limit: int = Query(10, description="Лимит результатов (по умолчанию 10)"),
+    telegram_user_id: int = Query(..., description="ID пользователя в Telegram", gt=0),
+    query: str = Query(..., description="Поисковый запрос", min_length=2, max_length=100),
+    limit: int = Query(10, description="Лимит результатов (по умолчанию 10)", gt=0, le=100),
     db: AsyncSession = Depends(get_session),
 ) -> SearchListResponse:
     """Поиск по материалам.

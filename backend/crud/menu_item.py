@@ -122,26 +122,40 @@ class MenuItemCRUD(BaseCRUD[MenuItem, dict, dict]):
         Returns:
             List[MenuItem]: Список найденных пунктов меню
         """
-        search_pattern = f"%{query}%"
+        if limit < 0:
+            return []
+        
+        words = [w for w in query.strip().split() if w]
+        if not words:
+            return []
 
-        stmt = select(MenuItem).where(
+        conditions = []
+        for word in words:
+            pattern = f"%{word}%"
+            conditions.append(
+                or_(
+                    MenuItem.title.ilike(pattern),
+                    MenuItem.description.ilike(pattern),
+                )
+            )
+
+        stmt = select(
+            MenuItem.id,
+            MenuItem.title,
+            MenuItem.description,
+            MenuItem.parent_id,
+            MenuItem.bot_message,
             MenuItem.is_active,
-            or_(
-                MenuItem.title.ilike(search_pattern),
-                MenuItem.description.ilike(search_pattern),
-            ),
-        )
+            MenuItem.access_level,
+        ).where(MenuItem.is_active == True, *conditions)
 
         if access_level == AccessLevel.FREE:
             stmt = stmt.where(MenuItem.access_level == AccessLevel.FREE)
 
-        stmt = stmt.order_by(
-            MenuItem.title.ilike(f"{query}%").desc(),
-            MenuItem.id
-        ).limit(limit)
+        stmt = stmt.order_by(MenuItem.title.ilike(f"{query}%").desc(), MenuItem.id).limit(limit)
 
         result = await db.execute(stmt)
-        return list(result.scalars().all())
+        return result.all()
 
 
 menu_crud = MenuItemCRUD()
