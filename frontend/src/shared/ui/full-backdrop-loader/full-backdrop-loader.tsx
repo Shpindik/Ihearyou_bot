@@ -4,15 +4,19 @@ interface IProps extends ComponentPropsWithoutRef<'div'> {
   text?: string;
   background?: boolean;
   block?: boolean;
+  loading?: boolean;
 }
 
 const UIFullBackdropLoader: FC<IProps> = ({
   text,
   background,
   block,
+  loading,
   className = '',
   ...props
 }) => {
+  if (!loading) return null;
+
   return (
     <div
       className={`${className} absolute inset-0 flex-center flex-col gap-3 transition-all z-20 ${background ? 'bg-black/[0.48] backdrop-blur-sm' : ''} ${
