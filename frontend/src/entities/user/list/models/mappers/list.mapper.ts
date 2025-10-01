@@ -1,7 +1,7 @@
-import { UserListDto } from '../dtos';
+import { UserItemDto } from '../dtos';
 import { IListResponse } from '../interfaces';
 
-export const userItemMapper = (dto: UserListDto) => ({
+export const userItemMapper = (dto: UserItemDto) => ({
   id: dto.id,
   telegramId: dto.telegram_id,
   username: dto.username,

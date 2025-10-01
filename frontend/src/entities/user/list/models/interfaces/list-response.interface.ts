@@ -1,4 +1,4 @@
-import { UserListDto } from '@/entities/user/list/models/dtos/list.dto.ts';
+import { UserListDto } from '../dtos';
 
 /**
  * @example

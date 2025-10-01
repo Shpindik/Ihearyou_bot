@@ -1,4 +1,4 @@
-export interface ActivityResponseDto {
+export interface ActivityDto {
   id: number;
   telegram_user_id: number;
   menu_item_id: number;

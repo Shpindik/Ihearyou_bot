@@ -1,7 +1,7 @@
-import { IListItem } from '@/entities/user/list';
+import { UserItemDto } from './user-item.dto';
 
 export interface UserListDto {
-  items: IListItem[];
+  items: UserItemDto[];
   total: number;
   page: number;
   limit: number;

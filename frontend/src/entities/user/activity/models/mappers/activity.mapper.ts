@@ -1,6 +1,6 @@
-import { ActivityResponseDto } from '../dtos';
+import { ActivityDto } from '../dtos';
 
-export const activityMapper = (dto: ActivityResponseDto) => ({
+export const activityMapper = (dto: ActivityDto) => ({
   id: dto.id,
   telegramUserId: dto.telegram_user_id,
   menuItemId: dto.menu_item_id,

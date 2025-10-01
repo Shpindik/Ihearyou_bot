@@ -1,19 +1,19 @@
-import {
-  IUserDetailsRequest,
-  userDetailsMapper,
-} from '@/entities/user/details';
-import { IUserDetailsResponse } from '@/entities/user/details/models/interfaces/user-details-response.interface';
+import { TUserDetailsItem, userDetailsMapper } from '@/entities/user/details';
+import { UserDetailsResponseDto } from '@/entities/user/details/models/dtos/user-details-response.dto';
+import { IUserDetailsRequest } from '@/entities/user/details/models/interfaces/user-details-request.interface';
 import { api } from '@/shared/api';
-import { IError } from '@/shared/models/interfaces/error.interface';
 
 export const getUserDetails = async (
   params: IUserDetailsRequest,
-): Promise<IUserDetailsResponse | IError> => {
+): Promise<TUserDetailsItem> => {
   return api
-    .get(`/admin/telegram-users/${params.id}`, {
+    .get<UserDetailsResponseDto>(`/admin/telegram-users/${params.id}`, {
       baseURL: import.meta.env.VITE_API_URL,
     })
     .then((response) => response.data)
     .then(userDetailsMapper)
-    .catch((e) => console.log(e));
+    .catch((e) => {
+      console.log(e);
+      return {} as TUserDetailsItem;
+    });
 };

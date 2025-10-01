@@ -1,4 +1,4 @@
-import { TokenDto } from '@/entities/user/token/models/dtos/token.dto.ts';
+import { TokenDto } from '@/entities/admin';
 
 export interface ITokenResponse {
   access_token: TokenDto;
