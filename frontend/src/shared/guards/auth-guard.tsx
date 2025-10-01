@@ -11,13 +11,7 @@ const AuthGuard = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     if (logged) return;
 
-    //MOCK
     if (token) {
-      if (token.access === 'mock-access-token') {
-        setError(false);
-        return;
-      }
-
       setLoading(true);
 
       refresh({ refresh_token: token.refresh })

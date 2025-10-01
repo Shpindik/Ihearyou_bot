@@ -7,7 +7,7 @@ export const getUserDetails = async (
   params: IUserDetailsRequest,
 ): Promise<TUserDetailsItem> => {
   return api
-    .get<UserDetailsResponseDto>(`/admin/telegram-users/${params.id}`, {
+    .get<UserDetailsResponseDto>(`/api/v1/admin/telegram-users/${params.id}`, {
       baseURL: import.meta.env.VITE_API_URL,
     })
     .then((response) => response.data)
