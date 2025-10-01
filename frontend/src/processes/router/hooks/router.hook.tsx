@@ -1,12 +1,4 @@
-import {
-  ErrorPage,
-  DashBoardPage,
-  FilesPage,
-  LoginPage,
-  EditPage,
-  AccessPage,
-  RemindersPage,
-} from '@/pages/index.ts';
+import { ErrorPage, LoginPage, MainPage } from '@/pages/index.ts';
 import AuthGuard from '@/shared/guards/auth-guard.tsx';
 import { useMemo } from 'react';
 import {
@@ -32,42 +24,26 @@ export const useRouter = () => {
         ),
         children: [
           {
-            path: '/login',
-            Component: LoginPage,
-          },
-          {
-            path: '/dashboard',
-            Component: DashBoardPage,
-          },
-          {
-            path: '/files',
-            Component: FilesPage,
-          },
-          {
-            path: '/edit',
-            Component: EditPage,
-          },
-          {
-            path: '/access',
-            Component: AccessPage,
-          },
-          {
-            path: '/reminders',
-            Component: RemindersPage,
+            path: '/admin',
+            Component: MainPage,
           },
           {
             path: '*',
-            element: <Navigate to={'/login'} replace />,
+            element: <Navigate to={'/error/404'} replace />,
           },
           {
             index: true,
-            element: <Navigate to={'/login'} replace />,
+            element: <Navigate to={'/admin'} replace />,
           },
         ],
       },
       {
         path: ErrorPage.url,
         Component: ErrorPage,
+      },
+      {
+        path: '*',
+        element: <Navigate to={'/error'} replace />,
       },
     ];
   }, []);

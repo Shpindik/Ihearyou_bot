@@ -1,26 +1,25 @@
+import ErrorMessage from '@/pages/error/ui/error.tsx';
 import { useParams } from 'react-router-dom';
-
 const STATUS_PARAM_KEY = 'status';
 
-const ErrorPage = () => {
+export const ErrorPage = () => {
   const params = useParams<{ [STATUS_PARAM_KEY]: string }>();
-  const status = params[STATUS_PARAM_KEY];
+  const status = Number(params[STATUS_PARAM_KEY]);
 
-  const errorMessage = () => {
-    switch (status) {
-      case '404':
-        return 'Page Not Found';
-
-      case '500':
-        return 'Server Error';
-
-      default:
-        return null;
+  const handleButtonClick = (): void => {
+    if (status === 404) {
+      window.history.back();
+    } else {
+      window.location.reload();
     }
   };
 
   return (
-    <div>Страница ошибок, через свич-кейс по статусам: {errorMessage()}</div>
+    <div className="min-h-screen white flex items-center justify-center">
+      <div className="max-w-md w-full rounded-lg shadow-ui p-8 bg-white/60 mx-4">
+        <ErrorMessage error={status} onButtonClick={handleButtonClick} />
+      </div>
+    </div>
   );
 };
 

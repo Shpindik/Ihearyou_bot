@@ -1,1 +1,2 @@
-export { default } from './error-page';
+export { default } from './error-page.tsx';
+export * from './ui';

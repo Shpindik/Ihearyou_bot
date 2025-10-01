@@ -3,7 +3,7 @@ import {
   errorInterceptor,
   requestInterceptor,
   successInterceptor,
-} from '@/shared/api/interceptors.ts';
+} from '@/shared/error-boundary/interceptors.ts';
 
 const axiosRequestConfig: AxiosRequestConfig = {
   baseURL: import.meta.env.SERVICE_API,
