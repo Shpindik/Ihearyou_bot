@@ -1,11 +1,13 @@
 import { useTokenStore } from '@/entities/admin';
+import { usePageStore } from '@/entities/page';
 import PageSwitcher from '@/features/page-switcher';
-import { Header } from '@/shared/ui';
+import { Header, UIFullBackDropLoader } from '@/shared/ui';
 import { useNavigate } from 'react-router-dom';
 import Content from './ui/content/content';
 
 const MainPage = () => {
   const { logout } = useTokenStore();
+  const { loading, loadingText } = usePageStore();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -22,6 +24,13 @@ const MainPage = () => {
 
         <Content />
       </div>
+
+      <UIFullBackDropLoader
+        loading={loading}
+        background={true}
+        className="fixed inset-0 z-50"
+        text={loadingText}
+      />
     </div>
   );
 };

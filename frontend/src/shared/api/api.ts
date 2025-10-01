@@ -1,12 +1,12 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import {
   errorInterceptor,
   requestInterceptor,
   successInterceptor,
 } from '@/shared/error-boundary/interceptors.ts';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 const axiosRequestConfig: AxiosRequestConfig = {
-  baseURL: import.meta.env.SERVICE_API,
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8001/api',
   responseType: 'json',
   headers: {
     'Content-Type': 'application/json',

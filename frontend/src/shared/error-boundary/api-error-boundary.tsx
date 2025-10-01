@@ -18,9 +18,6 @@ const ApiErrorBoundary = ({ children }: PropsWithChildren) => {
         }
       }
 
-      const status = error.response?.status || 500;
-      window.location.href = `/error/${status}`;
-
       throw error;
     }
   }, []);

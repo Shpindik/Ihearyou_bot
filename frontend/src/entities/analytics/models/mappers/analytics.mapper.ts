@@ -1,6 +1,8 @@
-import { IAnalyticsResponse } from '@/entities/analytics';
+import { AnalyticsDto, IAnalyticsResponse } from '@/entities/analytics';
 
-export const analyticsMapper = (response: IAnalyticsResponse) => {
+export const analyticsMapper = (
+  response: IAnalyticsResponse | AnalyticsDto,
+) => {
   console.log('analyticsMapper получил response:', response);
 
   if (!response) {

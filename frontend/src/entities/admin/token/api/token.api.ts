@@ -12,7 +12,7 @@ export const login = async (
   password: string,
 ): Promise<IToken> => {
   const config: TRequest = {
-    baseURL: import.meta.env.SERVICE_AUTH_API,
+    baseURL: import.meta.env.VITE_API_URL,
     ignoreAllErrors: true,
   };
 
@@ -31,7 +31,7 @@ export const login = async (
 
 export const refresh = async (data: ITokenRefreshRequest): Promise<IToken> => {
   const config: TRequest = {
-    baseURL: import.meta.env.SERVICE_AUTH_API,
+    baseURL: import.meta.env.VITE_API_URL,
     ignoreAllErrors: true,
   };
 

@@ -1,8 +1,19 @@
-import { getAnalytics } from '@/entities/analytics';
+import {
+  analyticsMapper,
+  analyticsMock,
+  getAnalytics,
+} from '@/entities/analytics';
 import { TAnalyticsItem } from '@/entities/analytics/models/types/analytics-item.type';
+import { usePageStore } from '@/entities/page';
 import AnalyticsDashboard from '@/features/analytics/ui/analytics-dashboard.tsx';
-import FullBackdropLoader from '@/shared/ui/full-backdrop-loader';
-import { ComponentPropsWithoutRef, FC, useEffect, useState } from 'react';
+import ContentEmpty from '@/shared/ui/content-empty/table-empty.tsx';
+import {
+  ComponentPropsWithoutRef,
+  FC,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 
 export const Analytics: FC<ComponentPropsWithoutRef<'div'>> = ({
   className,
@@ -10,23 +21,24 @@ export const Analytics: FC<ComponentPropsWithoutRef<'div'>> = ({
   const [analyticsData, setAnalyticsData] = useState<TAnalyticsItem | null>(
     null,
   );
-  const [loading, setLoading] = useState(false);
+  const { setLoading } = usePageStore();
 
-  const loadAnalytics = async () => {
-    setLoading(true);
+  const loadAnalytics = useCallback(async () => {
+    setLoading(true, 'Загрузка аналитики...');
     try {
       const data = await getAnalytics();
       setAnalyticsData(data);
     } catch (error) {
-      console.error('Ошибка загрузки аналитики:', error);
+      console.error('Ошибка загрузки аналитики, используем моки:', error);
+      setAnalyticsData(analyticsMapper(analyticsMock));
     } finally {
       setLoading(false);
     }
-  };
+  }, [setLoading]);
 
   useEffect(() => {
     void loadAnalytics();
-  }, []);
+  }, [loadAnalytics]);
 
   return (
     <div className={`${className} w-full relative`}>
@@ -36,14 +48,13 @@ export const Analytics: FC<ComponentPropsWithoutRef<'div'>> = ({
         <h1>Статистика за моковый период</h1>
 
         <AnalyticsDashboard data={analyticsData} />
-      </div>
 
-      <FullBackdropLoader
-        text="Загрузка аналитики..."
-        background
-        block
-        loading={loading}
-      />
+        <ContentEmpty
+          title="Нет данных"
+          text="Не удалось загрузить данные аналитики"
+          items={!analyticsData}
+        />
+      </div>
     </div>
   );
 };

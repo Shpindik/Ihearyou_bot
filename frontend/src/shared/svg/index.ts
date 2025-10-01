@@ -1,10 +1,11 @@
-export { default as EyeShowIcon } from './eye-show.icon';
-export { default as EyeCloseIcon } from './eye-close.icon';
 export { default as ArrowIcon } from './arrow.icon';
 export { default as CloseIcon } from './close.icon';
-export { default as DropdownArrowIcon } from './dropdown-arrow.icon';
-export { default as RefreshIcon } from './refresh.icon';
-export { default as MainIcon } from './main-logo';
-export { default as LopeCloseIcon } from './lope-close.icon.tsx';
 export { default as CrossCircleIcon } from './cross-close-circle.icon';
+export { default as DropdownArrowIcon } from './dropdown-arrow.icon';
+export { default as EditIcon } from './edit.icon';
 export { default as ExitIcon } from './exit.icon.tsx';
+export { default as EyeCloseIcon } from './eye-close.icon';
+export { default as EyeShowIcon } from './eye-show.icon';
+export { default as LopeCloseIcon } from './lope-close.icon.tsx';
+export { default as MainIcon } from './main-logo';
+export { default as RefreshIcon } from './refresh.icon';

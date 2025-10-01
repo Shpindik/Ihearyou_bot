@@ -1,18 +1,22 @@
-import { IListItem } from '@/entities/user/list';
+import { TUserItem, userListMapper } from '@/entities/user/list';
 import { IListRequest } from '@/entities/user/list/models/interfaces/list-request.interface.ts';
+import { IListResponse } from '@/entities/user/list/models/interfaces/list-response.interface.ts';
 import { api } from '@/shared/api';
-import { IError } from '@/shared/models/interfaces/error.interface.ts';
 import { convertQuery } from '@/shared/utils';
 
-export const getUserList = async (
+export const getAdminList = async (
   body: IListRequest,
-): Promise<IListItem[] | IError> => {
+): Promise<{ items: TUserItem[]; total: number }> => {
   const query = convertQuery(body);
 
   return api
-    .get(`/api/v1/admin/telegram-users/${query}`, {
-      baseURL: import.meta.env.VITE_API_URL,
+    .get<IListResponse>(`/api/v1/admin/telegram-users${query}`)
+    .then((response) => {
+      return response.data;
     })
-    .then((response) => response.data)
-    .catch((e) => console.log(e));
+    .then(userListMapper)
+    .catch((e) => {
+      console.log(e);
+      throw e;
+    });
 };
