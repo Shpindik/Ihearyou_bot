@@ -43,7 +43,7 @@ const MainStats: FC<IProps> = ({
             {dailyViews.map((item, index) => {
               const max = Math.max(...dailyViews.map((d) => d.views));
               const height = (item.views / max) * 350;
-              const colors = ['bg-green-300', 'bg-gray-300'];
+              const colors = ['bg-ui-green-primary', 'bg-gray-300'];
               const style = colors[index % 2];
 
               return (

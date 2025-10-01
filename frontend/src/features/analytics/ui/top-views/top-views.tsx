@@ -18,7 +18,7 @@ const TopViews: FC<IProps> = ({ sections }) => {
           <div className="flex items-center gap-4">
             <div className="flex-1 h-8 bg-ui-gray-disabled rounded-full overflow-hidden">
               <div
-                className="h-full bg-green-300 rounded-full transition-all duration-300"
+                className="h-full bg-ui-green-primary rounded-full transition-all duration-300"
                 style={{ width: `${section.percentage}%` }}
               />
             </div>
