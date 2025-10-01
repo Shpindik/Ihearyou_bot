@@ -23,11 +23,7 @@ class APIClient:
         if self.session:
             await self.session.close()
 
-    async def get_menu_items(
-        self, 
-        telegram_user_id: int, 
-        parent_id: Optional[int] = None
-    ) -> List[Dict]:
+    async def get_menu_items(self, telegram_user_id: int, parent_id: Optional[int] = None) -> List[Dict]:
         """Получить пункты меню."""
         url = f"{self.base_url}/menu-items"
         params = {"telegram_user_id": telegram_user_id}
@@ -46,11 +42,7 @@ class APIClient:
             print(f"Ошибка подключения к API: {e}")
             return []
 
-    async def get_menu_content(
-        self, 
-        menu_item_id: int, 
-        telegram_user_id: int
-    ) -> Optional[Dict]:
+    async def get_menu_content(self, menu_item_id: int, telegram_user_id: int) -> Optional[Dict]:
         """Получить контент пункта меню."""
         url = f"{self.base_url}/menu-items/{menu_item_id}/content"
         params = {"telegram_user_id": telegram_user_id}
@@ -67,19 +59,11 @@ class APIClient:
             return None
 
     async def record_activity(
-        self,
-        telegram_user_id: int,
-        menu_item_id: int,
-        activity_type: str,
-        search_query: Optional[str] = None
+        self, telegram_user_id: int, menu_item_id: int, activity_type: str, search_query: Optional[str] = None
     ) -> bool:
         """Записать активность пользователя."""
         url = f"{self.base_url}/user-activities"
-        data = {
-            "telegram_user_id": telegram_user_id,
-            "menu_item_id": menu_item_id,
-            "activity_type": activity_type
-        }
+        data = {"telegram_user_id": telegram_user_id, "menu_item_id": menu_item_id, "activity_type": activity_type}
         if search_query:
             data["search_query"] = search_query
 
@@ -110,12 +94,7 @@ class APIClient:
             print(f"Ошибка отправки оценки: {e}")
             return False
 
-    async def search_materials(
-        self,
-        telegram_user_id: int,
-        query: str,
-        limit: int = 10
-    ) -> List[Dict]:
+    async def search_materials(self, telegram_user_id: int, query: str, limit: int = 10) -> List[Dict]:
         """Поиск по материалам (заглушка - endpoint не реализован)."""
         # TODO: Реализовать когда endpoint будет готов
         print(f"Поиск '{query}' пользователем {telegram_user_id}")
@@ -137,11 +116,7 @@ class APIClient:
             return False
 
     async def create_telegram_user(
-        self,
-        telegram_id: int,
-        first_name: str,
-        last_name: Optional[str] = None,
-        username: Optional[str] = None
+        self, telegram_id: int, first_name: str, last_name: Optional[str] = None, username: Optional[str] = None
     ) -> bool:
         """Создать пользователя через Bot API."""
         url = f"{self.base_url}/telegram-user/register"
@@ -149,19 +124,11 @@ class APIClient:
             "update_id": 1,
             "message": {
                 "message_id": 1,
-                "from": {
-                    "id": telegram_id,
-                    "first_name": first_name,
-                    "last_name": last_name,
-                    "username": username
-                },
-                "chat": {
-                    "id": telegram_id,
-                    "type": "private"
-                },
+                "from": {"id": telegram_id, "first_name": first_name, "last_name": last_name, "username": username},
+                "chat": {"id": telegram_id, "type": "private"},
                 "date": 1640995200,
-                "text": "/start"
-            }
+                "text": "/start",
+            },
         }
 
         try:
@@ -170,3 +137,18 @@ class APIClient:
         except Exception as e:
             print(f"Ошибка создания пользователя: {e}")
             return False
+
+    async def get_inactive_users(self, days: int = 10) -> Dict:
+        """Получить пользователей, которые неактивны <days> дней."""
+        url = f"{self.base_url}/bot/reminders/inactive_users"
+        query = {"inactive_days": days}
+        try:
+            async with self.session.get(url, params=query) as response:
+                if response.status == 200:
+                    return await response.json()
+                else:
+                    print(f"Ошибка получения контента: {response.status}")
+                    return None
+        except Exception as e:
+            print(f"Ошибка подключения к API: {e}")
+            return {"users": []}

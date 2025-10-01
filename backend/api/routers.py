@@ -13,6 +13,7 @@ from .v1.admin.reminder_template import router as admin_reminder_templates_route
 from .v1.admin.user import router as admin_users_router
 
 # Bot API эндпоинты
+from .v1.bot.reminder import router as bot_reminder_router
 from .v1.bot.telegram_user import router as bot_telegram_user_router
 
 # Публичные эндпоинты (без JWT)
@@ -27,7 +28,8 @@ from .v1.public.user_question import router as public_user_questions_router
 api_router = APIRouter(prefix="/api/v1")
 
 # Подключение Bot API эндпоинтов
-api_router.include_router(bot_telegram_user_router)
+api_router.include_router(bot_telegram_user_router, prefix="/bot")
+api_router.include_router(bot_reminder_router, prefix="/bot")
 
 # Подключение публичных эндпоинтов (без JWT)
 api_router.include_router(public_menu_router)
