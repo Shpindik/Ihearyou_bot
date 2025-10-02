@@ -50,12 +50,24 @@ async def edit_message(
         await callback.message.edit_text(text=text, reply_markup=reply_markup)
         # Добавляем состояние в навигацию только после успешного редактирования
         if add_to_history:
-            add_navigation_state(user_id, text, reply_markup, meta)
+            meta_to_store: Dict[str, Any] = (meta or {}).copy()
+            try:
+                meta_to_store.setdefault("message_id", callback.message.message_id)
+                meta_to_store.setdefault("chat_id", callback.message.chat.id)
+            except Exception:
+                pass
+            add_navigation_state(user_id, text, reply_markup, meta_to_store)
     except Exception:
         # Если редактирование не удалось, отправляем новое сообщение
-        await callback.message.answer(text, reply_markup=reply_markup)
+        sent = await callback.message.answer(text, reply_markup=reply_markup)
         # Добавляем состояние в навигацию
         if add_to_history:
-            add_navigation_state(user_id, text, reply_markup, meta)
+            meta_to_store: Dict[str, Any] = (meta or {}).copy()
+            try:
+                meta_to_store.setdefault("message_id", sent.message_id)
+                meta_to_store.setdefault("chat_id", sent.chat.id)
+            except Exception:
+                pass
+            add_navigation_state(user_id, text, reply_markup, meta_to_store)
 
 

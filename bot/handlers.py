@@ -2,6 +2,7 @@ import os
 from typing import Optional
 
 import kb
+import asyncio
 from aiogram import Bot, F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
@@ -133,8 +134,44 @@ async def handle_user_question_text(message: Message, state: FSMContext):
 
     await state.clear()
 
-    await message.answer(
-        "Спасибо! Ваш вопрос отправлен. Мы уведомим вас, когда будет готов ответ.")
+    # Показать подтверждение "сверху": временно заменить верхнее бот-сообщение
+    # и затем вернуть предыдущий экран
+    try:
+        user_id = message.from_user.id
+        user_state = navigation_states.get(user_id)
+        if user_state and len(user_state.history) >= 2:
+            last_state = user_state.history[-1]
+            previous_state = user_state.history[-2]
+
+            meta_last = (last_state.get('meta') or {})
+            chat_id = meta_last.get('chat_id', message.chat.id)
+            message_id = meta_last.get('message_id')
+
+            if message_id:
+                # Первый шаг: показать "Спасибо!" в верхнем сообщении
+                await message.bot.edit_message_text(
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    text="Спасибо! Ваш вопрос отправлен. Мы уведомим вас, когда будет готов ответ.",
+                    reply_markup=last_state['reply_markup'],
+                )
+
+                # Небольшая пауза, чтобы пользователь увидел подтверждение
+                await asyncio.sleep(1.5)
+
+                # Второй шаг: вернуть предыдущий экран
+                await message.bot.edit_message_text(
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    text=previous_state['message_text'],
+                    reply_markup=previous_state['reply_markup'],
+                )
+                # Удаляем последний экран из истории, оставляя предыдущий как актуальный
+                user_state.history.pop()
+    except Exception:
+        # Фолбэк: если не удалось отредактировать верхнее сообщение — отправим обычное подтверждение
+        await message.answer(
+            "Спасибо! Ваш вопрос отправлен. Мы уведомим вас, когда будет готов ответ.")
 
 # Обработчик для кнопки "Написать письмо" (inline)
 @router.callback_query(F.data == "write_letter_cd")
