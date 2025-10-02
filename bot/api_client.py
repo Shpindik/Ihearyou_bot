@@ -96,10 +96,19 @@ class APIClient:
         menu_item_id: int,
         rating: int
     ) -> bool:
-        """Оценить материал (заглушка - endpoint не реализован)."""
-        # TODO: Реализовать когда endpoint будет готов
-        print(f"Оценка материала {menu_item_id} пользователем {telegram_user_id}: {rating}/5")
-        return True
+        """Оценить материал через публичный API."""
+        url = f"{self.base_url}/ratings"
+        data = {
+            "telegram_user_id": telegram_user_id,
+            "menu_item_id": menu_item_id,
+            "rating": rating,
+        }
+        try:
+            async with self.session.post(url, json=data) as response:
+                return response.status == 201
+        except Exception as e:
+            print(f"Ошибка отправки оценки: {e}")
+            return False
 
     async def search_materials(
         self,
@@ -117,10 +126,15 @@ class APIClient:
         telegram_user_id: int,
         question: str
     ) -> bool:
-        """Создать вопрос пользователя (заглушка - endpoint не реализован)."""
-        # TODO: Реализовать когда endpoint будет готов
-        print(f"Вопрос от пользователя {telegram_user_id}: {question}")
-        return True
+        """Создать вопрос пользователя через Public API."""
+        url = f"{self.base_url}/user-questions"
+        data = {"telegram_user_id": telegram_user_id, "question_text": question}
+        try:
+            async with self.session.post(url, json=data) as response:
+                return response.status == 201
+        except Exception as e:
+            print(f"Ошибка создания вопроса: {e}")
+            return False
 
     async def create_telegram_user(
         self,

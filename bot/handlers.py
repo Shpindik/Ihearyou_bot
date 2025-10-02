@@ -96,31 +96,45 @@ async def handle_go_back_inline(callback: CallbackQuery, state: FSMContext):
 
 # Обработчик для кнопки "Задать вопрос" (inline)
 @router.callback_query(F.data == "ask_question_cd")
-async def handle_ask_question_inline(callback: CallbackQuery):
-    """Обработчик для inline кнопки 'Задать вопрос' (заглушка)"""
-    # Записываем активность
-    async with APIClient() as api:
-        await api.record_activity(
-            telegram_user_id=callback.from_user.id,
-            menu_item_id=1,  # Используем существующий ID пункта меню
-            activity_type="question_click"
-        )
-    
-    # Создаем навигационную клавиатуру с кнопками "Назад" и "Главное меню"
+async def handle_ask_question_inline(callback: CallbackQuery, state: FSMContext):
+    """Открыть форму ввода вопроса."""
+    await state.clear()
+    await state.set_state(States.waiting_for_user_question)
+
     from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
     nav_keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text=dict_kb["go_back"], callback_data="go_back_cd"),
-            InlineKeyboardButton(text=dict_kb["ask_question"], callback_data="ask_question_cd"),
-        ],
-        [InlineKeyboardButton(text=dict_kb["go_home"], callback_data="main_cd")]
+            InlineKeyboardButton(text=dict_kb["go_home"], callback_data="main_cd"),
+        ]
     ])
-    
+
     await edit_message(
         callback,
-        dict["ask_question_placeholder"],
-        nav_keyboard
+        "Тут ты сможешь задать интересующий вопрос нам, а мы постараемся ответить как можно быстрее!",
+        nav_keyboard,
     )
+
+
+@router.message(States.waiting_for_user_question)
+async def handle_user_question_text(message: Message, state: FSMContext):
+    """Принимаем текст вопроса, сохраняем в БД, подтверждаем пользователю."""
+    question_text = message.text.strip()
+    if not question_text:
+        await message.answer("Пожалуйста, напишите ваш вопрос текстом.")
+        return
+
+    # Сохраняем вопрос
+    async with APIClient() as api:
+        await api.create_user_question(
+            telegram_user_id=message.from_user.id,
+            question=question_text,
+        )
+
+    await state.clear()
+
+    await message.answer(
+        "Спасибо! Ваш вопрос отправлен. Мы уведомим вас, когда будет готов ответ.")
 
 # Обработчик для кнопки "Написать письмо" (inline)
 @router.callback_query(F.data == "write_letter_cd")
@@ -150,6 +164,28 @@ async def handle_write_letter_inline(callback: CallbackQuery):
         nav_keyboard
     )
 
+@router.callback_query(F.data.startswith("rate_item_"))
+async def handle_open_rate_for_item(callback: CallbackQuery, state: FSMContext):
+    """Открыть форму оценки конкретного материала (привязан к item_id)."""
+    # Извлекаем ID пункта из callback
+    try:
+        item_id = int(callback.data.replace("rate_item_", "").replace("_cd", ""))
+    except Exception:
+        return
+
+    # Сохраняем состояние ожидания оценки и item_id
+    await state.set_state(States.waiting_for_article_rating)
+    await state.update_data(article_name=f"Материал #{item_id}")
+    await state.update_data(menu_item_id=item_id)
+
+    await edit_message(
+        callback,
+        dict["rate"],
+        kb.rate_keyboard,
+        meta={"screen": "rating", "menu_item_id": item_id},
+    )
+
+
 @router.callback_query(F.data.in_({"rate_1_cd", "rate_2_cd", "rate_3_cd", "rate_4_cd", "rate_5_cd"}), States.waiting_for_article_rating)
 async def handle_article_rating(callback: CallbackQuery, state: FSMContext):
     """Универсальный обработчик для всех оценок статей"""
@@ -157,8 +193,9 @@ async def handle_article_rating(callback: CallbackQuery, state: FSMContext):
     # Получаем данные из состояния
     data = await state.get_data()
     article_name = data.get("article_name")
+    menu_item_id = data.get("menu_item_id")
 
-    if not article_name:
+    if not menu_item_id:
         # Создаем простую навигационную клавиатуру
         from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
         nav_keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -168,7 +205,6 @@ async def handle_article_rating(callback: CallbackQuery, state: FSMContext):
             ],
             [InlineKeyboardButton(text=dict_kb["go_home"], callback_data="main_cd")]
         ])
-        
         await edit_message(callback, "Произошла ошибка. Попробуйте еще раз.", nav_keyboard)
         await state.clear()
         return
@@ -185,38 +221,42 @@ async def handle_article_rating(callback: CallbackQuery, state: FSMContext):
 
     # Сохраняем оценку через API
     async with APIClient() as api:
-        # Пытаемся записать активность
-        await api.record_activity(
-            telegram_user_id=callback.from_user.id,
-            menu_item_id=1,  # ID пункта меню для оценки
-            activity_type="rating",
-            search_query=article_name
-        )
-        
-        # Пытаемся записать оценку (заглушка)
+        # Записываем саму оценку
         await api.rate_material(
             telegram_user_id=callback.from_user.id,
-            menu_item_id=1,
+            menu_item_id=menu_item_id,
             rating=rating
         )
 
     # Выходим из состояния
     await state.clear()
 
-    # Показываем сообщение об успешном сохранении
-    message_text = dict["get_rate"].format(article_name=article_name, rating=rating)
-    
-    # Создаем простую навигационную клавиатуру
-    from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-    nav_keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text=dict_kb["go_back"], callback_data="go_back_cd"),
-            InlineKeyboardButton(text=dict_kb["ask_question"], callback_data="ask_question_cd"),
-        ],
-        [InlineKeyboardButton(text=dict_kb["go_home"], callback_data="main_cd")]
-    ])
-    
-    await edit_message(callback, message_text, nav_keyboard)
+    # Удаляем форму оценки: показываем предыдущий экран из истории
+    user_id = callback.from_user.id
+    user_state = navigation_states.get(user_id)
+    if user_state and len(user_state.history) >= 2:
+        # Удаляем последний (форма оценки)
+        user_state.history.pop()
+        previous_state = user_state.history[-1]
+        await edit_message(
+            callback,
+            previous_state['message_text'],
+            previous_state['reply_markup'],
+            add_to_history=False,
+        )
+        # И отправляем короткое уведомление
+        await callback.answer(dict["get_rate"].format(article_name=article_name or "Материал", rating=rating), show_alert=False)
+    else:
+        # Если истории нет — просто сообщение с навигацией
+        from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+        nav_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+            [
+                InlineKeyboardButton(text=dict_kb["go_back"], callback_data="go_back_cd"),
+                InlineKeyboardButton(text=dict_kb["ask_question"], callback_data="ask_question_cd"),
+            ],
+            [InlineKeyboardButton(text=dict_kb["go_home"], callback_data="main_cd")]
+        ])
+        await edit_message(callback, dict["get_rate"].format(article_name=article_name or "Материал", rating=rating), nav_keyboard)
 
 
 #------------------------------------------------------------------------------------------------
@@ -331,10 +371,18 @@ async def handle_menu_item(callback: CallbackQuery):
                 menu_item_id=menu_item_id,
                 activity_type="section_enter"
             )
-        
+
+        # Получаем сообщение бота из самого пункта меню
+        async with APIClient() as api:
+            parent_content = await api.get_menu_content(
+                menu_item_id=menu_item_id,
+                telegram_user_id=callback.from_user.id
+            )
+
+        # Используем сообщение из самого пункта меню
+        bot_message = parent_content.get("bot_message") if parent_content else "Выберите раздел:"
+
         keyboard = kb.create_dynamic_keyboard(submenu_items, parent_id=menu_item_id)
-        # Получаем сообщение бота из первого подпункта или используем стандартное
-        bot_message = submenu_items[0].get("bot_message", "Выберите раздел:") if submenu_items else "Выберите раздел:"
         await edit_message(callback, bot_message, keyboard)
     else:
         # Если дочерних элементов нет, показываем контент
@@ -395,6 +443,3 @@ async def handle_rate_material(callback: CallbackQuery, state: FSMContext):
         dict["rate"],
         kb.rate_keyboard
     )
-
-
-# Удалены старые обработчики - теперь используется универсальный handle_rate_material
