@@ -47,7 +47,7 @@ async def get_inactive_users(
 
 @router.get(
     "/template",
-    response_model=BotReminderTemplateResponse,
+    response_model=BotReminderTemplateResponse | dict,
     status_code=status.HTTP_200_OK,
     responses={
         200: {"description": "Шаблоно успешно получен"},
@@ -56,7 +56,7 @@ async def get_inactive_users(
 )
 async def get_reminder_templates(
     db: AsyncSession = Depends(get_session),
-) -> BotReminderTemplateResponse:
+) -> BotReminderTemplateResponse | dict:
     """Получить последний активный шаблон.
 
     GET /api/v1/bot/reminders/template

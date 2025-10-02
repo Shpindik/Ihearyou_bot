@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.crud import reminder_template_crud
@@ -55,7 +53,7 @@ class ReminderTemplateService:
         """
         reminder_template_validator.validate_template_input_data(data=request.model_dump())
         template = await reminder_template_crud.create(db=db, obj_in=request)
-        return template
+        return AdminReminderTemplateResponse.model_validate(template)
 
     async def update_reminder_template(
         self,
@@ -78,7 +76,8 @@ class ReminderTemplateService:
         template = await reminder_template_crud.get(db=db, id=template_id)
         reminder_template_validator.validate_template_exists(template=template)
 
-        return await reminder_template_crud.update(db=db, obj_in=request, db_obj=template)
+        updatet_template = await reminder_template_crud.update(db=db, obj_in=request, db_obj=template)
+        return AdminReminderTemplateResponse.model_validate(updatet_template)
 
     async def delete_reminder_template(
         self,
@@ -102,7 +101,7 @@ class ReminderTemplateService:
     async def get_last_active_template(
         self,
         db: AsyncSession,
-    ) -> Optional[BotReminderTemplateResponse | None]:
+    ) -> BotReminderTemplateResponse:
         """Получить последний активный шаблон.
 
         Args:
@@ -111,8 +110,10 @@ class ReminderTemplateService:
         Returns:
             Шаблон напоминаний
         """
-        item = await reminder_template_crud.get_last_active(db=db)
-        return item
+        template = await reminder_template_crud.get_last_active(db=db)
+        if not template:
+            return {}
+        return BotReminderTemplateResponse(template)
 
 
 reminder_template_service = ReminderTemplateService()

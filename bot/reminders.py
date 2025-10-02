@@ -1,4 +1,3 @@
-import logging
 from asyncio import sleep
 
 from aiogram import Bot
@@ -6,6 +5,7 @@ from api_client import APIClient
 
 
 async def send_reminders(bot_token):
+    """Рассылка напоминаний неактивным пользователям."""
     async with APIClient() as api:
         template_data = await api.get_reminder_template()
     
