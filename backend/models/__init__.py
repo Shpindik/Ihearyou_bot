@@ -9,7 +9,6 @@ from .enums import (
     ActivityType,
     AdminRole,
     ContentType,
-    NotificationStatus,
     QuestionStatus,
     SubscriptionType,
 )

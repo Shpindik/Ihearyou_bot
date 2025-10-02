@@ -10,7 +10,6 @@ from backend.schemas.public.user_question import (
     UserQuestionCreate,
     UserQuestionResponse,
 )
-from backend.services.notification import notification_service
 from backend.services.question import user_question_service
 
 
@@ -40,15 +39,9 @@ async def create_user_question(request: UserQuestionCreate, db: AsyncSession = D
 
 @router.get("/notifications/pending")
 async def get_pending_notifications(limit: int = Query(50), db: AsyncSession = Depends(get_session)):
-    try:
-        return await notification_service.list_pending_for_bot(db, limit)
-    except SQLAlchemyError:
-        raise HTTPException(status_code=500, detail="Ошибка базы данных при получении уведомлений")
+    pass
 
 
 @router.post("/notifications/{id}/sent", status_code=status.HTTP_204_NO_CONTENT)
 async def mark_notification_sent(id: int, db: AsyncSession = Depends(get_session)):
-    try:
-        await notification_service.mark_sent(db, id)
-    except SQLAlchemyError:
-        raise HTTPException(status_code=500, detail="Ошибка базы данных при обновлении уведомления")
+    pass

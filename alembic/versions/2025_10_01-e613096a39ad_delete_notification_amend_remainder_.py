@@ -1,8 +1,8 @@
 """Delete Notification, amend Remainder_template
 
-Revision ID: 2029a01863c3
-Revises: e8a9cd7e3164
-Create Date: 2025-10-01 14:21:30.096493
+Revision ID: e613096a39ad
+Revises: add_web_app_url
+Create Date: 2025-10-01 19:05:00.546047
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '2029a01863c3'
-down_revision: Union[str, None] = 'e8a9cd7e3164'
+revision: str = 'e613096a39ad'
+down_revision: Union[str, None] = 'add_web_app_url'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

@@ -54,14 +54,6 @@ class QuestionStatus(str, enum.Enum):
     CLOSED = "closed"
 
 
-class NotificationStatus(str, enum.Enum):
-    """Статусы уведомлений."""
-
-    PENDING = "pending"
-    SENT = "sent"
-    FAILED = "failed"
-
-
 class AdminRole(str, enum.Enum):
     """Роли администраторов."""
 
