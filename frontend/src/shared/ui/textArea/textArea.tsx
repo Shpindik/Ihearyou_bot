@@ -1,16 +1,14 @@
-// import { useState } from "react";
+import { ComponentPropsWithoutRef, forwardRef } from "react";
 
 
-interface TextAreaProps {
-    placeholder?: string;
-    className?: string;
+interface TextAreaProps extends ComponentPropsWithoutRef<"textarea"> {
     error?: boolean;
 }
 
- const Textarea = ({ placeholder = "Введите текст...", className = "", error = false }: TextareaProps) => {
-    // const [value, setValue] = useState("");
+ const Textarea = forwardRef<HTMLTextAreaElement, TextAreaProps>({error = false, className = "", placeholder = "Введите текст...", ...props}, ref) => {
   return (
     <textarea
+    ref={ref}
       placeholder={placeholder}
       className={`
         w-[392px] h-14 px-6 py-5 rounded-full border resize-none
@@ -24,4 +22,4 @@ interface TextAreaProps {
   );
 };
 
-export default TextArea;
+export default Textarea;
