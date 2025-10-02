@@ -27,6 +27,9 @@ const config: Config = {
           red: {
             error: '#FF003B',
           },
+          dropdown: {
+            secondary: '#F6F2FF'
+          },
         },
       },
       boxShadow: {
