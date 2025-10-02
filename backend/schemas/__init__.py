@@ -28,6 +28,7 @@ from .admin import (
     AdminTelegramUserListResponse,
     AdminTelegramUserResponse,
 )
+from .bot.reminder_template import BotReminderTemplateResponse
 
 # Bot API схемы
 from .bot.telegram_user import TelegramUserRequest, TelegramUserResponse
@@ -88,4 +89,5 @@ __all__ = [
     # Bot API schemas
     "TelegramUserRequest",
     "TelegramUserResponse",
+    "BotReminderTemplateResponse",
 ]
