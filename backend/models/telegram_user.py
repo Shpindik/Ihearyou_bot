@@ -14,7 +14,6 @@ from .enums import SubscriptionType
 
 
 if TYPE_CHECKING:
-    from .notification import Notification
     from .question import UserQuestion
     from .user_activity import UserActivity
 
@@ -25,24 +24,14 @@ class TelegramUser(Base):
     __tablename__ = "telegram_users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    telegram_id: Mapped[int] = mapped_column(
-        BigInteger, unique=True, index=True, nullable=False
-    )
+    telegram_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True, nullable=False)
     username: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     first_name: Mapped[str] = mapped_column(String(100), nullable=False)
     last_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    subscription_type: Mapped[Optional[SubscriptionType]] = mapped_column(
-        String(20), nullable=True, index=True
-    )
-    last_activity: Mapped[Optional[datetime]] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    reminder_sent_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
-    )
+    subscription_type: Mapped[Optional[SubscriptionType]] = mapped_column(String(20), nullable=True, index=True)
+    last_activity: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    reminder_sent_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     # Связи
     activities: Mapped[List["UserActivity"]] = relationship(
@@ -50,9 +39,6 @@ class TelegramUser(Base):
     )
     questions: Mapped[List["UserQuestion"]] = relationship(
         "UserQuestion", back_populates="telegram_user", cascade="all, delete-orphan"
-    )
-    notifications: Mapped[List["Notification"]] = relationship(
-        "Notification", back_populates="telegram_user", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

@@ -9,12 +9,10 @@ from .enums import (
     ActivityType,
     AdminRole,
     ContentType,
-    NotificationStatus,
     QuestionStatus,
     SubscriptionType,
 )
 from .menu_item import MenuItem
-from .notification import Notification
 from .question import UserQuestion
 from .reminder_template import ReminderTemplate
 from .telegram_user import TelegramUser
@@ -29,13 +27,11 @@ __all__ = [
     "ContentFile",
     "UserActivity",
     "UserQuestion",
-    "Notification",
     "ReminderTemplate",
     "AccessLevel",
     "ActivityType",
     "AdminRole",
     "ContentType",
-    "NotificationStatus",
     "QuestionStatus",
     "SubscriptionType",
 ]

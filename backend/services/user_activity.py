@@ -47,6 +47,8 @@ class UserActivityService:
             search_query=request.search_query,
             rating=getattr(request, "rating", None),
         )
+        # Обновляем активность пользователя
+        await telegram_user_crud.update_activity(db=db, telegram_id=user.telegram_id)
 
         # Обновляем view_count для активности просмотра (пока что так)
         if request.activity_type == ActivityType.NAVIGATION and request.menu_item_id is not None:

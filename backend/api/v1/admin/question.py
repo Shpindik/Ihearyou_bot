@@ -13,7 +13,6 @@ from backend.schemas.admin.question import (
     AdminQuestionResponse,
 )
 from backend.services.question import user_question_service
-from backend.services.notification import notification_service
 from sqlalchemy import select
 from backend.models.telegram_user import TelegramUser
 
@@ -60,20 +59,4 @@ async def answer_question(
     PUT /api/v1/admin/user-questions/{id}
     Требует: Authorization: Bearer <token>
     """
-    try:
-        resp = await user_question_service.answer_question(db, id, request)
-        # Находим chat_id и ставим Celery-задачу на отправку
-        q_user = (await db.execute(select(TelegramUser).where(TelegramUser.id == resp.telegram_user_id))).scalar_one()
-        notification_service.enqueue_send_answer(
-            telegram_chat_id=q_user.telegram_id,
-            message=f"Мы ответили на ваш вопрос!\n\n{resp.answer_text}",
-        )
-        return resp
-    except ValidationError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except SQLAlchemyError:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Ошибка базы данных при обновлении вопроса"
-        )
-    except Exception:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Внутренняя ошибка сервера")
+    pass

@@ -23,11 +23,7 @@ class APIClient:
         if self.session:
             await self.session.close()
 
-    async def get_menu_items(
-        self, 
-        telegram_user_id: int, 
-        parent_id: Optional[int] = None
-    ) -> List[Dict]:
+    async def get_menu_items(self, telegram_user_id: int, parent_id: Optional[int] = None) -> List[Dict]:
         """Получить пункты меню."""
         url = f"{self.base_url}/menu-items"
         params = {"telegram_user_id": telegram_user_id}
@@ -47,8 +43,8 @@ class APIClient:
             return []
 
     async def get_menu_content(
-        self, 
-        menu_item_id: int, 
+        self,
+        menu_item_id: int,
         telegram_user_id: int
     ) -> Optional[Dict]:
         """Получить контент пункта меню."""
@@ -110,12 +106,7 @@ class APIClient:
             print(f"Ошибка отправки оценки: {e}")
             return False
 
-    async def search_materials(
-        self,
-        telegram_user_id: int,
-        query: str,
-        limit: int = 10
-    ) -> List[Dict]:
+    async def search_materials(self, telegram_user_id: int, query: str, limit: int = 10) -> List[Dict]:
         """Поиск по материалам (заглушка - endpoint не реализован)."""
         # TODO: Реализовать когда endpoint будет готов
         print(f"Поиск '{query}' пользователем {telegram_user_id}")
@@ -149,19 +140,11 @@ class APIClient:
             "update_id": 1,
             "message": {
                 "message_id": 1,
-                "from": {
-                    "id": telegram_id,
-                    "first_name": first_name,
-                    "last_name": last_name,
-                    "username": username
-                },
-                "chat": {
-                    "id": telegram_id,
-                    "type": "private"
-                },
+                "from": {"id": telegram_id, "first_name": first_name, "last_name": last_name, "username": username},
+                "chat": {"id": telegram_id, "type": "private"},
                 "date": 1640995200,
-                "text": "/start"
-            }
+                "text": "/start",
+            },
         }
 
         try:
@@ -170,3 +153,32 @@ class APIClient:
         except Exception as e:
             print(f"Ошибка создания пользователя: {e}")
             return False
+
+    async def get_inactive_users(self, days: int) -> Dict:
+        """Получить пользователей, которые неактивны <days> дней."""
+        url = f"{self.base_url}/reminders/inactive_users"
+        query = {"inactive_days": days}
+        try:
+            async with self.session.get(url, params=query) as response:
+                if response.status == 200:
+                    return await response.json()
+                else:
+                    print(f"Ошибка получения неактивных пользователей: {response.status}")
+                    return {"users": []}
+        except Exception as e:
+            print(f"Ошибка подключения к API: {e}")
+            return {"users": []}
+
+    async def get_reminder_template(self) -> Dict:
+        """Получить шаблон для рассылки напоминаний."""
+        url = f"{self.base_url}/reminders/template"
+        try:
+            async with self.session.get(url) as response:
+                if response.status == 200:
+                    return await response.json()
+                else:
+                    print(f"Ошибка получения шабона напоминаний: {response.status}")
+                    return {}
+        except Exception as e:
+            print(f"Ошибка подключения к API: {e}")
+            return {}

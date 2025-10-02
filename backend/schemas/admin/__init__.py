@@ -16,12 +16,6 @@ from .menu import (
     AdminMenuItemResponse,
     AdminMenuItemUpdate,
 )
-from .notification import (
-    AdminNotificationListResponse,
-    AdminNotificationRequest,
-    AdminNotificationResponse,
-    AdminNotificationUpdate,
-)
 from .question import (
     AdminQuestionAnswer,
     AdminQuestionListResponse,
@@ -52,11 +46,6 @@ __all__ = [
     "AdminContentFileResponse",
     "AdminContentFileCreate",
     "AdminContentFileUpdate",
-    # Notifications
-    "AdminNotificationRequest",
-    "AdminNotificationResponse",
-    "AdminNotificationListResponse",
-    "AdminNotificationUpdate",
     # Questions
     "AdminQuestionResponse",
     "AdminQuestionListResponse",
