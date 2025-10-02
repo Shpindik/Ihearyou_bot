@@ -36,9 +36,7 @@ class ReminderTemplateService:
             Список шаблонов напоминаний
         """
         items = await reminder_template_crud.get_multi(db=db)
-        print("1", items)
         items_data = [AdminReminderTemplateResponse.model_validate(item) for item in items]
-        print("2", items_data)
         return AdminReminderTemplateListResponse(items=items_data)
 
     async def create_reminder_template(
@@ -55,6 +53,7 @@ class ReminderTemplateService:
         Returns:
             Ответ с созданым шаблоном напоминаний
         """
+        reminder_template_validator.validate_template_input_data(data=request.model_dump())
         template = await reminder_template_crud.create(db=db, obj_in=request)
         return template
 
@@ -74,7 +73,11 @@ class ReminderTemplateService:
         Returns:
             Ответ с созданым шаблоном напоминаний
         """
+        reminder_template_validator.validate_template_input_data(data=request.model_dump(exclude_unset=True))
+
         template = await reminder_template_crud.get(db=db, id=template_id)
+        reminder_template_validator.validate_template_exists(template=template)
+
         return await reminder_template_crud.update(db=db, obj_in=request, db_obj=template)
 
     async def delete_reminder_template(
@@ -91,9 +94,9 @@ class ReminderTemplateService:
         Returns:
             None
         """
-        print("templ_id", template_id)
         template = await reminder_template_crud.get(db=db, id=template_id)
-        print("got_template_for delete", template)
+        reminder_template_validator.validate_template_exists(template=template)
+        
         await reminder_template_crud.remove(db=db, id=template_id)
 
     async def get_last_active_template(
@@ -109,7 +112,6 @@ class ReminderTemplateService:
             Шаблон напоминаний
         """
         item = await reminder_template_crud.get_last_active(db=db)
-        print("2", item)
         return item
 
 

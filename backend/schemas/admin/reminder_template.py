@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class AdminReminderTemplateResponse(BaseModel):
@@ -64,13 +64,6 @@ class AdminReminderTemplateCreate(BaseModel):
             }
         }
     )
-
-    @field_validator("*", mode="before")
-    def check_not_empty(cls, value: str, field: ValidationInfo) -> str:
-        """Проверка строк на пустоту."""
-        if isinstance(value, str) and not value.strip():
-            raise ValueError(f"Поле '{field.field_name}' не может быть пустым.")
-        return value
 
 
 class AdminReminderTemplateUpdate(BaseModel):
