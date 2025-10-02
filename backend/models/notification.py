@@ -24,30 +24,22 @@ class Notification(Base):
     __tablename__ = "notifications"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    telegram_user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("telegram_users.id"), nullable=False, index=True
-    )
+    telegram_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("telegram_users.id"), nullable=False, index=True)
     message: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[NotificationStatus] = mapped_column(
-        String(20), default=NotificationStatus.PENDING, nullable=False
+        String(20), default=NotificationStatus.PENDING, nullable=False, index=True
     )
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True
     )
-    sent_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    sent_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
     template_id: Mapped[Optional[int]] = mapped_column(
         Integer, ForeignKey("reminder_templates.id"), nullable=True, index=True
     )
 
     # Связи
-    telegram_user: Mapped["TelegramUser"] = relationship(
-        "TelegramUser", back_populates="notifications"
-    )
-    template: Mapped[Optional["ReminderTemplate"]] = relationship(
-        "ReminderTemplate", back_populates="notifications"
-    )
+    telegram_user: Mapped["TelegramUser"] = relationship("TelegramUser", back_populates="notifications")
+    template: Mapped[Optional["ReminderTemplate"]] = relationship("ReminderTemplate", back_populates="notifications")
 
     def __repr__(self) -> str:
         """Строковое представление для отладки."""

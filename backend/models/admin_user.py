@@ -23,27 +23,22 @@ class AdminUser(Base):
     __tablename__ = "admin_users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    username: Mapped[str] = mapped_column(
-        String(50), unique=True, index=True, nullable=False
-    )
+    username: Mapped[str] = mapped_column(String(50), unique=True, index=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
-    role: Mapped[AdminRole] = mapped_column(
-        String(20), default=AdminRole.ADMIN, nullable=False
+    email: Mapped[str] = mapped_column(
+        String(255), nullable=False, index=True, unique=True, comment="Email администратора (логин + уведомления)"
     )
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
-    )
+    role: Mapped[AdminRole] = mapped_column(String(20), default=AdminRole.ADMIN, nullable=False, index=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     # Связи
-    answered_questions: Mapped[List["UserQuestion"]] = relationship(
-        "UserQuestion", back_populates="admin_user"
-    )
+    answered_questions: Mapped[List["UserQuestion"]] = relationship("UserQuestion", back_populates="admin_user")
 
     def __repr__(self) -> str:
         """Строковое представление для отладки."""
-        return f"<AdminUser(id={self.id}, username={self.username}, role={self.role})>"
+        return f"<AdminUser(id={self.id}, username={self.username}, email={self.email}, role={self.role})>"
 
     def __str__(self) -> str:
         """Человекочитаемое строковое представление."""
-        return f"Admin {self.username} ({self.role})"
+        return f"Admin {self.username} ({self.email}) [{self.role}]"

@@ -7,7 +7,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from backend.models.enums import AccessLevel, ContentType
+from backend.models.enums import AccessLevel, ContentType, ItemType
 
 
 class AdminMenuItemResponse(BaseModel):
@@ -20,6 +20,7 @@ class AdminMenuItemResponse(BaseModel):
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
     is_active: bool = Field(..., description="Активен ли пункт")
     access_level: AccessLevel = Field(..., description="Уровень доступа")
+    item_type: ItemType = Field(..., description="Тип пункта меню")
     view_count: int = Field(..., description="Количество просмотров")
     download_count: int = Field(..., description="Количество скачиваний")
     rating_sum: int = Field(..., description="Сумма оценок")
@@ -34,16 +35,13 @@ class AdminMenuItemResponse(BaseModel):
 class AdminMenuItemCreate(BaseModel):
     """Схема запроса создания пункта меню для POST /api/v1/admin/menu-items."""
 
-    title: str = Field(
-        ..., min_length=1, max_length=255, description="Название пункта меню"
-    )
+    title: str = Field(..., min_length=1, max_length=255, description="Название пункта меню")
     description: Optional[str] = Field(None, description="Описание пункта меню")
     parent_id: Optional[int] = Field(None, description="ID родительского пункта")
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
-    access_level: AccessLevel = Field(
-        default=AccessLevel.FREE, description="Уровень доступа"
-    )
+    access_level: AccessLevel = Field(default=AccessLevel.FREE, description="Уровень доступа")
     is_active: bool = Field(default=True, description="Активен ли пункт")
+    item_type: ItemType = Field(default=ItemType.NAVIGATION, description="Тип пункта меню")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -62,14 +60,13 @@ class AdminMenuItemCreate(BaseModel):
 class AdminMenuItemUpdate(BaseModel):
     """Схема запроса обновления пункта меню для PUT /api/v1/admin/menu-items/{id}."""
 
-    title: Optional[str] = Field(
-        None, min_length=1, max_length=255, description="Название пункта меню"
-    )
+    title: Optional[str] = Field(None, min_length=1, max_length=255, description="Название пункта меню")
     description: Optional[str] = Field(None, description="Описание пункта меню")
     parent_id: Optional[int] = Field(None, description="ID родительского пункта")
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
     access_level: Optional[AccessLevel] = Field(None, description="Уровень доступа")
     is_active: Optional[bool] = Field(None, description="Активен ли пункт")
+    item_type: Optional[ItemType] = Field(None, description="Тип пункта меню")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -129,15 +126,24 @@ class AdminContentFileResponse(BaseModel):
     id: int = Field(..., description="ID файла")
     menu_item_id: int = Field(..., description="ID пункта меню")
     content_type: ContentType = Field(..., description="Тип контента")
-    content_text: Optional[str] = Field(None, description="Текстовый контент")
-    content_url: Optional[str] = Field(None, description="URL контента")
-    file_path: Optional[str] = Field(None, description="Путь к файлу")
+    telegram_file_id: Optional[str] = Field(None, description="File ID от Telegram")
+    caption: Optional[str] = Field(None, description="Подпись к медиафайлу")
+    text_content: Optional[str] = Field(None, description="Текстовый контент")
+    external_url: Optional[str] = Field(None, description="URL внешнего ресурса")
+    local_file_path: Optional[str] = Field(None, description="Путь к локальному файлу")
+    web_app_short_name: Optional[str] = Field(None, description="Короткое имя Web App")
+
+    # Метаданные
     file_size: Optional[int] = Field(None, description="Размер файла")
     mime_type: Optional[str] = Field(None, description="MIME тип")
-    thumbnail_url: Optional[str] = Field(None, description="URL превью")
-    is_primary: bool = Field(..., description="Основной файл")
-    sort_order: int = Field(..., description="Порядок сортировки")
+    width: Optional[int] = Field(None, description="Ширина изображения/видео")
+    height: Optional[int] = Field(None, description="Высота изображения/видео")
+    duration: Optional[int] = Field(None, description="Длительность видео/аудио в секундах")
+    thumbnail_telegram_file_id: Optional[str] = Field(None, description="File ID превью от Telegram")
+
+    # Аудит
     created_at: datetime = Field(..., description="Дата создания")
+    updated_at: datetime = Field(..., description="Дата обновления")
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -146,21 +152,26 @@ class AdminContentFileCreate(BaseModel):
     """Схема запроса создания файла контента для POST /api/v1/admin/menu-items/{id}/content-files."""
 
     content_type: ContentType = Field(..., description="Тип контента")
-    content_text: Optional[str] = Field(None, description="Текстовый контент")
-    content_url: Optional[str] = Field(None, description="URL контента")
-    file_path: Optional[str] = Field(None, description="Путь к файлу")
+    telegram_file_id: Optional[str] = Field(None, description="File ID от Telegram")
+    caption: Optional[str] = Field(None, description="Подпись к медиафайлу (до 1024 символов)")
+    text_content: Optional[str] = Field(None, description="Текстовый контент")
+    external_url: Optional[str] = Field(None, description="URL внешнего ресурса")
+    local_file_path: Optional[str] = Field(None, description="Путь к локальному файлу")
+    web_app_short_name: Optional[str] = Field(None, description="Короткое имя Web App")
+
+    # Метаданные
     file_size: Optional[int] = Field(None, description="Размер файла")
     mime_type: Optional[str] = Field(None, description="MIME тип")
-    thumbnail_url: Optional[str] = Field(None, description="URL превью")
-    is_primary: bool = Field(default=False, description="Основной файл")
-    sort_order: int = Field(default=0, description="Порядок сортировки")
+    width: Optional[int] = Field(None, description="Ширина изображения/видео")
+    height: Optional[int] = Field(None, description="Высота изображения/видео")
+    duration: Optional[int] = Field(None, description="Длительность видео/аудио в секундах")
+    thumbnail_telegram_file_id: Optional[str] = Field(None, description="File ID превью от Telegram")
 
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
                 "content_type": "text",
-                "content_text": "Новый текстовый контент",
-                "sort_order": 3,
+                "text_content": "Новый текстовый контент",
             }
         }
     )
@@ -170,20 +181,25 @@ class AdminContentFileUpdate(BaseModel):
     """Схема запроса обновления файла контента для PUT /api/v1/admin/menu-items/content-files/{file_id}."""
 
     content_type: Optional[ContentType] = Field(None, description="Тип контента")
-    content_text: Optional[str] = Field(None, description="Текстовый контент")
-    content_url: Optional[str] = Field(None, description="URL контента")
-    file_path: Optional[str] = Field(None, description="Путь к файлу")
+    telegram_file_id: Optional[str] = Field(None, description="File ID от Telegram")
+    caption: Optional[str] = Field(None, description="Подпись к медиафайлу (до 1024 символов)")
+    text_content: Optional[str] = Field(None, description="Текстовый контент")
+    external_url: Optional[str] = Field(None, description="URL внешнего ресурса")
+    local_file_path: Optional[str] = Field(None, description="Путь к локальному файлу")
+    web_app_short_name: Optional[str] = Field(None, description="Короткое имя Web App")
+
+    # Метаданные
     file_size: Optional[int] = Field(None, description="Размер файла")
     mime_type: Optional[str] = Field(None, description="MIME тип")
-    thumbnail_url: Optional[str] = Field(None, description="URL превью")
-    is_primary: Optional[bool] = Field(None, description="Основной файл")
-    sort_order: Optional[int] = Field(None, description="Порядок сортировки")
+    width: Optional[int] = Field(None, description="Ширина изображения/видео")
+    height: Optional[int] = Field(None, description="Высота изображения/видео")
+    duration: Optional[int] = Field(None, description="Длительность видео/аудио в секундах")
+    thumbnail_telegram_file_id: Optional[str] = Field(None, description="File ID превью от Telegram")
 
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "content_text": "Обновленный текстовый контент",
-                "sort_order": 1,
+                "text_content": "Обновленный текстовый контент",
             }
         }
     )

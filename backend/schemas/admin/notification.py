@@ -14,9 +14,7 @@ class AdminNotificationRequest(BaseModel):
     """Схема запроса отправки уведомления для POST /api/v1/admin/notifications."""
 
     telegram_user_id: int = Field(..., description="ID пользователя Telegram")
-    message: str = Field(
-        ..., min_length=1, max_length=2000, description="Текст уведомления"
-    )
+    message: str = Field(..., min_length=1, max_length=2000, description="Текст уведомления")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -45,9 +43,7 @@ class AdminNotificationResponse(BaseModel):
 class AdminNotificationListResponse(BaseModel):
     """Схема ответа списка уведомлений для GET /api/v1/admin/notifications."""
 
-    items: List[AdminNotificationResponse] = Field(
-        ..., description="Список уведомлений"
-    )
+    items: List[AdminNotificationResponse] = Field(..., description="Список уведомлений")
     total: int = Field(..., description="Общее количество")
     page: int = Field(..., description="Текущая страница")
     limit: int = Field(..., description="Лимит на странице")
@@ -82,8 +78,4 @@ class AdminNotificationUpdate(BaseModel):
     status: Optional[NotificationStatus] = Field(None, description="Статус уведомления")
     sent_at: Optional[datetime] = Field(None, description="Дата отправки")
 
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {"status": "sent", "sent_at": "2024-01-15T20:00:00Z"}
-        }
-    )
+    model_config = ConfigDict(json_schema_extra={"example": {"status": "sent", "sent_at": "2024-01-15T20:00:00Z"}})

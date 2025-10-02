@@ -24,9 +24,7 @@ class AdminReminderTemplateResponse(BaseModel):
 class AdminReminderTemplateListResponse(BaseModel):
     """Схема ответа списка шаблонов напоминаний для GET /api/v1/admin/reminder-templates."""
 
-    items: list[AdminReminderTemplateResponse] = Field(
-        ..., description="Список шаблонов"
-    )
+    items: list[AdminReminderTemplateResponse] = Field(..., description="Список шаблонов")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -67,12 +65,8 @@ class AdminReminderTemplateCreate(BaseModel):
 class AdminReminderTemplateUpdate(BaseModel):
     """Схема запроса обновления шаблона напоминания для PUT /api/v1/admin/reminder-templates/{id}."""
 
-    name: Optional[str] = Field(
-        None, min_length=1, max_length=255, description="Название шаблона"
-    )
-    message_template: Optional[str] = Field(
-        None, min_length=1, description="Шаблон сообщения"
-    )
+    name: Optional[str] = Field(None, min_length=1, max_length=255, description="Название шаблона")
+    message_template: Optional[str] = Field(None, min_length=1, description="Шаблон сообщения")
     is_active: Optional[bool] = Field(None, description="Активен ли шаблон")
 
     model_config = ConfigDict(

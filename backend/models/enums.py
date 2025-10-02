@@ -3,16 +3,44 @@
 import enum
 
 
-class ContentType(str, enum.Enum):
-    """Типы контента."""
+class ItemType(str, enum.Enum):
+    """Тип пункта меню в ТГ-боте."""
 
-    IMAGE = "image"
-    VIDEO = "video"
-    PDF = "pdf"
-    DOCUMENT = "document"
-    YOUTUBE = "youtube"
-    VK = "vk"
+    NAVIGATION = "navigation"  # Навигационная кнопка (имеет children)
+    CONTENT = "content"  # Контентная кнопка (имеет content)
+
+
+class ContentType(str, enum.Enum):
+    """Типы контента для Telegram Bot."""
+
+    # Текстовый контент
     TEXT = "text"
+
+    # Медиафайлы Telegram
+    PHOTO = "photo"  # Фото (до 10MB)
+    VIDEO = "video"  # Видео (до 50MB)
+    DOCUMENT = "document"  # Документ (включая PDF)
+
+    # Внешние ссылки
+    YOUTUBE_URL = "youtube_url"  # Ссылка на YouTube
+    VK_URL = "vk_url"  # Ссылка на VK Video
+    EXTERNAL_URL = "external_url"  # Любая HTTP/HTTPS ссылка
+    WEB_APP = "web_app"  # Telegram Web App (miniapp)
+
+    # Медиафайлы (если понадобятся)
+    AUDIO = "audio"  # Аудио (музыка, подкасты)
+    ANIMATION = "animation"  # GIF/анимация
+
+    # Специальные (если понадобятся)
+    LOCATION = "location"  # Геолокация
+
+
+class TokenType(str, enum.Enum):
+    """Типы JWT токенов"""
+
+    ACCESS = "access"
+    REFRESH = "refresh"
+    PASSWORD_RESET = "password_reset"
 
 
 class ActivityType(str, enum.Enum):
