@@ -11,6 +11,7 @@ from sqlalchemy import select
 
 from backend.core.config import settings
 from backend.core.db import AsyncSessionLocal
+from backend.core.exception_handlers import register_exception_handlers
 from backend.core.security import get_password_hash
 from backend.models import AdminUser
 
@@ -62,6 +63,8 @@ def create_app() -> FastAPI:
     from backend.api.routers import api_router
 
     app.include_router(api_router)
+    
+    register_exception_handlers(app)
 
     return app
 

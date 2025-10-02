@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -103,6 +103,59 @@ class MenuItemCRUD(BaseCRUD[MenuItem, dict, dict]):
 
         await db.execute(update(MenuItem).where(MenuItem.id == menu_id).values(view_count=MenuItem.view_count + 1))
         await db.commit()
+
+    async def search_by_query(
+        self,
+        db: AsyncSession,
+        query: str,
+        access_level: AccessLevel,
+        limit: int = 10,
+    ) -> List[MenuItem]:
+        """Поиск пунктов меню по запросу.
+
+        Args:
+            db: Сессия базы данных
+            query: Поисковый запрос (уже валидированный)
+            access_level: Уровень доступа пользователя
+            limit: Максимальное количество результатов
+
+        Returns:
+            List[MenuItem]: Список найденных пунктов меню
+        """
+        if limit < 0:
+            return []
+        
+        words = [w for w in query.strip().split() if w]
+        if not words:
+            return []
+
+        conditions = []
+        for word in words:
+            pattern = f"%{word}%"
+            conditions.append(
+                or_(
+                    MenuItem.title.ilike(pattern),
+                    MenuItem.description.ilike(pattern),
+                )
+            )
+
+        stmt = select(
+            MenuItem.id,
+            MenuItem.title,
+            MenuItem.description,
+            MenuItem.parent_id,
+            MenuItem.bot_message,
+            MenuItem.is_active,
+            MenuItem.access_level,
+        ).where(MenuItem.is_active == True, *conditions)
+
+        if access_level == AccessLevel.FREE:
+            stmt = stmt.where(MenuItem.access_level == AccessLevel.FREE)
+
+        stmt = stmt.order_by(MenuItem.title.ilike(f"{query}%").desc(), MenuItem.id).limit(limit)
+
+        result = await db.execute(stmt)
+        return result.all()
 
 
 menu_crud = MenuItemCRUD()
