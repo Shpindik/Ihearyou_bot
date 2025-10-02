@@ -1,5 +1,4 @@
 import logging
-import os
 from asyncio import sleep
 
 from aiogram import Bot
@@ -7,19 +6,24 @@ from api_client import APIClient
 
 
 async def send_reminders(bot_token):
-    logging.debug("reminders job started")
     async with APIClient() as api:
-        users_json = await api.get_inactive_users()
-    logging.debug("users recieved")
+        template_data = await api.get_reminder_template()
+    
+    if not template_data:
+        print("Не удалось отправить напоминания.")
+        return
+    message = template_data.get("message_template")
+    days = template_data.get("inactive_days", 10)
+
+    async with APIClient() as api:
+        users_json = await api.get_inactive_users(days=days)
     users = users_json.get("users", [])
-    # users = [{"telegram_id": 1063349895, "first_name": "Val"}]
     if users:
         bot = Bot(token=bot_token)
         for user in users:
             try:
                 await bot.send_message(
-                    int(user["telegram_id"]), f"Привет, {user['first_name']}. Ты давно не появлялся у нас!"
-                )
+                    user["telegram_id"], message)
                 print(f"Reminder sent to {user['id']}")
             except Exception as e:
                 print(f"Ошибка отправки напоминания: {e}")

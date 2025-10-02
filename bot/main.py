@@ -52,9 +52,8 @@ async def main():
     await bot.delete_webhook(drop_pending_updates=True)
     polling_task = asyncio.create_task(dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types()))
 
-    # поставил 15 sec для теста, сменить на время дня
+    # Рассылка напоминаний происходит еждневно в 10 утра
     scheduler.add_job(send_reminders, "cron", hour=10, minute=0, args=[BOT_TOKEN])
-    # scheduler.add_job(send_reminders, "interval", seconds=15, args=[BOT_TOKEN])
     scheduler.start()
 
     def shutdown():

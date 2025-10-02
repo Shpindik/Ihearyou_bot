@@ -42,7 +42,11 @@ class APIClient:
             print(f"Ошибка подключения к API: {e}")
             return []
 
-    async def get_menu_content(self, menu_item_id: int, telegram_user_id: int) -> Optional[Dict]:
+    async def get_menu_content(
+        self,
+        menu_item_id: int,
+        telegram_user_id: int
+    ) -> Optional[Dict]:
         """Получить контент пункта меню."""
         url = f"{self.base_url}/menu-items/{menu_item_id}/content"
         params = {"telegram_user_id": telegram_user_id}
@@ -59,11 +63,19 @@ class APIClient:
             return None
 
     async def record_activity(
-        self, telegram_user_id: int, menu_item_id: int, activity_type: str, search_query: Optional[str] = None
+        self,
+        telegram_user_id: int,
+        menu_item_id: int,
+        activity_type: str,
+        search_query: Optional[str] = None
     ) -> bool:
         """Записать активность пользователя."""
         url = f"{self.base_url}/user-activities"
-        data = {"telegram_user_id": telegram_user_id, "menu_item_id": menu_item_id, "activity_type": activity_type}
+        data = {
+            "telegram_user_id": telegram_user_id,
+            "menu_item_id": menu_item_id,
+            "activity_type": activity_type
+        }
         if search_query:
             data["search_query"] = search_query
 
@@ -116,7 +128,11 @@ class APIClient:
             return False
 
     async def create_telegram_user(
-        self, telegram_id: int, first_name: str, last_name: Optional[str] = None, username: Optional[str] = None
+        self,
+        telegram_id: int,
+        first_name: str,
+        last_name: Optional[str] = None,
+        username: Optional[str] = None
     ) -> bool:
         """Создать пользователя через Bot API."""
         url = f"{self.base_url}/telegram-user/register"
@@ -138,17 +154,31 @@ class APIClient:
             print(f"Ошибка создания пользователя: {e}")
             return False
 
-    async def get_inactive_users(self, days: int = 10) -> Dict:
+    async def get_inactive_users(self, days: int) -> Dict:
         """Получить пользователей, которые неактивны <days> дней."""
-        url = f"{self.base_url}/bot/reminders/inactive_users"
+        url = f"{self.base_url}/reminders/inactive_users"
         query = {"inactive_days": days}
         try:
             async with self.session.get(url, params=query) as response:
                 if response.status == 200:
                     return await response.json()
                 else:
-                    print(f"Ошибка получения контента: {response.status}")
-                    return None
+                    print(f"Ошибка получения неактивных пользователей: {response.status}")
+                    return {"users": []}
         except Exception as e:
             print(f"Ошибка подключения к API: {e}")
             return {"users": []}
+
+    async def get_reminder_template(self) -> Dict:
+        """Получить шаблон для рассылки напоминаний."""
+        url = f"{self.base_url}/reminders/template"
+        try:
+            async with self.session.get(url) as response:
+                if response.status == 200:
+                    return await response.json()
+                else:
+                    print(f"Ошибка получения шабона напоминаний: {response.status}")
+                    return {}
+        except Exception as e:
+            print(f"Ошибка подключения к API: {e}")
+            return {}
