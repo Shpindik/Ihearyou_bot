@@ -77,5 +77,51 @@ class MenuItemValidator:
         if required_access_level == AccessLevel.PREMIUM and user_access_level != AccessLevel.PREMIUM:
             raise ValidationError("Требуется доступ к премиум контенту")
 
+    def validate_menu_item_not_self_parent(self, menu_id: int) -> None:
+        """Проверка, что пункт меню не является родителем самому себе.
+
+        Args:
+            menu_id: ID пункта меню
+
+        Raises:
+            ValidationError: Если пункт меню является родителем самому себе
+        """
+        raise ValidationError("Пункт меню не может быть родителем самому себе")
+
+    def validate_menu_item_no_children(self, children: list) -> None:
+        """Проверка, что у пункта меню нет дочерних элементов.
+
+        Args:
+            children: Список дочерних элементов
+
+        Raises:
+            ValidationError: Если есть дочерние элементы
+        """
+        if children:
+            raise ValidationError("Нельзя удалить пункт меню, у которого есть дочерние элементы")
+
+    def validate_search_query(self, query: str) -> str:
+        """Валидация поискового запроса.
+
+        Args:
+            query: Поисковый запрос
+        Raises:
+            ValidationError: Если запрос не прошел валидацию
+        """
+        normalized_query = " ".join(query.split())
+
+        if len(normalized_query) < 2 or len(normalized_query) > 100:
+            raise ValidationError("Поисковый запрос должен содержать от 2 до 100 символов")
+
+        unsafe_chars = ["<", ">", "{", "}", "[", "]", "\\", "|", "`"]
+        if any(char in normalized_query for char in unsafe_chars):
+            raise ValidationError("Поисковый запрос содержит недопустимые символы: < > { } [ ] \\ | `")
+
+        for i in range(len(normalized_query) - 3):
+            if normalized_query[i] == normalized_query[i + 1] == normalized_query[i + 2] == normalized_query[i + 3]:
+                raise ValidationError("Поисковый запрос содержит слишком много повторяющихся символов")
+
+        return normalized_query
+
 
 menu_item_validator = MenuItemValidator()

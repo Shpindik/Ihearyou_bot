@@ -50,18 +50,19 @@ class UserActivityValidator:
         if search_query is None:
             return
 
-        if len(search_query) < 2:
-            raise ValidationError("Поисковый запрос должен содержать минимум 2 символа")
-        if len(search_query) > 100:
-            raise ValidationError("Поисковый запрос не может превышать 100 символов")
+        normalized_query = " ".join(search_query.split())
 
-        if len(search_query) > 5:
-            if len(set(search_query)) < 3:
+        if len(normalized_query) < 2 or len(normalized_query) > 100:
+            raise ValidationError("Поисковый запрос должен содержать от 2 до 100 символов")
+
+        unsafe_chars = ["<", ">", "{", "}", "[", "]", "\\", "|", "`"]
+        if any(char in normalized_query for char in unsafe_chars):
+            raise ValidationError("Поисковый запрос содержит недопустимые символы: < > { } [ ] \\ | `")
+
+        # Проверка на повторяющиеся символы (4+ подряд)
+        for i in range(len(normalized_query) - 3):
+            if normalized_query[i] == normalized_query[i + 1] == normalized_query[i + 2] == normalized_query[i + 3]:
                 raise ValidationError("Поисковый запрос содержит слишком много повторяющихся символов")
-
-        forbidden_chars = ["<", ">", "&", '"', "'", "\\", "/", ";"]
-        if any(char in search_query for char in forbidden_chars):
-            raise ValidationError("Поисковый запрос содержит недопустимые символы")
 
     def validate_rating(self, rating: Optional[int], activity_type: ActivityType) -> None:
         """Проверка корректности оценки.
