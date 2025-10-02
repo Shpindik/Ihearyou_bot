@@ -42,7 +42,7 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj_in_data = obj_in.model_dump()
         db_obj = self.model(**obj_in_data)
         db.add(db_obj)
-        await db.flush()
+        await db.commit()
         await db.refresh(db_obj)
         return db_obj
 
@@ -65,7 +65,7 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 setattr(db_obj, field, update_data[field])
 
         db.add(db_obj)
-        await db.flush()
+        await db.commit()
         await db.refresh(db_obj)
         return db_obj
 
@@ -74,5 +74,5 @@ class BaseCRUD(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj = await self.get(db, id)
         if obj:
             await db.delete(obj)
-            await db.flush()
+            await db.commit()
         return obj

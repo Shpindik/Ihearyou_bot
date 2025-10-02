@@ -127,7 +127,6 @@ async def delete_reminder_template(
     Требует: Authorization: Bearer <token>
     """
     try:
-        print("From api", type(id), id)
         return await reminder_template_service.delete_reminder_template(template_id=id, db=db)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
