@@ -152,7 +152,7 @@ async def handle_user_question_text(message: Message, state: FSMContext):
                 await message.bot.edit_message_text(
                     chat_id=chat_id,
                     message_id=message_id,
-                    text="Спасибо! Ваш вопрос отправлен. Мы уведомим вас, когда будет готов ответ.",
+                    text=dict["thank_you"],
                     reply_markup=last_state['reply_markup'],
                 )
 
