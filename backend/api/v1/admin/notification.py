@@ -1,85 +1,128 @@
 """Административные эндпоинты для уведомлений."""
 
-from fastapi import APIRouter, Depends, Query, status
-from fastapi.security import HTTPBearer
+from typing import Optional
 
+from fastapi import APIRouter, Depends, Query, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from backend.core.db import get_session
+from backend.core.dependencies import AdminOnly, ModeratorOrAdmin
 from backend.schemas.admin.notification import (
     AdminNotificationListResponse,
     AdminNotificationRequest,
     AdminNotificationResponse,
     AdminNotificationUpdate,
 )
+from backend.services.notification import notification_service
 
 
 router = APIRouter(prefix="/admin/notifications", tags=["Admin Notifications"])
-security = HTTPBearer()
 
 
 @router.post(
-    "/", response_model=AdminNotificationResponse, status_code=status.HTTP_201_CREATED
+    "/",
+    response_model=AdminNotificationResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Отправка уведомления пользователю (админ)",
+    description="Отправляет уведомление конкретному пользователю через Telegram",
+    responses={
+        201: {"description": "Уведомление успешно отправлено"},
+        400: {"description": "Ошибка валидации данных"},
+        401: {"description": "Не авторизован"},
+        403: {"description": "Недостаточно прав доступа"},
+        404: {"description": "Пользователь не найден"},
+        500: {"description": "Внутренняя ошибка сервера"},
+    },
 )
 async def send_notification(
-    request: AdminNotificationRequest, token: str = Depends(security)
+    request: AdminNotificationRequest,
+    current_admin: ModeratorOrAdmin,
+    db: AsyncSession = Depends(get_session),
 ) -> AdminNotificationResponse:
     """Отправка уведомления пользователю.
 
-    POST /api/v1/admin/notifications
-    Требует: Authorization: Bearer <token>
+    Требует авторизации с ролью модератора или администратора.
+    Отправляет уведомление конкретному пользователю Telegram.
     """
-    pass
+    return await notification_service.send_admin_notification(db=db, request=request)
 
 
 @router.get(
-    "/", response_model=AdminNotificationListResponse, status_code=status.HTTP_200_OK
+    "/",
+    response_model=AdminNotificationListResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Подсчет отправленных уведомлений (админ)",
+    description="Возвращает статистику отправленных уведомлений с фильтрацией по датам",
+    responses={
+        200: {"description": "Статистика уведомлений успешно получена"},
+        400: {"description": "Ошибка валидации параметров запроса"},
+        401: {"description": "Не авторизован"},
+        403: {"description": "Недостаточно прав доступа"},
+        500: {"description": "Внутренняя ошибка сервера"},
+    },
 )
 async def get_notifications(
-    page: int = Query(1, description="Номер страницы (по умолчанию 1)"),
-    limit: int = Query(
-        20, description="Количество записей на странице (по умолчанию 20)"
-    ),
-    token: str = Depends(security),
+    current_admin: ModeratorOrAdmin,
+    days_ago: Optional[int] = Query(None, description="Фильтр по дням назад"),
+    db: AsyncSession = Depends(get_session),
 ) -> AdminNotificationListResponse:
-    """Получение списка уведомлений.
+    """Получение статистики уведомлений для администраторов.
 
-    GET /api/v1/admin/notifications
-    Требует: Authorization: Bearer <token>
+    Требует авторизации с ролью модератора или администратора.
+    Возвращает статистику отправленных уведомлений с возможностью фильтрации по периодам.
     """
-    pass
-
-
-@router.get(
-    "/{id}", response_model=AdminNotificationResponse, status_code=status.HTTP_200_OK
-)
-async def get_notification(
-    id: int, token: str = Depends(security)
-) -> AdminNotificationResponse:
-    """Получение уведомления.
-
-    GET /api/v1/admin/notifications/{id}
-    Требует: Authorization: Bearer <token>
-    """
-    pass
+    return await notification_service.get_admin_notifications(db=db, days_ago=days_ago)
 
 
 @router.put(
-    "/{id}", response_model=AdminNotificationResponse, status_code=status.HTTP_200_OK
+    "/{id}",
+    response_model=AdminNotificationResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Обновление статуса уведомления (админ)",
+    description="Обновляет статус уведомления в системе",
+    responses={
+        200: {"description": "Статус уведомления успешно обновлен"},
+        400: {"description": "Ошибка валидации данных"},
+        401: {"description": "Не авторизован"},
+        403: {"description": "Недостаточно прав доступа"},
+        404: {"description": "Уведомление не найдено"},
+        500: {"description": "Внутренняя ошибка сервера"},
+    },
 )
 async def update_notification(
-    id: int, request: AdminNotificationUpdate, token: str = Depends(security)
+    id: int,
+    request: AdminNotificationUpdate,
+    current_admin: AdminOnly,
+    db: AsyncSession = Depends(get_session),
 ) -> AdminNotificationResponse:
-    """Обновление уведомления.
+    """Обновление статуса уведомления.
 
-    PUT /api/v1/admin/notifications/{id}
-    Требует: Authorization: Bearer <token>
+    Требует авторизации с ролью администратора.
+    Позволяет изменить статус уведомления при необходимости.
     """
-    pass
+    return await notification_service.update_admin_notification(db=db, notification_id=id, request=request)
 
 
-@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_notification(id: int, token: str = Depends(security)) -> None:
-    """Удаление уведомления.
+@router.get(
+    "/statistics",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+    summary="Получение статистики уведомлений (админ)",
+    description="Возвращает детальную статистику по всем уведомлениям системы",
+    responses={
+        200: {"description": "Статистика уведомлений успешно получена"},
+        401: {"description": "Не авторизован"},
+        403: {"description": "Недостаточно прав доступа"},
+        500: {"description": "Внутренняя ошибка сервера"},
+    },
+)
+async def get_notification_statistics(
+    current_admin: AdminOnly,
+    db: AsyncSession = Depends(get_session),
+) -> dict:
+    """Получение детальной статистики уведомлений.
 
-    DELETE /api/v1/admin/notifications/{id}
-    Требует: Authorization: Bearer <token>
+    Требует авторизации с ролью администратора.
+    Возвращает полную статистику по всем уведомлениям в системе.
     """
-    pass
+    return await notification_service.get_notification_statistics(db=db)

@@ -6,7 +6,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from backend.models.enums import AccessLevel
+from backend.models.enums import AccessLevel, ItemType
 
 
 class SearchItemResponse(BaseModel):
@@ -19,6 +19,7 @@ class SearchItemResponse(BaseModel):
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
     is_active: bool = Field(..., description="Активен ли пункт")
     access_level: AccessLevel = Field(..., description="Уровень доступа")
+    item_type: ItemType = Field(..., description="Тип пункта меню")
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -26,9 +27,7 @@ class SearchItemResponse(BaseModel):
 class SearchListResponse(BaseModel):
     """Схема ответа списка результатов поиска для GET /api/v1/search."""
 
-    items: list[SearchItemResponse] = Field(
-        ..., description="Список результатов поиска"
-    )
+    items: list[SearchItemResponse] = Field(..., description="Список результатов поиска")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -42,6 +41,7 @@ class SearchListResponse(BaseModel):
                         "bot_message": "Выберите интересующий вас раздел:",
                         "is_active": True,
                         "access_level": "free",
+                        "item_type": "navigation",
                     }
                 ]
             }

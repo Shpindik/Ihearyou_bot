@@ -156,3 +156,56 @@ class APIClient:
         except Exception as e:
             print(f"Ошибка создания пользователя: {e}")
             return False
+  
+    async def send_telegram_message(
+        self,
+        telegram_user_id: int,
+        message: str
+    ) -> bool:
+        """Отправить сообщение пользователю через Telegram Bot API.
+        
+        ВАЖНО: Этот метод должен вызываться из планировщика бота,
+        так как у бота есть прямой доступ к Telegram Bot API.
+        Backend не имеет прямого доступа к Telegram.
+        """
+        # Используем токен бота из окружения для прямой отправки
+        import os
+        from telegram import Bot
+        
+        bot_token = os.getenv("BOT_TOKEN")
+        if not bot_token:
+            print("❌ BOT_TOKEN не найден в переменных окружения")
+            return False
+            
+        try:
+            bot = Bot(token=bot_token)
+            await bot.send_message(
+                chat_id=telegram_user_id,
+                text=message,
+                parse_mode="HTML"
+            )
+            print(f"✅ Уведомление успешно отправлено пользователю {telegram_user_id}")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Ошибка отправки уведомления пользователю {telegram_user_id}: {e}")
+            return False
+
+    async def process_notification_send(self, notification_data: Dict) -> bool:
+        """Отправить уведомление через Telegram API.
+        
+        Вызывается из планировщика задач бота.
+        """
+        try:
+            telegram_user_id = notification_data.get("telegram_user_id")
+            message = notification_data.get("message")
+            
+            if not telegram_user_id or not message:
+                print("❌ Отсутствуют обязательные поля notification_data")
+                return False
+                
+            return await self.send_telegram_message(telegram_user_id, message)
+            
+        except Exception as e:
+            print(f"❌ Ошибка обработки отправки уведомления: {e}")
+            return False
