@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -19,27 +19,9 @@ class ContentFileCRUD(BaseCRUD[ContentFile, dict, dict]):
         """Инициализация CRUD для файлов контента."""
         super().__init__(ContentFile)
 
-    async def get_by_menu_item(
-        self, db: AsyncSession, menu_item_id: int
-    ) -> List[ContentFile]:
-        """Получить файлы контента для пункта меню."""
-        query = (
-            select(ContentFile)
-            .where(ContentFile.menu_item_id == menu_item_id)
-            .order_by(ContentFile.sort_order, ContentFile.id)
-        )
-
-        result = await db.execute(query)
-        return result.scalars().all()
-
-    async def get_primary_content(
-        self, db: AsyncSession, menu_item_id: int
-    ) -> Optional[ContentFile]:
-        """Получить основной контент для пункта меню."""
-        query = select(ContentFile).where(
-            ContentFile.menu_item_id == menu_item_id, ContentFile.is_primary
-        )
-
+    async def get_by_menu_item_id(self, db: AsyncSession, menu_item_id: int) -> Optional[ContentFile]:
+        """Получить файл контента для пункта меню (One-to-One)."""
+        query = select(ContentFile).where(ContentFile.menu_item_id == menu_item_id)
         result = await db.execute(query)
         return result.scalar_one_or_none()
 

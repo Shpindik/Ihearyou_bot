@@ -71,4 +71,4 @@ class UserActivityCRUD(BaseCRUD[UserActivity, dict, dict]):
         return result.scalars().all()
 
 
-activity_crud = UserActivityCRUD()
+user_activity_crud = UserActivityCRUD()
