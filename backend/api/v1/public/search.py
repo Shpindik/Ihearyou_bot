@@ -8,7 +8,7 @@ from backend.schemas.public.search import SearchListResponse
 from backend.services.menu_item import menu_item_service
 
 
-router = APIRouter(prefix="/search", tags=["Public Search"])
+router = APIRouter(prefix="/search")
 
 
 @router.get(

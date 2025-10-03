@@ -8,7 +8,7 @@ from backend.schemas.public.question import UserQuestionCreate, UserQuestionResp
 from backend.services.question import user_question_service
 
 
-router = APIRouter(prefix="/user-questions", tags=["Public User Questions"])
+router = APIRouter(prefix="/user-questions")
 
 
 @router.post(

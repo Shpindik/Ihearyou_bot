@@ -10,7 +10,7 @@ from backend.schemas.public.menu import MenuContentResponse, MenuItemListRespons
 from backend.services.menu_item import menu_item_service
 
 
-router = APIRouter(prefix="/menu-items", tags=["Public Menu"])
+router = APIRouter(prefix="/menu-items")
 
 
 @router.get(

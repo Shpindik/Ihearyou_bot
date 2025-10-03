@@ -8,7 +8,7 @@ from backend.schemas.public.ratings import RatingRequest, RatingResponse
 from backend.services.ratings import rating_service
 
 
-router = APIRouter(prefix="/ratings", tags=["Public Ratings"])
+router = APIRouter(prefix="/ratings")
 
 
 @router.post(
