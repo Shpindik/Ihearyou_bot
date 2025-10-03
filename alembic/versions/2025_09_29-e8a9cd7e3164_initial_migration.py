@@ -61,7 +61,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_menu_items_item_type'), 'menu_items', ['item_type'], unique=False)
     op.create_index(op.f('ix_menu_items_active_parent'), 'menu_items', ['is_active', 'parent_id'], unique=False)
     op.create_index(op.f('ix_menu_items_type_active'), 'menu_items', ['item_type', 'is_active'], unique=False)
-    op.create_table('reminder_templates',
+    op.create_table('message_templates',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
     sa.Column('message_template', sa.Text(), nullable=False),
@@ -70,8 +70,8 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_reminder_templates_id'), 'reminder_templates', ['id'], unique=False)
-    op.create_index(op.f('ix_reminder_templates_is_active'), 'reminder_templates', ['is_active'], unique=False)
+    op.create_index(op.f('ix_message_templates_id'), 'message_templates', ['id'], unique=False)
+    op.create_index(op.f('ix_message_templates_is_active'), 'message_templates', ['is_active'], unique=False)
     op.create_table('telegram_users',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('telegram_id', sa.BigInteger(), nullable=False),
@@ -128,7 +128,7 @@ def upgrade() -> None:
     sa.Column('sent_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('template_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['telegram_user_id'], ['telegram_users.id'], ),
-    sa.ForeignKeyConstraint(['template_id'], ['reminder_templates.id'], ),
+    sa.ForeignKeyConstraint(['template_id'], ['message_templates.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_notifications_id'), 'notifications', ['id'], unique=False)
@@ -211,9 +211,9 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_telegram_users_subscription_type'), table_name='telegram_users')
     op.drop_index(op.f('ix_telegram_users_id'), table_name='telegram_users')
     op.drop_table('telegram_users')
-    op.drop_index(op.f('ix_reminder_templates_is_active'), table_name='reminder_templates')
-    op.drop_index(op.f('ix_reminder_templates_id'), table_name='reminder_templates')
-    op.drop_table('reminder_templates')
+    op.drop_index(op.f('ix_message_templates_is_active'), table_name='message_templates')
+    op.drop_index(op.f('ix_message_templates_id'), table_name='message_templates')
+    op.drop_table('message_templates')
     op.drop_index(op.f('ix_menu_items_type_active'), table_name='menu_items')
     op.drop_index(op.f('ix_menu_items_active_parent'), table_name='menu_items')
     op.drop_index(op.f('ix_menu_items_item_type'), table_name='menu_items')
