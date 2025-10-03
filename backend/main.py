@@ -120,23 +120,24 @@ async def root():
     return {"message": "I Hear You Bot API", "version": "1.0.0", "docs": "/docs"}
 
 
-@app.get("/health/api")
+@app.get("/health")
 async def api_health_check():
     """Проверка работоспособности API."""
-    return {"status": "healthy", "service": "api"}
-
-
-@app.get("/health/db")
-async def database_health_check():
-    """Проверка подключения к базе данных."""
     try:
+        # Проверяем подключение к базе данных
         async with AsyncSessionLocal() as session:
             await session.execute(select(1))
 
-        return {"status": "healthy", "service": "database"}
+        return {"status": "healthy", "service": "api", "version": "1.0.0", "database": "connected"}
     except Exception as e:
-        logger.error(f"Database health check failed: {e}")
-        return {"status": "unhealthy", "service": "database", "error": str(e)}
+        logger.error(f"Health check failed: {e}")
+        return {
+            "status": "unhealthy",
+            "service": "api",
+            "version": "1.0.0",
+            "database": "disconnected",
+            "error": str(e),
+        }
 
 
 if __name__ == "__main__":

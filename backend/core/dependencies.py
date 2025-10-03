@@ -88,7 +88,6 @@ def require_moderator_or_admin_role(
 
 
 # Типы для аннотаций
-CurrentAdmin = Annotated[AdminUser, Depends(get_current_admin)]
-ActiveAdmin = Annotated[AdminUser, Depends(get_current_active_admin)]
+Admin = Annotated[AdminUser, Depends(get_current_active_admin)]
 AdminOnly = Annotated[AdminUser, Depends(require_admin_role)]
 ModeratorOrAdmin = Annotated[AdminUser, Depends(require_moderator_or_admin_role)]

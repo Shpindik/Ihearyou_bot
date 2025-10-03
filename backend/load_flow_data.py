@@ -27,9 +27,9 @@ from backend.models.enums import (
     SubscriptionType,
 )
 from backend.models.menu_item import MenuItem
+from backend.models.message_template import MessageTemplate
 from backend.models.notification import Notification
 from backend.models.question import UserQuestion
-from backend.models.reminder_template import ReminderTemplate
 from backend.models.telegram_user import TelegramUser
 from backend.models.user_activity import UserActivity
 
@@ -52,7 +52,7 @@ class FlowDataLoader:
         await session.execute(delete(Notification))
         await session.execute(delete(TelegramUser))
         await session.execute(delete(AdminUser))
-        await session.execute(delete(ReminderTemplate))
+        await session.execute(delete(MessageTemplate))
         await session.execute(delete(ContentFile))
         await session.execute(delete(MenuItem))
 
@@ -390,7 +390,7 @@ class FlowDataLoader:
         await session.commit()
         print("✅ Пользователи Telegram созданы")
 
-    async def create_reminder_templates(self, session):
+    async def create_message_templates(self, session):
         """Создать шаблоны напоминаний."""
         print("⏰ Создание шаблонов напоминаний...")
 
@@ -410,7 +410,7 @@ class FlowDataLoader:
         ]
 
         for template_data in templates:
-            template = ReminderTemplate(**template_data)
+            template = MessageTemplate(**template_data)
             session.add(template)
 
         await session.commit()
@@ -517,7 +517,7 @@ class FlowDataLoader:
         tg_users_result = await session.execute(select(TelegramUser))
         tg_users = tg_users_result.scalars().all()
 
-        templates_result = await session.execute(select(ReminderTemplate))
+        templates_result = await session.execute(select(MessageTemplate))
         templates = templates_result.scalars().all()
 
         notifications = [
@@ -555,7 +555,7 @@ class FlowDataLoader:
                 await self.clear_existing_data(session)
 
                 # Создаём основные данные системы
-                await self.create_reminder_templates(session)
+                await self.create_message_templates(session)
                 await self.create_admin_users(session)
                 await self.create_main_menu_items(session)
                 await self.create_child_subitems(session)
