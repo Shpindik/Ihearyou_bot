@@ -25,13 +25,8 @@ class BotSettings(BaseSettings):
     session_timeout_minutes: int = Field(default=30, description="Таймаут сессии пользователя")
 
     # Настройки бота
-    parse_mode: str = "HTML"
-    disable_web_page_preview: bool = True
-
-    # Интервалы и время ожидания
-    inactive_days_threshold: int = 10  # Дней неактивности для напоминаний
-    reminder_cooldown_days: int = 10  # Интервал между напоминаниями
-    session_timeout_minutes: int = 30  # Таймаут сессии пользователя
+    parse_mode: str = Field(default="HTML", description="Режим парсинга сообщений")
+    disable_web_page_preview: bool = Field(default=True, description="Отключить предпросмотр веб-страниц")
 
     # Тексты сообщений
     welcome_message: str = (

@@ -22,25 +22,19 @@ class Settings(BaseSettings):
     jwt_access_token_expire_minutes: int = Field(default=60, description="Время жизни access токена в минутах")
     jwt_refresh_token_expire_days: int = Field(default=7, description="Время жизни refresh токена в днях")
 
-    # Rate limiting (не используется)
-    # rate_limit_enabled: bool = Field(
-    #     default=True,
-    #     description="Включить rate limiting"
-    # )
-    # rate_limit_requests_per_minute: int = Field(
-    #     default=60,
-    #     description="Количество запросов в минуту"
-    # )
+    # Redis
+    redis_url: Optional[str] = Field(default=None, description="URL подключения к Redis")
 
-    # Медиафайлы (не используется)
-    # media_max_file_size: int = Field(
-    #     default=50 * 1024 * 1024,  # 50MB
-    #     description="Максимальный размер файла в байтах"
-    # )
-    # media_allowed_types: str = Field(
-    #     default="image/*,video/*,application/pdf",
-    #     description="Разрешенные типы файлов"
-    # )
+    # API порт
+    bot_api_port: int = Field(default=8001, description="Порт API бота")
+
+    # Окружение
+    environment: str = Field(default="development", description="Окружение приложения")
+    debug: bool = Field(default=False, description="Режим отладки")
+
+    # Frontend настройки
+    frontend_api_url: str = Field(default="http://localhost:8001/api", description="URL API для фронтенда")
+    frontend_port: int = Field(default=3001, description="Порт фронтенда")
 
     # Администратор по умолчанию
     admin_username: str = Field(default="admin", description="Имя пользователя администратора по умолчанию")
@@ -64,27 +58,8 @@ class Settings(BaseSettings):
     # Email валидация
     email_dns_check: bool = Field(default=True, description="Проверять DNS при валидации email")
 
-    # Telegram Bot
-    bot_token: Optional[str] = Field(default=None, description="Токен Telegram бота")
-
-    # Медиафайлы - дополнительные настройки (не используется)
-    # media_storage_path: str = Field(
-    #     default="./media",
-    #     description="Путь для хранения локальных медиафайлов"
-    # )
-
     # Логирование
     log_level: str = Field(default="INFO", description="Уровень логирования")
-    # log_file_path: Optional[str] = Field(
-    #     default=None,
-    #     description="Путь к файлу логов"
-    # )
-
-    # Redis (не используется)
-    # redis_url: Optional[str] = Field(
-    #     default=None,
-    #     description="URL подключения к Redis"
-    # )
 
     def email_conf(self) -> ConnectionConfig:
         """Конфигурация для FastAPI-Mail"""
