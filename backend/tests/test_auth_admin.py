@@ -12,7 +12,7 @@ async def test_admin_login_success(async_client: AsyncClient, admin_user):
     response = await async_client.post(
         "/api/v1/admin/auth/login", json={"username": "testadmin", "password": "testpassword123"}
     )
-    # Исправлено: FastAPI возвращает 422 если схема запроса невалидна, иначе 401 если не найден пользователь/пароль
+    # FastAPI возвращает 422 если схема запроса невалидна, иначе 401 если не найден пользователь/пароль
     assert response.status_code in (200, 422)
     if response.status_code == 200:
         data = response.json()
@@ -84,7 +84,6 @@ async def test_admin_login_sql_injection_username(async_client: AsyncClient, adm
     response = await async_client.post(
         "/api/v1/admin/auth/login", json={"username": "' OR 1=1 --", "password": "testpassword"}
     )
-    # Может быть 401 (если пользователь не найден) или 422 (валидация схемы)
     assert response.status_code in (401, 422)
 
 
