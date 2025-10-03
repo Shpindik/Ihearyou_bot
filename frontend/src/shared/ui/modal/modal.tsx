@@ -1,6 +1,12 @@
-import {ComponentPropsWithoutRef, FC, ReactNode, useEffect, useState,} from 'react';
-import {createPortal} from 'react-dom';
-import {CloseIcon} from '@/shared/svg';
+import {
+  ComponentPropsWithoutRef,
+  FC,
+  ReactNode,
+  useEffect,
+  useState,
+} from 'react';
+import { createPortal } from 'react-dom';
+import { CloseIcon } from '@/shared/svg';
 import UIBlock from '../block';
 
 interface IProps extends Omit<ComponentPropsWithoutRef<'div'>, 'title'> {
@@ -51,7 +57,7 @@ const UIModal: FC<IProps> = ({
         className={`relative shadow-xl flex flex-col ${animation ? 'animate-slide-up' : 'animate-slide-down'} ${className}`}
         {...props}
       >
-        <div className="flex-end p-6">
+        <div className="flex-end p-6 ">
           {!!title && (
             <div className="flex-1 text-center">
               <h1>{title}</h1>

@@ -1,37 +1,35 @@
-import { useState } from "react";
+import { FC, useState } from 'react';
 
 type Option = {
   value: string;
   label: string;
 };
 
-type DropdownProps = {
+type IProps = {
   options: Option[];
   placeholder?: string;
   className?: string;
 };
 
-export function Dropdown({ options, placeholder = "Выберите вариант", className }: DropdownProps) {
+const Dropdown: FC<IProps> = ({
+  options,
+  placeholder = 'Выберите вариант',
+  className,
+}) => {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Option | null>(null);
 
   return (
     <div className="relative inline-block w-full">
-      {/* Кнопка */}
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={cn(
-          "w-full flex justify-between items-center px-4 py-2 rounded-full border bg-purple-secondary text-black",
-          
-          className
-        )}
+        className={`${className} w-full flex justify-between items-center px-4 py-2 rounded-full border bg-purple-secondary text-black`}
       >
         {selected ? selected.label : placeholder}
         <span className="ml-2">▼</span>
       </button>
 
-      {/* Выпадающий список */}
       {open && (
         <div className="absolute w-full rounded-2xl shadow-lg bg-dropdown-secondary z-10">
           <ul className="max-h-60 overflow-y-auto rounded-md">
@@ -42,10 +40,8 @@ export function Dropdown({ options, placeholder = "Выберите вариан
                   setSelected(opt);
                   setOpen(false);
                 }}
-                className={cn(
-                  "px-4 py-2 cursor-pointer",
-                  selected?.value === opt.value && "font-medium"
-                )}
+                className={`px-4 py-2 cursor-pointer
+                    ${selected?.value === opt.value && 'font-medium'}`}
               >
                 {opt.label}
               </li>
@@ -55,4 +51,6 @@ export function Dropdown({ options, placeholder = "Выберите вариан
       )}
     </div>
   );
-}
+};
+
+export default Dropdown;

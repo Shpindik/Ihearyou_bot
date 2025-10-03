@@ -41,7 +41,7 @@ export const AccessRights: FC<ComponentPropsWithoutRef<'div'>> = ({
   return (
     <div className={`${className} w-full flex flex-col h-full`}>
       <div className="p-4">
-        <h1>Список пользователей</h1>
+        <h1>Список администраторов</h1>
       </div>
 
       <div className="flex-1 min-h-0 overflow-auto scrollbar-hide">
