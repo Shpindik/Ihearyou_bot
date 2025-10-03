@@ -1,7 +1,23 @@
 """Административные схемы API."""
 
-from .analytics import AdminAnalyticsResponse
-from .auth import AdminLoginRequest, AdminLoginResponse, AdminRefreshRequest, AdminRefreshResponse
+from .admin_user import (
+    AdminUserCreate,
+    AdminUserListResponse,
+    AdminUserPasswordUpdate,
+    AdminUserResponse,
+    AdminUserUpdate,
+)
+from .analytics import AdminAnalyticsRequest, AdminAnalyticsResponse
+from .auth import (
+    AdminLoginRequest,
+    AdminLoginResponse,
+    AdminMeResponse,
+    AdminPasswordResetConfirmRequest,
+    AdminPasswordResetRequest,
+    AdminPasswordResetSuccessResponse,
+    AdminRefreshRequest,
+    AdminRefreshResponse,
+)
 from .menu import (
     AdminContentFileCreate,
     AdminContentFileResponse,
@@ -11,6 +27,12 @@ from .menu import (
     AdminMenuItemResponse,
     AdminMenuItemUpdate,
 )
+from .message_template import (
+    AdminMessageTemplateCreate,
+    AdminMessageTemplateListResponse,
+    AdminMessageTemplateResponse,
+    AdminMessageTemplateUpdate,
+)
 from .notification import (
     AdminNotificationListResponse,
     AdminNotificationRequest,
@@ -18,12 +40,6 @@ from .notification import (
     AdminNotificationUpdate,
 )
 from .question import AdminQuestionAnswer, AdminQuestionListResponse, AdminQuestionResponse
-from .reminder_template import (
-    AdminReminderTemplateCreate,
-    AdminReminderTemplateListResponse,
-    AdminReminderTemplateResponse,
-    AdminReminderTemplateUpdate,
-)
 from .telegram_user import AdminTelegramUserListResponse, AdminTelegramUserResponse
 
 
@@ -33,7 +49,18 @@ __all__ = [
     "AdminLoginResponse",
     "AdminRefreshRequest",
     "AdminRefreshResponse",
+    "AdminMeResponse",
+    "AdminPasswordResetRequest",
+    "AdminPasswordResetConfirmRequest",
+    "AdminPasswordResetSuccessResponse",
+    # Admin Management
+    "AdminUserResponse",
+    "AdminUserListResponse",
+    "AdminUserCreate",
+    "AdminUserUpdate",
+    "AdminUserPasswordUpdate",
     # Analytics
+    "AdminAnalyticsRequest",
     "AdminAnalyticsResponse",
     # Menu
     "AdminMenuItemResponse",
@@ -52,11 +79,11 @@ __all__ = [
     "AdminQuestionResponse",
     "AdminQuestionListResponse",
     "AdminQuestionAnswer",
-    # Reminder Templates
-    "AdminReminderTemplateResponse",
-    "AdminReminderTemplateListResponse",
-    "AdminReminderTemplateCreate",
-    "AdminReminderTemplateUpdate",
+    # Message Templates
+    "AdminMessageTemplateResponse",
+    "AdminMessageTemplateListResponse",
+    "AdminMessageTemplateCreate",
+    "AdminMessageTemplateUpdate",
     # Users
     "AdminTelegramUserResponse",
     "AdminTelegramUserListResponse",

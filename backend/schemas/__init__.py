@@ -2,6 +2,7 @@
 
 # Административные схемы
 from .admin import (
+    AdminAnalyticsRequest,
     AdminAnalyticsResponse,
     AdminContentFileCreate,
     AdminContentFileResponse,
@@ -12,23 +13,32 @@ from .admin import (
     AdminMenuItemListResponse,
     AdminMenuItemResponse,
     AdminMenuItemUpdate,
+    AdminMeResponse,
+    AdminMessageTemplateCreate,
+    AdminMessageTemplateListResponse,
+    AdminMessageTemplateResponse,
+    AdminMessageTemplateUpdate,
     AdminNotificationListResponse,
     AdminNotificationRequest,
     AdminNotificationResponse,
     AdminNotificationUpdate,
+    AdminPasswordResetConfirmRequest,
+    AdminPasswordResetRequest,
+    AdminPasswordResetSuccessResponse,
     AdminQuestionAnswer,
     AdminQuestionListResponse,
     AdminQuestionResponse,
     AdminRefreshRequest,
     AdminRefreshResponse,
-    AdminReminderTemplateCreate,
-    AdminReminderTemplateListResponse,
-    AdminReminderTemplateResponse,
-    AdminReminderTemplateUpdate,
     AdminTelegramUserListResponse,
     AdminTelegramUserResponse,
+    AdminUserCreate,
+    AdminUserListResponse,
+    AdminUserPasswordUpdate,
+    AdminUserResponse,
+    AdminUserUpdate,
 )
-from .bot.reminder_template import BotReminderTemplateResponse
+from .bot.message_template import BotMessageTemplateResponse
 
 # Bot API схемы
 from .bot.telegram_user import TelegramUserRequest, TelegramUserResponse
@@ -54,6 +64,11 @@ __all__ = [
     "AdminLoginResponse",
     "AdminRefreshRequest",
     "AdminRefreshResponse",
+    "AdminMeResponse",
+    "AdminPasswordResetRequest",
+    "AdminPasswordResetConfirmRequest",
+    "AdminPasswordResetSuccessResponse",
+    "AdminAnalyticsRequest",
     "AdminAnalyticsResponse",
     "AdminMenuItemResponse",
     "AdminMenuItemCreate",
@@ -69,12 +84,17 @@ __all__ = [
     "AdminQuestionResponse",
     "AdminQuestionListResponse",
     "AdminQuestionAnswer",
-    "AdminReminderTemplateResponse",
-    "AdminReminderTemplateListResponse",
-    "AdminReminderTemplateCreate",
-    "AdminReminderTemplateUpdate",
+    "AdminMessageTemplateResponse",
+    "AdminMessageTemplateListResponse",
+    "AdminMessageTemplateCreate",
+    "AdminMessageTemplateUpdate",
     "AdminTelegramUserResponse",
     "AdminTelegramUserListResponse",
+    "AdminUserResponse",
+    "AdminUserListResponse",
+    "AdminUserCreate",
+    "AdminUserUpdate",
+    "AdminUserPasswordUpdate",
     # Public schemas
     "MenuItemResponse",
     "MenuContentResponse",
@@ -89,5 +109,5 @@ __all__ = [
     # Bot API schemas
     "TelegramUserRequest",
     "TelegramUserResponse",
-    "BotReminderTemplateResponse",
+    "BotMessageTemplateResponse",
 ]

@@ -91,7 +91,7 @@ class MenuItemListResponse(BaseModel):
 
 
 class ContentFileResponse(BaseModel):
-    """Схема данных файла контента."""
+    """Схема данных файла контента для публичного API."""
 
     content_type: ContentType = Field(..., description="Тип контента")
 
@@ -101,12 +101,16 @@ class ContentFileResponse(BaseModel):
     external_url: Optional[str] = Field(None, description="URL внешнего ресурса")
     web_app_short_name: Optional[str] = Field(None, description="Короткое имя Web App")
 
-    # Метаданные файла (безопасные для публичного доступа)
+    # Метadанные файла для Telegram Bot
+    telegram_file_id: Optional[str] = Field(None, description="File ID от Telegram")
     file_size: Optional[int] = Field(None, description="Размер файла в байтах")
     mime_type: Optional[str] = Field(None, description="MIME тип файла")
+
+    # Размеры для медиа
     width: Optional[int] = Field(None, description="Ширина изображения/видео")
     height: Optional[int] = Field(None, description="Высота изображения/видео")
     duration: Optional[int] = Field(None, description="Длительность видео/аудио в секундах")
+    thumbnail_telegram_file_id: Optional[str] = Field(None, description="File ID превью")
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -118,6 +122,7 @@ class MenuContentResponse(BaseModel):
     title: str = Field(..., description="Название пункта меню")
     description: Optional[str] = Field(None, description="Описание пункта меню")
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
+    item_type: ItemType = Field(..., description="Тип пункта меню")
     content_files: list[ContentFileResponse] = Field(..., description="Файлы контента")
     children: list[MenuItemResponse] = Field(default_factory=list, description="Дочерние пункты")
 
@@ -129,6 +134,7 @@ class MenuContentResponse(BaseModel):
                 "title": "Слуховые аппараты",
                 "description": "Информация о слуховых аппаратах",
                 "bot_message": "Вот полезная информация о слуховых аппаратах:",
+                "item_type": "content",
                 "content_files": [
                     {
                         "content_type": "text",
@@ -136,11 +142,6 @@ class MenuContentResponse(BaseModel):
                         "text_content": "Слуховые аппараты помогают улучшить качество слуха и облегчить привыкание к звуковой среде...",
                         "external_url": None,
                         "web_app_short_name": None,
-                        "file_size": None,
-                        "mime_type": None,
-                        "width": None,
-                        "height": None,
-                        "duration": None,
                     },
                     {
                         "content_type": "external_url",
@@ -148,11 +149,6 @@ class MenuContentResponse(BaseModel):
                         "text_content": None,
                         "external_url": "https://example.com/image.jpg",
                         "web_app_short_name": None,
-                        "file_size": 1024000,
-                        "mime_type": "image/jpeg",
-                        "width": 1920,
-                        "height": 1080,
-                        "duration": None,
                     },
                 ],
             }

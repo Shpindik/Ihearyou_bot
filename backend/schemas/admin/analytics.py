@@ -2,7 +2,58 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from datetime import datetime
+from typing import Literal, Optional
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+
+class AdminAnalyticsRequest(BaseModel):
+    """Схема запроса аналитики для валидации параметров."""
+
+    period: Optional[Literal["day", "week", "month", "year"]] = Field(default="month", description="Период аналитики")
+    start_date: Optional[str] = Field(
+        default=None, description="Начальная дата фильтрации (YYYY-MM-DD)", pattern=r"^\d{4}-\d{2}-\d{2}$"
+    )
+    end_date: Optional[str] = Field(
+        default=None, description="Конечная дата фильтрации (YYYY-MM-DD)", pattern=r"^\d{4}-\d{2}-\d{2}$"
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={"example": {"period": "month", "start_date": "2024-01-01", "end_date": "2024-01-31"}}
+    )
+
+    @field_validator("start_date", "end_date")
+    @classmethod
+    def validate_date_format(cls, v):
+        """Валидация формата даты YYYY-MM-DD."""
+        if v is None:
+            return v
+        try:
+            datetime.fromisoformat(v)
+            return v
+        except ValueError:
+            raise ValueError("Дата должна быть в формате YYYY-MM-DD")
+
+    @field_validator("end_date")
+    @classmethod
+    def validate_date_range(cls, v, info):
+        """Валидация логики диапазона дат."""
+        if v is None or info.data.get("start_date") is None:
+            return v
+
+        try:
+            start_date = datetime.fromisoformat(info.data["start_date"])
+            end_date = datetime.fromisoformat(v)
+
+            if start_date > end_date:
+                raise ValueError("Начальная дата не может быть больше конечной даты")
+
+            return v
+        except ValueError as e:
+            if "не может быть больше" in str(e):
+                raise
+            raise ValueError("Ошибка в формате дат")
 
 
 class AdminAnalyticsResponse(BaseModel):

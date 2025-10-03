@@ -9,7 +9,7 @@ class AdminLoginRequest(BaseModel):
     """Схема запроса аутентификации для POST /api/v1/admin/auth/login."""
 
     login: str = Field(..., min_length=3, max_length=255, description="Email или username для входа")
-    password: str = Field(..., min_length=6, description="Пароль")
+    password: str = Field(..., min_length=6, max_length=100, description="Пароль")
 
     model_config = ConfigDict(json_schema_extra={"example": {"login": "admin@example.com", "password": "admin123"}})
 
@@ -66,8 +66,8 @@ class AdminMeResponse(BaseModel):
     """Схема ответа информации о текущем администраторе для GET /api/v1/admin/auth/me."""
 
     id: int = Field(..., description="ID администратора")
-    username: str = Field(..., description="Имя пользователя")
-    email: EmailStr = Field(..., description="Email администратора")
+    username: str = Field(..., max_length=50, description="Имя пользователя")
+    email: EmailStr = Field(..., max_length=255, description="Email администратора")
     role: str = Field(..., description="Роль администратора")
     is_active: bool = Field(..., description="Активен ли администратор")
     created_at: str = Field(..., description="Дата создания")
@@ -98,7 +98,7 @@ class AdminPasswordResetConfirmRequest(BaseModel):
     """Схема подтверждения восстановления пароля для POST /api/v1/admin/auth/password-reset-confirm."""
 
     token: str = Field(..., description="Токен восстановления из письма")
-    new_password: str = Field(..., min_length=6, max_length=50, description="Новый пароль")
+    new_password: str = Field(..., min_length=6, max_length=100, description="Новый пароль")
 
     model_config = ConfigDict(
         json_schema_extra={

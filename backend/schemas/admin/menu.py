@@ -126,20 +126,20 @@ class AdminContentFileResponse(BaseModel):
     id: int = Field(..., description="ID файла")
     menu_item_id: int = Field(..., description="ID пункта меню")
     content_type: ContentType = Field(..., description="Тип контента")
-    telegram_file_id: Optional[str] = Field(None, description="File ID от Telegram")
+    telegram_file_id: Optional[str] = Field(None, max_length=255, description="File ID от Telegram")
     caption: Optional[str] = Field(None, description="Подпись к медиафайлу")
     text_content: Optional[str] = Field(None, description="Текстовый контент")
     external_url: Optional[str] = Field(None, description="URL внешнего ресурса")
     local_file_path: Optional[str] = Field(None, description="Путь к локальному файлу")
-    web_app_short_name: Optional[str] = Field(None, description="Короткое имя Web App")
+    web_app_short_name: Optional[str] = Field(None, max_length=255, description="Короткое имя Web App")
 
     # Метаданные
     file_size: Optional[int] = Field(None, description="Размер файла")
-    mime_type: Optional[str] = Field(None, description="MIME тип")
+    mime_type: Optional[str] = Field(None, max_length=100, description="MIME тип")
     width: Optional[int] = Field(None, description="Ширина изображения/видео")
     height: Optional[int] = Field(None, description="Высота изображения/видео")
     duration: Optional[int] = Field(None, description="Длительность видео/аудио в секундах")
-    thumbnail_telegram_file_id: Optional[str] = Field(None, description="File ID превью от Telegram")
+    thumbnail_telegram_file_id: Optional[str] = Field(None, max_length=255, description="File ID превью от Telegram")
 
     # Аудит
     created_at: datetime = Field(..., description="Дата создания")
@@ -152,20 +152,20 @@ class AdminContentFileCreate(BaseModel):
     """Схема запроса создания файла контента для POST /api/v1/admin/menu-items/{id}/content-files."""
 
     content_type: ContentType = Field(..., description="Тип контента")
-    telegram_file_id: Optional[str] = Field(None, description="File ID от Telegram")
+    telegram_file_id: Optional[str] = Field(None, max_length=255, description="File ID от Telegram")
     caption: Optional[str] = Field(None, description="Подпись к медиафайлу (до 1024 символов)")
     text_content: Optional[str] = Field(None, description="Текстовый контент")
     external_url: Optional[str] = Field(None, description="URL внешнего ресурса")
     local_file_path: Optional[str] = Field(None, description="Путь к локальному файлу")
-    web_app_short_name: Optional[str] = Field(None, description="Короткое имя Web App")
+    web_app_short_name: Optional[str] = Field(None, max_length=255, description="Короткое имя Web App")
 
     # Метаданные
     file_size: Optional[int] = Field(None, description="Размер файла")
-    mime_type: Optional[str] = Field(None, description="MIME тип")
+    mime_type: Optional[str] = Field(None, max_length=100, description="MIME тип")
     width: Optional[int] = Field(None, description="Ширина изображения/видео")
     height: Optional[int] = Field(None, description="Высота изображения/видео")
     duration: Optional[int] = Field(None, description="Длительность видео/аудио в секундах")
-    thumbnail_telegram_file_id: Optional[str] = Field(None, description="File ID превью от Telegram")
+    thumbnail_telegram_file_id: Optional[str] = Field(None, max_length=255, description="File ID превью от Telegram")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -181,20 +181,20 @@ class AdminContentFileUpdate(BaseModel):
     """Схема запроса обновления файла контента для PUT /api/v1/admin/menu-items/content-files/{file_id}."""
 
     content_type: Optional[ContentType] = Field(None, description="Тип контента")
-    telegram_file_id: Optional[str] = Field(None, description="File ID от Telegram")
+    telegram_file_id: Optional[str] = Field(None, max_length=255, description="File ID от Telegram")
     caption: Optional[str] = Field(None, description="Подпись к медиафайлу (до 1024 символов)")
     text_content: Optional[str] = Field(None, description="Текстовый контент")
     external_url: Optional[str] = Field(None, description="URL внешнего ресурса")
     local_file_path: Optional[str] = Field(None, description="Путь к локальному файлу")
-    web_app_short_name: Optional[str] = Field(None, description="Короткое имя Web App")
+    web_app_short_name: Optional[str] = Field(None, max_length=255, description="Короткое имя Web App")
 
     # Метаданные
     file_size: Optional[int] = Field(None, description="Размер файла")
-    mime_type: Optional[str] = Field(None, description="MIME тип")
+    mime_type: Optional[str] = Field(None, max_length=100, description="MIME тип")
     width: Optional[int] = Field(None, description="Ширина изображения/видео")
     height: Optional[int] = Field(None, description="Высота изображения/видео")
     duration: Optional[int] = Field(None, description="Длительность видео/аудио в секундах")
-    thumbnail_telegram_file_id: Optional[str] = Field(None, description="File ID превью от Telegram")
+    thumbnail_telegram_file_id: Optional[str] = Field(None, max_length=255, description="File ID превью от Telegram")
 
     model_config = ConfigDict(
         json_schema_extra={
