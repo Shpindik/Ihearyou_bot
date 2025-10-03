@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .container-main {
+    @apply flex flex-col overflow-hidden h-full;
+  }
+
+  .container-scroll {
+    @apply flex flex-col overflow-auto h-full;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+  }
+
+  .container-scroll::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
+  }
+
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .flex-base {
+    @apply flex items-center;
+  }
+
+  .flex-between {
+    @apply flex items-center justify-between;
+  }
+
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .flex-end {
+    @apply flex items-center justify-end;
+  }
+
+  .full-size {
+    @apply w-full h-full;
+  }
+
+  .input-focus {
+    @apply focus:outline-none focus:ring-2;
+  }
+
+  .input-disabled {
+    @apply disabled:bg-gray-400 disabled:cursor-not-allowed disabled:text-gray;
+  }
+
+  .input-error {
+    @apply border-red-500 text-red-500;
+  }
+
+  .button-disabled {
+    @apply disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-600;
+  }
+
+  .click-press {
+    @apply transition-all active:translate-y-0.5 disabled:active:translate-y-0;
+  }
+
+
+  @layer base {
+    html {
+      @apply container-main antialiased w-full box-border;
+    }
+
+    body {
+      @apply container-main w-full text-black bg-white font-sans text-lg;
+    }
+
+    #root {
+      @apply container-main w-full;
+    }
+
+    h1 {
+      @apply text-3xl font-normal text-ui-text-secondary;
+    }
+
+    h2 {
+      @apply text-[20px] leading-[120%] font-medium text-[#2B2735];
+    }
+
+    h3 {
+      @apply text-[20px] leading-[120%] font-normal;
+    }
+
+    h4 {}
+
+    p {
+      @apply text-base leading-[140%] font-normal text-[#2B2735];
+    }
+
+
+    input {
+      @apply border border-black rounded-full placeholder:text-ui-text-tertiary;
+    }
+
+    button:disabled {
+      @apply bg-ui-gray-disabled text-ui-text-disabled;
+    }
+
+    button:disabled:hover {
+      @apply bg-ui-gray-disabled;
+    }
+
+    video {}
+  }
+
+  @layer utilities {
+    .no-input-arrows {
+      -moz-appearance: textfield;
+
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    }
+  }
+}
