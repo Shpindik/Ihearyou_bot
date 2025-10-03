@@ -57,12 +57,6 @@ class MessageTemplateService:
         self, db: AsyncSession, request: AdminMessageTemplateCreate
     ) -> AdminMessageTemplateResponse:
         """Создать новый шаблон."""
-        # template_data = {
-        #     "name": request.name,
-        #     "message_template": request.message_template,
-        #     "is_active": True,
-        # }
-
         template = await message_template_crud.create(db=db, obj_in=request)
         return AdminMessageTemplateResponse.model_validate(template)
 
@@ -73,7 +67,6 @@ class MessageTemplateService:
         template = await message_template_crud.get(db, template_id)
         self.validator.validate_template_exists_for_id(template, template_id)
 
-        # update_data = request.model_dump(exclude_unset=True)
         updated_template = await message_template_crud.update(db, db_obj=template, obj_in=request)
 
         return AdminMessageTemplateResponse.model_validate(updated_template)
@@ -112,7 +105,7 @@ class MessageTemplateService:
             message_template="Привет, {first_name}! Мы по вам соскучились! Вернитесь к нам 🥰",
             is_active=True,
         )
-        return await message_template_crud.create(db, default_data.model_dump())
+        return await message_template_crud.create(db=db, obj_in=default_data)
 
     async def get_default_template_response(self, db: AsyncSession) -> BotMessageTemplateResponse:
         """Получить шаблон по умолчанию для Bot API."""
