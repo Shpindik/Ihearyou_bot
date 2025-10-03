@@ -1,7 +1,6 @@
 """Административные эндпоинты для управления вопросами пользователей."""
 
 from fastapi import APIRouter, Depends, Query, status
-from fastapi.security import HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.db import get_session
@@ -10,8 +9,7 @@ from backend.schemas.admin.question import AdminQuestionAnswer, AdminQuestionLis
 from backend.services.question import user_question_service
 
 
-router = APIRouter(prefix="/admin/user-questions", tags=["Admin Questions"])
-security = HTTPBearer()
+router = APIRouter(prefix="/user-questions", tags=["Admin Questions"])
 
 
 @router.get(
@@ -29,10 +27,10 @@ security = HTTPBearer()
     },
 )
 async def get_user_questions(
+    current_admin: ModeratorOrAdmin,
     page: int = Query(1, description="Номер страницы (по умолчанию 1)"),
     limit: int = Query(20, description="Количество записей на странице (по умолчанию 20)"),
     status: str = Query(None, description="Фильтр по статусу (pending, answered)"),
-    current_admin: ModeratorOrAdmin = Depends(),
     db: AsyncSession = Depends(get_session),
 ) -> AdminQuestionListResponse:
     """Получение списка вопросов от пользователей.
@@ -62,7 +60,7 @@ async def get_user_questions(
 async def answer_question(
     id: int,
     request: AdminQuestionAnswer,
-    current_admin: ModeratorOrAdmin = Depends(),
+    current_admin: ModeratorOrAdmin,
     db: AsyncSession = Depends(get_session),
 ) -> AdminQuestionResponse:
     """Ответ на вопрос пользователя.

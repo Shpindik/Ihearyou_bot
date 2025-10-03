@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.config import settings
 from backend.core.db import get_session
-from backend.core.dependencies import ActiveAdmin
+from backend.core.dependencies import Admin
 from backend.core.security import create_access_token, create_refresh_token
 from backend.schemas.admin.auth import (
     AdminLoginRequest,
@@ -23,7 +23,7 @@ from backend.services.admin_user import admin_user_service
 from backend.validators.admin_user import admin_user_validator
 
 
-router = APIRouter(prefix="/admin/auth", tags=["Admin Auth"])
+router = APIRouter(prefix="/auth", tags=["Admin Auth"])
 
 
 @router.post(
@@ -109,7 +109,7 @@ async def refresh_token(
         500: {"description": "Внутренняя ошибка сервера"},
     },
 )
-async def get_current_admin_info(current_admin: ActiveAdmin) -> AdminMeResponse:
+async def get_current_admin_info(current_admin: Admin) -> AdminMeResponse:
     """Получение информации о текущем администраторе.
 
     Требует авторизации с активным администратором.

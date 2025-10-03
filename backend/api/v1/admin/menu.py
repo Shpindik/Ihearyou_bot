@@ -21,7 +21,7 @@ from backend.services.content_file import content_file_service
 from backend.services.menu_item import menu_item_service
 
 
-router = APIRouter(prefix="/admin/menu-items", tags=["Admin Menu"])
+router = APIRouter(prefix="/menu-items", tags=["Admin Menu"])
 
 
 @router.get(
@@ -40,10 +40,10 @@ router = APIRouter(prefix="/admin/menu-items", tags=["Admin Menu"])
 )
 async def get_admin_menu_items(
     current_admin: ModeratorOrAdmin,
-    db: AsyncSession = Depends(get_session),
     parent_id: Optional[int] = Query(None, description="Фильтр по родительскому пункту"),
     is_active: Optional[bool] = Query(None, description="Фильтр по активности"),
     access_level: Optional[AccessLevel] = Query(None, description="Фильтр по уровню доступа (free, premium)"),
+    db: AsyncSession = Depends(get_session),
 ) -> AdminMenuItemListResponse:
     """Получение списка пунктов меню для администраторов.
 
@@ -63,7 +63,7 @@ async def get_admin_menu_items(
     response_model=AdminMenuItemResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Создание нового пункта меню (админ)",
-    description="Создает новый пункт меню в системе",
+    description="Создает новый пункт меню в системе. Доступно только администраторам.",
     responses={
         201: {"description": "Пункт меню успешно создан"},
         400: {"description": "Ошибка валидации данных"},
@@ -73,11 +73,13 @@ async def get_admin_menu_items(
     },
 )
 async def create_menu_item(
-    request: AdminMenuItemCreate, current_admin: ModeratorOrAdmin, db: AsyncSession = Depends(get_session)
+    request: AdminMenuItemCreate,
+    current_admin: AdminOnly,
+    db: AsyncSession = Depends(get_session),
 ) -> AdminMenuItemResponse:
     """Создание нового пункта меню.
 
-    Требует авторизации с ролью модератора или администратора.
+    Требует авторизации с ролью администратора.
     Создает новый пункт меню с указанными параметрами.
     """
     return await menu_item_service.create_admin_menu_item(db=db, request=request)
@@ -148,7 +150,9 @@ async def delete_menu_item(id: int, current_admin: AdminOnly, db: AsyncSession =
     },
 )
 async def get_content_files(
-    id: int, current_admin: ModeratorOrAdmin, db: AsyncSession = Depends(get_session)
+    id: int,
+    current_admin: ModeratorOrAdmin,
+    db: AsyncSession = Depends(get_session),
 ) -> list[AdminContentFileResponse]:
     """Получение файлов контента для пункта меню.
 
@@ -163,7 +167,7 @@ async def get_content_files(
     response_model=AdminContentFileResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Создание файла контента (админ)",
-    description="Создает новый файл контента для указанного пункта меню",
+    description="Создает новый файл контента для указанного пункта меню. Доступно только администраторам.",
     responses={
         201: {"description": "Файл контента успешно создан"},
         400: {"description": "Ошибка валидации данных"},

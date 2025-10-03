@@ -4,12 +4,12 @@ from fastapi import APIRouter, Depends, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.db import get_session
-from backend.core.dependencies import CurrentAdmin
+from backend.core.dependencies import Admin
 from backend.schemas.admin.telegram_user import AdminTelegramUserListResponse, AdminTelegramUserResponse
 from backend.services.telegram_user import telegram_user_service
 
 
-router = APIRouter(prefix="/admin/telegram-users", tags=["Admin Telegram Users"])
+router = APIRouter(prefix="/telegram-users", tags=["Admin Telegram Users"])
 
 
 @router.get(
@@ -26,7 +26,7 @@ router = APIRouter(prefix="/admin/telegram-users", tags=["Admin Telegram Users"]
     },
 )
 async def get_telegram_users(
-    admin: CurrentAdmin,
+    admin: Admin,
     db: AsyncSession = Depends(get_session),
 ) -> AdminTelegramUserListResponse:
     """Получение списка всех пользователей Telegram для администраторов.
@@ -54,7 +54,7 @@ async def get_telegram_users(
     },
 )
 async def get_telegram_user(
-    admin: CurrentAdmin,
+    admin: Admin,
     user_id: int = Path(ge=1, description="ID пользователя в системе"),
     db: AsyncSession = Depends(get_session),
 ) -> AdminTelegramUserResponse:

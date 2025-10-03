@@ -16,7 +16,7 @@ from backend.schemas.admin.notification import (
 from backend.services.notification import notification_service
 
 
-router = APIRouter(prefix="/admin/notifications", tags=["Admin Notifications"])
+router = APIRouter(prefix="/notifications", tags=["Admin Notifications"])
 
 
 @router.post(
