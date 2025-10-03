@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.models.admin_user import AdminUser
 from backend.models.enums import AccessLevel
 from backend.models.menu_item import MenuItem
+from backend.models.message_template import MessageTemplate
 from backend.models.telegram_user import TelegramUser
 
 
@@ -23,6 +24,7 @@ async def admin_user(db: AsyncSession):
         username="testadmin",
         password_hash="$2a$12$NCEkTSWzEITAb/MSfgUYMenYlUi/i0GDTGnm6X7aX3J7WdTdMA3Qq",
         is_active=True,
+        email="admin@mail.com"
     )
     db.add(user)
     await db.commit()
@@ -99,3 +101,35 @@ async def menu_items_fixture(db: AsyncSession):
         await db.refresh(item)
         db.expunge(item)
     return items
+
+
+@pytest_asyncio.fixture
+async def active_template(freezer, db: AsyncSession):
+    freezer.move_to("2024-10-10")
+    template = MessageTemplate(
+        name="Active template",
+        message_template="Message for active template",
+        is_active=True,
+        created_at=datetime.datetime.now(),
+        updated_at=datetime.datetime.now(),
+    )
+    db.add(template)
+    await db.commit()
+    await db.refresh(template)
+    return template
+
+
+@pytest_asyncio.fixture
+async def inactive_template(freezer, db: AsyncSession):
+    freezer.move_to("2024-10-10")
+    template = MessageTemplate(
+        name="Inactive template",
+        message_template="Message for inactive template",
+        is_active=False,
+        created_at=datetime.datetime.now(),
+        updated_at=datetime.datetime.now(),
+    )
+    db.add(template)
+    await db.commit()
+    await db.refresh(template)
+    return template
