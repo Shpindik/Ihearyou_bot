@@ -5,6 +5,7 @@ ADMIN_REMINDERS_URL = "/api/v1/admin/message-templates/"
 ADMIN_REMINDERS_DETAIL_URL = ADMIN_REMINDERS_URL + "{template_id}"
 ADMIN_REMINDERS_DETAIL_ACTIVATE_URL = ADMIN_REMINDERS_DETAIL_URL + "/activate"
 ADMIN_REMINDERS_DETAIL_DEACTIVATE_URL = ADMIN_REMINDERS_DETAIL_URL + "/deactivate"
+BOT_GET_TEMPLATE = "/api/v1/bot/message-template/active-template"
 
 
 @pytest.mark.asyncio
@@ -230,8 +231,8 @@ async def test_admin_activate_template(admin_client, inactive_template):
     expected_keys = {"id", "name", "message_template", "is_active", "created_at", "updated_at"}
     missing_keys = expected_keys - data.keys()
     assert not missing_keys, (
-        'В ответе на PUT-запрос админа к эндпоинту '
-        f'`{ADMIN_REMINDERS_DETAIL_URL}` не хватает следующих ключей: '
+        'В ответе на POST-запрос админа к эндпоинту '
+        f'`{ADMIN_REMINDERS_DETAIL_ACTIVATE_URL}` не хватает следующих ключей: '
         f'`{"`, `".join(missing_keys)}`'
     )
     assert data.get("is_active")
@@ -244,3 +245,71 @@ async def test_admin_activate_template(admin_client, inactive_template):
     }
     data.pop("updated_at")
     assert data == expected_data
+
+
+@pytest.mark.asyncio
+async def test_admin_deactivate_template(admin_client, active_template):
+    response = await admin_client.post(ADMIN_REMINDERS_DETAIL_DEACTIVATE_URL.format(template_id=active_template.id))
+    assert response.status_code == 200
+    data = response.json()
+    expected_keys = {"id", "name", "message_template", "is_active", "created_at", "updated_at"}
+    missing_keys = expected_keys - data.keys()
+    assert not missing_keys, (
+        'В ответе на POST-запрос админа к эндпоинту '
+        f'`{ADMIN_REMINDERS_DETAIL_DEACTIVATE_URL}` не хватает следующих ключей: '
+        f'`{"`, `".join(missing_keys)}`'
+    )
+    assert not data.get("is_active")
+    expected_data = {
+        "id": active_template.id,
+        "name": active_template.name,
+        "message_template": active_template.message_template,
+        "is_active": False,
+        "created_at": "2024-10-10T00:00:00"
+    }
+    data.pop("updated_at")
+    assert data == expected_data
+
+
+@pytest.mark.asyncio
+async def test_unautherised_user_cant_activate_template(async_client, inactive_template):
+    response = await async_client.post(ADMIN_REMINDERS_DETAIL_ACTIVATE_URL.format(template_id=inactive_template.id))
+    assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_unautherised_user_cant_deactivate_template(async_client, active_template):
+    response = await async_client.post(ADMIN_REMINDERS_DETAIL_DEACTIVATE_URL.format(template_id=active_template.id))
+    assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_bot_get_active_template(async_client, active_template):
+    response = await async_client.get(BOT_GET_TEMPLATE)
+    assert response.status_code == 200, (
+        f"GET-запрос админа к эндпоинту `{BOT_GET_TEMPLATE}` должен вернуть ответ со статус-кодом 200."
+    )
+    response_data = response.json()
+    expected_keys = {"id", "name", "message_template", "created_at"}
+    missing_keys = expected_keys - response_data.keys()
+    assert not missing_keys, (
+        'В ответе на GET-запрос админа к эндпоинту '
+        f'`{BOT_GET_TEMPLATE}` не хватает следующих ключей: '
+        f'`{"`, `".join(missing_keys)}`'
+    )
+
+
+@pytest.mark.asyncio
+async def test_bot_get_template_while_no_templates(async_client):
+    response = await async_client.get(BOT_GET_TEMPLATE)
+    assert response.status_code == 200, (
+        f"GET-запрос админа к эндпоинту `{BOT_GET_TEMPLATE}` должен вернуть ответ со статус-кодом 200."
+    )
+    response_data = response.json()
+    expected_keys = {"id", "name", "message_template", "created_at"}
+    missing_keys = expected_keys - response_data.keys()
+    assert not missing_keys, (
+        'В ответе на GET-запрос админа к эндпоинту '
+        f'`{BOT_GET_TEMPLATE}` не хватает следующих ключей: '
+        f'`{"`, `".join(missing_keys)}`'
+    )
