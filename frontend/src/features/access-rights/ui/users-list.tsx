@@ -1,5 +1,4 @@
 import { TUserItem } from '@/entities/user/list';
-import { UsersCount } from '@/features/access-rights/ui/index.ts';
 import { UIBlock, UIFullBackDropLoader } from '@/shared/ui';
 import ContentEmpty from '@/shared/ui/content-empty/table-empty.tsx';
 import { ComponentPropsWithoutRef, FC } from 'react';
@@ -21,7 +20,6 @@ const UsersList: FC<UsersListProps> = ({
     <div className={`${className}`} {...props}>
       <UIFullBackDropLoader
         loading={loading}
-        background={true}
         text="Загрузка администраторов..."
       />
 
@@ -40,7 +38,6 @@ const UsersList: FC<UsersListProps> = ({
             </p>
           </UIBlock>
         ))}
-        <UsersCount count={total} className="mt-4" />
       </div>
 
       <ContentEmpty

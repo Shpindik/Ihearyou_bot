@@ -1,5 +1,5 @@
 export type TPageState =
   | 'ANALYTICS'
   | 'MATERIALS'
-  | 'USERS_LIST'
+  | 'ACCESS_RIGHTS'
   | 'NOTIFICATIONS';

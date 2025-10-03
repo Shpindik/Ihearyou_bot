@@ -1,7 +1,10 @@
-import {categoryTuple, notificationTuple,} from '@/features/notifications/models';
+import {
+  categoryTuple,
+  notificationTuple,
+} from '@/features/notifications/models';
 import UIButton from '@/shared/ui/button';
 import UIModal from '@/shared/ui/modal';
-import {ComponentPropsWithoutRef, FC} from 'react';
+import { ComponentPropsWithoutRef, FC } from 'react';
 
 interface INotificationForm {
   name: string;
@@ -34,9 +37,9 @@ const Modal: FC<IModalProps> = ({
       open={open}
       onClose={onClose}
       title="Новое уведомление"
-      className={`w-full max-w-2xl ${className} bg-white`}
+      className={`w-full max-w-2xl mx-4 md:mx-0 h-[90vh] md:h-auto max-h-[90vh] overflow-y-auto ${className} bg-white`}
       footer={
-        <div className="p-8">
+        <div className="p-4 md:p-8">
           <UIButton
             theme="primary-fill"
             onClick={onSubmit}
@@ -48,8 +51,8 @@ const Modal: FC<IModalProps> = ({
         </div>
       }
     >
-      <div className="p-8 flex flex-col gap-6">
-        <div className="flex flex-col gap-6">
+      <div className="p-4 md:p-8 flex flex-col gap-4 md:gap-6">
+        <div className="flex flex-col gap-4 md:gap-6">
           <h2>Название (видно только вам)</h2>
 
           <textarea
@@ -60,7 +63,7 @@ const Modal: FC<IModalProps> = ({
           />
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 md:gap-6">
           <h2>Текст уведомления (виден пользователям)</h2>
 
           <textarea
@@ -72,7 +75,7 @@ const Modal: FC<IModalProps> = ({
           />
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 md:gap-6">
           <h2>Авторассылка уведомлений</h2>
 
           <div className="flex flex-col gap-2">
@@ -94,7 +97,7 @@ const Modal: FC<IModalProps> = ({
           </div>
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 md:gap-6">
           <h2>Категория пользователей</h2>
 
           <div className="flex flex-col gap-2">

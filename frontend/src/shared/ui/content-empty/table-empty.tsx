@@ -14,11 +14,11 @@ const ContentEmpty: FC<IProps> = ({
   items,
   ...props
 }) => {
-  if (!items) return <></>;
+  if (!items) return null;
   
   return (
     <div
-      className={`flex-center flex-col gap-r-4 p-r-4 select-none min-h-96 ${className}`}
+      className={`flex-center flex-col gap-4 p-4 select-none min-h-96 ${className}`}
       {...props}
     >
       <CloseIcon className="text-ui-gray-text-secondary animate-pulse" />

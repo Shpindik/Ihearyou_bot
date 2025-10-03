@@ -27,7 +27,6 @@ const MainPage = () => {
 
       <UIFullBackDropLoader
         loading={loading}
-        background={true}
         className="fixed inset-0 z-50"
         text={loadingText}
       />

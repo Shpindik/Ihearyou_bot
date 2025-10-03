@@ -1,29 +1,19 @@
-import {FC} from 'react';
+import { FC } from 'react';
 
 interface IProps {
-  materialsPercent: number;
-  sectionsPercent: number;
+  percent: number;
 }
 
-const MainStats: FC<IProps> = ({ materialsPercent, sectionsPercent }) => {
+const MainStats: FC<IProps> = ({ percent }) => {
   return (
     <div className="p-6">
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <div className="text-center">
           <h2 className="text-ui-purple-primary text-2xl font-bold">
-            {materialsPercent}%
+            {percent}%
           </h2>
           <p className="text-sm text-gray-600">
             От всех просмотров приходится на топ-5 материалов
-          </p>
-        </div>
-
-        <div className="text-center">
-          <h2 className="text-ui-purple-primary text-2xl font-bold">
-            {sectionsPercent}%
-          </h2>
-          <p className="text-sm text-gray-600">
-            От всех просмотров приходится на топ-5 разделов
           </p>
         </div>
       </div>

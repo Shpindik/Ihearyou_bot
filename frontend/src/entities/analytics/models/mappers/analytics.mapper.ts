@@ -1,4 +1,4 @@
-import {AnalyticsDto, IAnalyticsResponse} from '@/entities/analytics';
+import { AnalyticsDto, IAnalyticsResponse } from '@/entities/analytics';
 
 export const analyticsMapper = (
   response: IAnalyticsResponse | AnalyticsDto,

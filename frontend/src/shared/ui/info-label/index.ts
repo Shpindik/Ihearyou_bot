@@ -1,1 +1,1 @@
-export * from './info-label';
+export { default } from './info-label';

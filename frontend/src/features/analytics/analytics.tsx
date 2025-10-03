@@ -1,11 +1,13 @@
 import {
   analyticsMapper,
-  analyticsMock,
   getAnalytics,
+  IAnalyticsRequest,
 } from '@/entities/analytics';
+import { getAnalyticsMock } from '@/entities/analytics/mocks';
 import { TAnalyticsItem } from '@/entities/analytics/models/types/analytics-item.type';
-import { usePageStore } from '@/entities/page';
+import { AnalyticsFilter } from '@/features/analytics/ui';
 import AnalyticsDashboard from '@/features/analytics/ui/analytics-dashboard.tsx';
+import { UIFullBackDropLoader } from '@/shared/ui';
 import ContentEmpty from '@/shared/ui/content-empty/table-empty.tsx';
 import {
   ComponentPropsWithoutRef,
@@ -21,20 +23,35 @@ export const Analytics: FC<ComponentPropsWithoutRef<'div'>> = ({
   const [analyticsData, setAnalyticsData] = useState<TAnalyticsItem | null>(
     null,
   );
-  const { setLoading } = usePageStore();
+  const [loading, setLoading] = useState(false);
 
-  const loadAnalytics = useCallback(async () => {
-    setLoading(true, 'Загрузка аналитики...');
-    try {
-      const data = await getAnalytics();
-      setAnalyticsData(data);
-    } catch (error) {
-      console.error('Ошибка загрузки аналитики, используем моки:', error);
-      setAnalyticsData(analyticsMapper(analyticsMock));
-    } finally {
-      setLoading(false);
-    }
-  }, [setLoading]);
+  const loadAnalytics = useCallback((params?: IAnalyticsRequest) => {
+    setLoading(true);
+
+    return getAnalytics(params)
+      .then((data) => {
+        setAnalyticsData(data);
+        return data;
+      })
+      .catch((error) => {
+        console.error(error);
+        // MOCK
+        const mockData = getAnalyticsMock(params?.period);
+        const mappedData = analyticsMapper(mockData);
+        setAnalyticsData(mappedData);
+        return mappedData;
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  const handleFilterChange = useCallback(
+    (newFilters: IAnalyticsRequest) => {
+      void loadAnalytics(newFilters);
+    },
+    [loadAnalytics],
+  );
 
   useEffect(() => {
     void loadAnalytics();
@@ -43,8 +60,10 @@ export const Analytics: FC<ComponentPropsWithoutRef<'div'>> = ({
   return (
     <div className={`${className} w-full flex flex-col h-full`}>
       <div className="p-4">
-        {/*Тут будет дродпаун*/}
-        <h1>Статистика за моковый период</h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1>Статистика</h1>
+          <AnalyticsFilter onFilterChange={handleFilterChange} />
+        </div>
       </div>
 
       <div className="flex-1 min-h-0 overflow-auto scrollbar-hide">
@@ -54,10 +73,12 @@ export const Analytics: FC<ComponentPropsWithoutRef<'div'>> = ({
           <ContentEmpty
             title="Нет данных"
             text="Не удалось загрузить данные аналитики"
-            items={!analyticsData}
+            items={!analyticsData && !loading}
           />
         </div>
       </div>
+
+      <UIFullBackDropLoader loading={loading} text="Загрузка аналитики..." />
     </div>
   );
 };

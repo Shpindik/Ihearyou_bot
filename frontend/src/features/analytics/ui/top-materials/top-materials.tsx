@@ -1,5 +1,5 @@
-import {MaterialAnalyticsDto} from '@/entities/analytics';
-import {FC} from 'react';
+import { MaterialAnalyticsDto } from '@/entities/analytics';
+import { FC } from 'react';
 
 interface IProps {
   materials: MaterialAnalyticsDto[];

@@ -3,13 +3,13 @@ import { TLabels, TOrder } from '../types/tabs.type';
 export const MOrder: TOrder = [
   'ANALYTICS',
   'MATERIALS',
-  'USERS_LIST',
+  'ACCESS_RIGHTS',
   'NOTIFICATIONS',
 ] as const;
 
 export const MLabels: TLabels = {
   ANALYTICS: 'Аналитика',
   MATERIALS: 'Материалы',
-  USERS_LIST: 'Список администраторов',
+  ACCESS_RIGHTS: 'Права доступа',
   NOTIFICATIONS: 'Уведомления',
 };

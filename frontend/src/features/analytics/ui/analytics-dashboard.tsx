@@ -1,4 +1,5 @@
 import { TAnalyticsItem } from '@/entities/analytics/models/types/analytics-item.type.ts';
+import TotalUsers from '@/features/analytics/ui/total-users/total-users.tsx';
 import { UIBlock } from '@/shared/ui';
 import { FC } from 'react';
 import {
@@ -24,27 +25,26 @@ const AnalyticsDashboard: FC<AnalyticsDashboardProps> = ({ data }) => {
           <TopMaterials materials={data.content.mostViewed} />
         </UIBlock>
 
-        <UIBlock className="col-span-12 md:col-span-6">
-          <TopMaterials materials={data.content.mostViewed} />
-        </UIBlock>
+        <div className="col-span-12 md:col-span-6 flex flex-col gap-2">
+          <UIBlock className="h-full flex-center">
+            <TotalUsers count={data.users.total} className="m-auto" />
+          </UIBlock>
 
-        <UIBlock className="col-span-12">
-          <MainStats
-            materialsPercent={(() => {
-              const totalViews = data.content.mostViewed.reduce(
-                (sum, material) => sum + material.view_count,
-                0,
-              );
-              const top5Views = data.content.mostViewed
-                .slice(0, 5)
-                .reduce((sum, material) => sum + material.view_count, 0);
-              return totalViews > 0
-                ? Math.round((top5Views / totalViews) * 100)
-                : 0;
-            })()}
-            sectionsPercent={75}
-          />
-        </UIBlock>
+          <UIBlock>
+            <MainStats
+              percent={(() => {
+                const total = data.content.mostViewed.reduce(
+                  (sum, material) => sum + material.view_count,
+                  0,
+                );
+                const top = data.content.mostViewed
+                  .slice(0, 5)
+                  .reduce((sum, material) => sum + material.view_count, 0);
+                return total > 0 ? Math.round((top / total) * 100) : 0;
+              })()}
+            />
+          </UIBlock>
+        </div>
 
         <UIBlock className="col-span-12 md:col-span-6">
           <TopRatings materials={data.content.mostRated} />

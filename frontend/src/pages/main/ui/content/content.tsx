@@ -17,7 +17,7 @@ const Content: FC<ComponentPropsWithoutRef<'div'>> = ({
         return <Analytics />;
       case 'MATERIALS':
         return <Materials />;
-      case 'USERS_LIST':
+      case 'ACCESS_RIGHTS':
         return <AccessRights />;
       case 'NOTIFICATIONS':
         return <Notifications />;

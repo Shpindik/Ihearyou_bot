@@ -1,5 +1,10 @@
-import {analyticsMapper, IAnalyticsRequest, IAnalyticsResponse, TAnalyticsItem,} from '@/entities/analytics';
-import {api} from '@/shared/api';
+import {
+  analyticsMapper,
+  IAnalyticsRequest,
+  IAnalyticsResponse,
+  TAnalyticsItem,
+} from '@/entities/analytics';
+import { api } from '@/shared/api';
 
 export const getAnalytics = async (
   params?: IAnalyticsRequest,
@@ -13,7 +18,7 @@ export const getAnalytics = async (
     })
     .then(analyticsMapper)
     .catch((e) => {
-      console.log(e);
+      console.log('API Error:', e);
       throw e;
     });
 };

@@ -1,2 +1,1 @@
-export { analyticsMock } from './analytics-mock';
-
+export { analyticsMock, getAnalyticsMock } from './analytics-mock';

@@ -1,3 +1,5 @@
+import { PeriodType } from '../types';
+
 /**
  * @example
  * {
@@ -8,7 +10,7 @@
  */
 
 export interface IAnalyticsRequest {
-  period?: 'day' | 'week' | 'month' | 'year';
+  period?: PeriodType;
   start_date?: string;
   end_date?: string;
 }

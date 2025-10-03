@@ -106,7 +106,6 @@ export const Notifications: FC<ComponentPropsWithoutRef<'div'>> = ({
       <UIFullBackdropLoader
         loading={initialLoading}
         text="Загрузка уведомлений..."
-        background={true}
       />
 
       <Modal
