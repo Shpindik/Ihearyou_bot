@@ -15,8 +15,8 @@ from sqlalchemy.pool import NullPool
 from backend.core.db import Base, get_session
 from backend.core.dependencies import require_admin_role
 from backend.core.security import create_access_token
-from backend.models.enums import AdminRole
 from backend.main import app
+from backend.models.enums import AdminRole
 from backend.tests.fixtures import (
     active_template,
     admin_user,

@@ -1,10 +1,11 @@
 import pytest
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 from pytest_mock import MockerFixture
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.exceptions import ValidationError
-from backend.crud.menu_item import menu_crud
+from backend.crud.menu_item import menu_item_crud
 from backend.main import app
 from backend.models.enums import AccessLevel
 from backend.schemas.public.search import SearchItemResponse, SearchListResponse
@@ -15,9 +16,7 @@ from backend.validators.menu_item import menu_item_validator
 client = TestClient(app)
 
 
-# ===============================
 # Тесты для валидатора
-# ===============================
 @pytest.mark.parametrize(
     "query, expected",
     [
@@ -47,17 +46,15 @@ def test_validate_search_query_success(query, expected):
     ],
 )
 def test_validate_search_query_fail(query, error_msg):
-    with pytest.raises(ValidationError) as exc:
+    with pytest.raises(HTTPException) as exc:
         menu_item_validator.validate_search_query(query)
-    assert error_msg in str(exc.value)
+    assert error_msg in str(exc.value.detail)
 
 
-# ===============================
 # Тесты для CRUD
-# ===============================
 @pytest.mark.asyncio
 async def test_search_by_query_free(db: AsyncSession, menu_items_fixture):
-    results = await menu_crud.search_by_query(db=db, query="test", access_level=AccessLevel.FREE, limit=10)
+    results = await menu_item_crud.search_by_query(db=db, query="test", access_level=AccessLevel.FREE, limit=10)
     assert len(results) > 0
     for item in results:
         assert item.access_level == AccessLevel.FREE
@@ -67,20 +64,20 @@ async def test_search_by_query_free(db: AsyncSession, menu_items_fixture):
 
 @pytest.mark.asyncio
 async def test_search_by_query_premium(db: AsyncSession, menu_items_fixture):
-    results = await menu_crud.search_by_query(db=db, query="test", access_level=AccessLevel.PREMIUM, limit=10)
-    results_free = await menu_crud.search_by_query(db=db, query="test", access_level=AccessLevel.FREE, limit=10)
+    results = await menu_item_crud.search_by_query(db=db, query="test", access_level=AccessLevel.PREMIUM, limit=10)
+    results_free = await menu_item_crud.search_by_query(db=db, query="test", access_level=AccessLevel.FREE, limit=10)
     assert len(results) >= len(results_free)
 
 
 @pytest.mark.asyncio
 async def test_search_by_query_inactive_excluded(db: AsyncSession, menu_items_fixture):
-    results = await menu_crud.search_by_query(db=db, query="inactive", access_level=AccessLevel.PREMIUM, limit=10)
+    results = await menu_item_crud.search_by_query(db=db, query="inactive", access_level=AccessLevel.PREMIUM, limit=10)
     assert len(results) == 0
 
 
 @pytest.mark.asyncio
 async def test_search_by_query_description(db: AsyncSession, menu_items_fixture):
-    results = await menu_crud.search_by_query(db=db, query="description", access_level=AccessLevel.FREE, limit=10)
+    results = await menu_item_crud.search_by_query(db=db, query="description", access_level=AccessLevel.FREE, limit=10)
     assert len(results) > 0
     for item in results:
         assert item.description and "description" in item.description.lower()
@@ -88,16 +85,18 @@ async def test_search_by_query_description(db: AsyncSession, menu_items_fixture)
 
 @pytest.mark.asyncio
 async def test_search_by_query_no_results(db: AsyncSession, menu_items_fixture):
-    results = await menu_crud.search_by_query(db=db, query="nonexistent", access_level=AccessLevel.PREMIUM, limit=10)
+    results = await menu_item_crud.search_by_query(
+        db=db, query="nonexistent", access_level=AccessLevel.PREMIUM, limit=10
+    )
     assert len(results) == 0
 
 
 @pytest.mark.asyncio
 async def test_search_by_query_case_insensitive(db: AsyncSession, menu_items_fixture):
-    results_lower = await menu_crud.search_by_query(
+    results_lower = await menu_item_crud.search_by_query(
         db=db, query="test free item", access_level=AccessLevel.FREE, limit=10
     )
-    results_upper = await menu_crud.search_by_query(
+    results_upper = await menu_item_crud.search_by_query(
         db=db, query="TEST FREE ITEM", access_level=AccessLevel.FREE, limit=10
     )
     assert len(results_lower) == len(results_upper)
@@ -106,13 +105,13 @@ async def test_search_by_query_case_insensitive(db: AsyncSession, menu_items_fix
 
 @pytest.mark.asyncio
 async def test_search_by_query_multiple_words(db: AsyncSession, menu_items_fixture):
-    results = await menu_crud.search_by_query(db=db, query="free test", access_level=AccessLevel.FREE, limit=10)
+    results = await menu_item_crud.search_by_query(db=db, query="free test", access_level=AccessLevel.FREE, limit=10)
     assert len(results) > 0
 
 
 @pytest.mark.asyncio
 async def test_search_by_query_russian(db: AsyncSession, menu_items_fixture):
-    results = await menu_crud.search_by_query(
+    results = await menu_item_crud.search_by_query(
         db=db,
         query="русский",
         access_level=AccessLevel.PREMIUM,
@@ -123,16 +122,18 @@ async def test_search_by_query_russian(db: AsyncSession, menu_items_fixture):
 
 @pytest.mark.asyncio
 async def test_search_by_query_limit_edge(db: AsyncSession, menu_items_fixture):
-    results_limit_1 = await menu_crud.search_by_query(db=db, query="test", access_level=AccessLevel.PREMIUM, limit=1)
+    results_limit_1 = await menu_item_crud.search_by_query(
+        db=db, query="test", access_level=AccessLevel.PREMIUM, limit=1
+    )
     assert len(results_limit_1) <= 1
 
-    results_limit_0 = await menu_crud.search_by_query(db=db, query="test", access_level=AccessLevel.PREMIUM, limit=0)
+    results_limit_0 = await menu_item_crud.search_by_query(
+        db=db, query="test", access_level=AccessLevel.PREMIUM, limit=0
+    )
     assert len(results_limit_0) == 0
 
 
-# ===============================
 # Тесты для сервиса
-# ===============================
 @pytest.mark.asyncio
 async def test_search_menu_items_success_free(db: AsyncSession, user_free, menu_items_fixture):
     result = await menu_item_service.search_menu_items(
@@ -163,8 +164,9 @@ async def test_search_menu_items_success_premium(db: AsyncSession, user_premium,
 
 @pytest.mark.asyncio
 async def test_search_menu_items_invalid_query(db: AsyncSession, user_free):
-    with pytest.raises(ValidationError):
+    with pytest.raises(HTTPException) as exc:
         await menu_item_service.search_menu_items(telegram_user_id=user_free, query="a", limit=10, db=db)
+    assert exc.value.status_code == 400
 
 
 @pytest.mark.asyncio
@@ -183,14 +185,13 @@ async def test_search_menu_items_max_length_query(db: AsyncSession, user_free, m
 
 @pytest.mark.asyncio
 async def test_search_menu_items_unsafe_query(db: AsyncSession, user_free):
-    with pytest.raises(ValidationError) as exc:
+    with pytest.raises(HTTPException) as exc:
         await menu_item_service.search_menu_items(telegram_user_id=user_free, query="test<unsafe>", limit=10, db=db)
-    assert "недопустимые символы" in str(exc.value)
+    assert "недопустимые символы" in str(exc.value.detail)
+    assert exc.value.status_code == 400
 
 
-# ===============================
 # Тесты для API
-# ===============================
 @pytest.mark.parametrize(
     "query, expected_status",
     [
@@ -210,6 +211,7 @@ def test_search_materials_api_success(query, expected_status, mocker: MockerFixt
                 bot_message=None,
                 is_active=True,
                 access_level=AccessLevel.FREE,
+                item_type="content",
             )
         ]
         if query != "nonexistent"
@@ -219,10 +221,10 @@ def test_search_materials_api_success(query, expected_status, mocker: MockerFixt
     mocker.patch(
         "backend.api.v1.public.search.menu_item_service.search_menu_items",
         return_value=SearchListResponse(items=mock_items),
-        new_callable=mocker.AsyncMock,  # убрано autospec
+        new_callable=mocker.AsyncMock,
     )
 
-    response = client.get(f"/api/v1/search?telegram_user_id=123456789&query={query}&limit=10")
+    response = client.get(f"/api/v1/public/search?telegram_user_id=123456789&query={query}&limit=10")
     assert response.status_code == expected_status
     assert "items" in response.json()
 
@@ -232,33 +234,33 @@ def test_search_materials_api_validation_error(mocker: MockerFixture):
     mocker.patch(
         "backend.api.v1.public.search.menu_item_service.search_menu_items",
         side_effect=ValidationError("Invalid query"),
-        new_callable=mocker.AsyncMock,  # убрано autospec
+        new_callable=mocker.AsyncMock,
     )
 
-    response = client.get("/api/v1/search?telegram_user_id=123456789&query=ab&limit=10")
+    response = client.get("/api/v1/public/search?telegram_user_id=123456789&query=ab&limit=10")
     # ValidationError должна быть обработана
     assert response.status_code in [400, 422, 500]
 
 
 def test_search_materials_api_missing_params():
     """Тест отсутствующих параметров."""
-    response = client.get("/api/v1/search?query=test&limit=10")
+    response = client.get("/api/v1/public/search?query=test&limit=10")
     assert response.status_code == 422
 
-    response = client.get("/api/v1/search?telegram_user_id=123456789&limit=10")
+    response = client.get("/api/v1/public/search?telegram_user_id=123456789&limit=10")
     assert response.status_code == 422
 
 
 def test_search_materials_api_invalid_limit():
     """Тест некорректного значения limit."""
-    response = client.get("/api/v1/search?telegram_user_id=123456789&query=test&limit=abc")
+    response = client.get("/api/v1/public/search?telegram_user_id=123456789&query=test&limit=abc")
     assert response.status_code == 422
 
-    response = client.get("/api/v1/search?telegram_user_id=123456789&query=test&limit=0")
+    response = client.get("/api/v1/public/search?telegram_user_id=123456789&query=test&limit=0")
     assert response.status_code == 422
 
 
 def test_search_materials_api_invalid_telegram_id():
     """Тест некорректного telegram_user_id."""
-    response = client.get("/api/v1/search?telegram_user_id=-1&query=test&limit=10")
+    response = client.get("/api/v1/public/search?telegram_user_id=-1&query=test&limit=10")
     assert response.status_code == 422
