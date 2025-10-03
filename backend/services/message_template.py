@@ -37,7 +37,7 @@ class MessageTemplateService:
 
     async def get_admin_templates(self, db: AsyncSession) -> AdminMessageTemplateListResponse:
         """Получить все шаблоны для админов."""
-        templates = await message_template_crud.get_active_templates(db)
+        templates = await message_template_crud.get_all_templates(db)
 
         templates_data = [
             AdminMessageTemplateResponse(
@@ -57,13 +57,13 @@ class MessageTemplateService:
         self, db: AsyncSession, request: AdminMessageTemplateCreate
     ) -> AdminMessageTemplateResponse:
         """Создать новый шаблон."""
-        template_data = {
-            "name": request.name,
-            "message_template": request.message_template,
-            "is_active": True,
-        }
+        # template_data = {
+        #     "name": request.name,
+        #     "message_template": request.message_template,
+        #     "is_active": True,
+        # }
 
-        template = await message_template_crud.create(db, template_data)
+        template = await message_template_crud.create(db=db, obj_in=request)
         return AdminMessageTemplateResponse.model_validate(template)
 
     async def update_admin_template(
@@ -73,8 +73,8 @@ class MessageTemplateService:
         template = await message_template_crud.get(db, template_id)
         self.validator.validate_template_exists_for_id(template, template_id)
 
-        update_data = request.model_dump(exclude_unset=True)
-        updated_template = await message_template_crud.update(db, db_obj=template, obj_in=update_data)
+        # update_data = request.model_dump(exclude_unset=True)
+        updated_template = await message_template_crud.update(db, db_obj=template, obj_in=request)
 
         return AdminMessageTemplateResponse.model_validate(updated_template)
 
