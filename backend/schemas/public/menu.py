@@ -6,7 +6,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from backend.models.enums import AccessLevel, ContentType
+from backend.models.enums import AccessLevel, ContentType, ItemType
 
 
 class MenuItemResponse(BaseModel):
@@ -17,9 +17,9 @@ class MenuItemResponse(BaseModel):
     description: Optional[str] = Field(None, description="Описание пункта меню")
     parent_id: Optional[int] = Field(None, description="ID родительского пункта")
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
-    web_app_url: Optional[str] = Field(None, description="URL для Web App кнопки")
     is_active: bool = Field(..., description="Активен ли пункт")
     access_level: AccessLevel = Field(..., description="Уровень доступа")
+    item_type: ItemType = Field(..., description="Тип пункта меню")
     children: list["MenuItemResponse"] = Field(default_factory=list, description="Дочерние пункты")
 
     model_config = ConfigDict(
@@ -33,6 +33,7 @@ class MenuItemResponse(BaseModel):
                 "bot_message": "Выберите интересующий вас раздел:",
                 "is_active": True,
                 "access_level": "free",
+                "item_type": "navigation",
                 "children": [
                     {
                         "id": 2,
@@ -42,6 +43,7 @@ class MenuItemResponse(BaseModel):
                         "bot_message": "Выберите тип:",
                         "is_active": True,
                         "access_level": "free",
+                        "item_type": "content",
                         "children": [],
                     }
                 ],
@@ -67,6 +69,7 @@ class MenuItemListResponse(BaseModel):
                         "bot_message": "Выберите интересующий вас раздел:",
                         "is_active": True,
                         "access_level": "free",
+                        "item_type": "navigation",
                         "children": [
                             {
                                 "id": 2,
@@ -76,6 +79,7 @@ class MenuItemListResponse(BaseModel):
                                 "bot_message": "Выберите тип:",
                                 "is_active": True,
                                 "access_level": "free",
+                                "item_type": "content",
                                 "children": [],
                             }
                         ],
@@ -87,19 +91,26 @@ class MenuItemListResponse(BaseModel):
 
 
 class ContentFileResponse(BaseModel):
-    """Схема данных файла контента."""
+    """Схема данных файла контента для публичного API."""
 
-    id: int = Field(..., description="ID файла контента")
-    menu_item_id: int = Field(..., description="ID пункта меню")
     content_type: ContentType = Field(..., description="Тип контента")
-    content_text: Optional[str] = Field(None, description="Текстовый контент")
-    content_url: Optional[str] = Field(None, description="URL контента")
-    file_path: Optional[str] = Field(None, description="Путь к файлу")
+
+    # Контент для пользователей
+    caption: Optional[str] = Field(None, description="Подпись к медиафайлу")
+    text_content: Optional[str] = Field(None, description="Текстовый контент")
+    external_url: Optional[str] = Field(None, description="URL внешнего ресурса")
+    web_app_short_name: Optional[str] = Field(None, description="Короткое имя Web App")
+
+    # Метadанные файла для Telegram Bot
+    telegram_file_id: Optional[str] = Field(None, description="File ID от Telegram")
     file_size: Optional[int] = Field(None, description="Размер файла в байтах")
     mime_type: Optional[str] = Field(None, description="MIME тип файла")
-    thumbnail_url: Optional[str] = Field(None, description="URL превью")
-    is_primary: bool = Field(..., description="Основной ли файл")
-    sort_order: int = Field(..., description="Порядок сортировки")
+
+    # Размеры для медиа
+    width: Optional[int] = Field(None, description="Ширина изображения/видео")
+    height: Optional[int] = Field(None, description="Высота изображения/видео")
+    duration: Optional[int] = Field(None, description="Длительность видео/аудио в секундах")
+    thumbnail_telegram_file_id: Optional[str] = Field(None, description="File ID превью")
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -111,7 +122,7 @@ class MenuContentResponse(BaseModel):
     title: str = Field(..., description="Название пункта меню")
     description: Optional[str] = Field(None, description="Описание пункта меню")
     bot_message: Optional[str] = Field(None, description="Сообщение бота")
-    web_app_url: Optional[str] = Field(None, description="URL для Web App кнопки")
+    item_type: ItemType = Field(..., description="Тип пункта меню")
     content_files: list[ContentFileResponse] = Field(..., description="Файлы контента")
     children: list[MenuItemResponse] = Field(default_factory=list, description="Дочерние пункты")
 
@@ -123,32 +134,21 @@ class MenuContentResponse(BaseModel):
                 "title": "Слуховые аппараты",
                 "description": "Информация о слуховых аппаратах",
                 "bot_message": "Вот полезная информация о слуховых аппаратах:",
+                "item_type": "content",
                 "content_files": [
                     {
-                        "id": 1,
-                        "menu_item_id": 1,
                         "content_type": "text",
-                        "content_text": "Слуховые аппараты помогают...",
-                        "content_url": None,
-                        "file_path": None,
-                        "file_size": None,
-                        "mime_type": None,
-                        "thumbnail_url": None,
-                        "is_primary": True,
-                        "sort_order": 1,
+                        "caption": None,
+                        "text_content": "Слуховые аппараты помогают улучшить качество слуха и облегчить привыкание к звуковой среде...",
+                        "external_url": None,
+                        "web_app_short_name": None,
                     },
                     {
-                        "id": 2,
-                        "menu_item_id": 1,
-                        "content_type": "image",
-                        "content_text": None,
-                        "content_url": "https://example.com/image.jpg",
-                        "file_path": None,
-                        "file_size": None,
-                        "mime_type": "image/jpeg",
-                        "thumbnail_url": "https://example.com/thumb.jpg",
-                        "is_primary": False,
-                        "sort_order": 2,
+                        "content_type": "external_url",
+                        "caption": "Изображение слухового аппарата",
+                        "text_content": None,
+                        "external_url": "https://example.com/image.jpg",
+                        "web_app_short_name": None,
                     },
                 ],
             }

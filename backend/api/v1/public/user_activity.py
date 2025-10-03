@@ -10,7 +10,7 @@ from backend.schemas.public.user_activity import UserActivityRequest, UserActivi
 from backend.services.user_activity import user_activity_service
 
 
-router = APIRouter(prefix="/user-activities", tags=["Public User Activities"])
+router = APIRouter(prefix="/user-activities")
 
 
 @router.post(

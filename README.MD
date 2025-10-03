@@ -9,16 +9,7 @@
 ## Архитектура
 
 ```
-Telegram <-> bot (aiogram)
-          │
-          │ REST
-          ▼
-      backend (FastAPI) <---- frontend (React)
-          │
-          ├── Postgres (данные)
-          └── Redis (кэш, брокер Celery)
-
-Celery worker (фоновые уведомления пользователям)
+Telegram <-> bot (aiogram) ----> Postgres <---- backend (FastAPI) <---- frontend (React)
 ```
 
 - Бот принимает сообщения пользователей и сохраняет их данные в Postgres.
@@ -28,9 +19,8 @@ Celery worker (фоновые уведомления пользователям)
 ## Требования
 
 - Docker & Docker Compose (для быстрого запуска).
-- Python 3.10+ и Node 18+ (если запускать компоненты отдельно).
+- Python 3.11+ и Node 18+ (если запускать компоненты отдельно).
 - Postgres 13+ (локально или через docker-compose).
- - Redis 7+ (поднимется из compose).
 
 ## Переменные окружения
 
@@ -39,7 +29,6 @@ Celery worker (фоновые уведомления пользователям)
 - `BOT_TOKEN` — токен Telegram-бота (используется ботом и backend'ом для аватаров).
 - `POSTGRES_*`, `DB_*` — параметры подключения к базе.
 - `ADMIN_*` — настройки административного API (секрет, токен, логин/пароль).
-- `REDIS_URL` — строка подключения к Redis (например, `redis://redis:6379/0`).
 
 Создайте файл `.env` в корне (пример):
 
@@ -51,15 +40,8 @@ POSTGRES_PASSWORD=postgres_password
 DB_HOST=db
 DB_PORT=5432
 
-# База данных
-DATABASE_URL=postgresql+asyncpg://postgres_user:postgres_password@db:5432/ihearyou_db
-
-# Redis
-REDIS_URL=redis://redis:6379/0
-
-
 # Bot Configuration
-BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN(Получем у Bot-Father)
+BOT_TOKEN=<Используйте токен, полученный у botfather>
 
 # Admin Configuration
 ADMIN_SECRET_KEY=changeme_secret_key_please_change_in_production
@@ -72,42 +54,19 @@ BOT_API_PORT=8001
 # Frontend Configuration
 FRONTEND_API_URL=http://localhost:8001/api
 FRONTEND_PORT=3001
-
-# JWT настройки
-JWT_SECRET_KEY=your_secret_key_here
-JWT_ALGORITHM=HS256
-JWT_ACCESS_TOKEN_EXPIRE_MINUTES=60
-JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
 ```
 
 ## Быстрый старт через Docker Compose
 
 ```bash
-docker-compose up --build -d
+docker-compose up --build
 ```
 
-- Backend: `http://localhost:8001`
-- Frontend: `http://localhost:3001`
-- Redis и Celery-воркер стартуют автоматически; бот работает в режиме polling.
+- Backend поднимется на `http://localhost:8001`.
+- Frontend будет доступен на `http://localhost:3001` (проксируется контейнером).
+- Бот запустится в режиме polling внутри контейнера.
 
-Для live-пересборки используйте `docker-compose up --watch`.
-
-
-### Загрузка flow-данных (меню)
-
-```bash
-docker-compose run --rm bot_api python backend/load_flow_data.py
-```
-
-После загрузки flow бэкенд очищает кэш меню в Redis.
-
-## Кэширование и фоновые задания
-
-- Кэш меню/контента хранится в Redis (TTL 300 сек). Ключи:
-  - `menu_items:{telegram_user_id}:{parent_id|root}`
-  - `menu_content:{telegram_user_id}:{menu_id}`
-- При изменении flow кэш инвалидацируется по префиксам.
-- Уведомления об ответе на вопрос отправляются пользователю через Celery-задачу `backend.tasks.send_telegram_message` (брокер Redis).
+Используйте `docker-compose up --watch`, чтобы автоматически пересобирать компоненты при изменениях кода.
 
 
 Убедитесь, что переменные окружения настроены верно.

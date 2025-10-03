@@ -2,69 +2,93 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import List, Optional, Tuple
-
-from sqlalchemy import asc, desc, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.models import AdminUser, TelegramUser, UserQuestion
-from backend.core.exceptions import ValidationError
-from backend.models.enums import QuestionStatus
-from backend.schemas.admin.question import (
-    AdminQuestionAnswer,
-    AdminQuestionListResponse,
-    AdminQuestionResponse,
-)
-from backend.schemas.public.user_question import (
-    UserQuestionCreate,
-    UserQuestionResponse,
-)
+from backend.crud.question import question_crud
+from backend.crud.telegram_user import telegram_user_crud
+from backend.schemas.admin.question import AdminQuestionAnswer, AdminQuestionListResponse, AdminQuestionResponse
+from backend.schemas.public.question import UserQuestionCreate, UserQuestionResponse
+from backend.services.telegram_user import telegram_user_service
+from backend.validators.question import user_question_validator
 
 
 class UserQuestionService:
     """Сервис для работы с вопросами пользователей."""
 
-    async def _get_user_by_telegram_id(self, db: AsyncSession, telegram_user_id: int) -> Optional[TelegramUser]:
-        result = await db.execute(
-            select(TelegramUser).where(TelegramUser.telegram_id == telegram_user_id)
-        )
-        return result.scalar_one_or_none()
+    def __init__(self):
+        """Инициализация сервиса User Question."""
+        self.question_crud = question_crud
+        self.telegram_user_crud = telegram_user_crud
+        self.validator = user_question_validator
 
-    async def create_question(self, request: UserQuestionCreate, db: AsyncSession) -> UserQuestionResponse:
-        user = await self._get_user_by_telegram_id(db, request.telegram_user_id)
-        if not user:
-            raise ValidationError("Пользователь не найден. Зарегистрируйтесь через бота.")
+    async def create_user_question(self, request: UserQuestionCreate, db: AsyncSession) -> UserQuestionResponse:
+        """Создание нового вопроса пользователем.
 
-        question = UserQuestion(
+        Args:
+            request: Данные для создания вопроса
+            db: Сессия базы данных
+
+        Returns:
+            Ответ с данными созданного вопроса
+        """
+        user = await self.telegram_user_crud.get_by_telegram_id(db, request.telegram_user_id)
+        self.validator.validate_user_exists(user)
+
+        self.validator.validate_question_text(request.question_text)
+
+        question = await self.question_crud.create_question(
+            db=db,
             telegram_user_id=user.id,
             question_text=request.question_text,
-            status=QuestionStatus.PENDING,
         )
-        db.add(question)
-        await db.commit()
-        await db.refresh(question)
-        return UserQuestionResponse.model_validate(question)
 
-    async def list_questions(
-        self, db: AsyncSession, page: int, limit: int, status: Optional[str]
+        await telegram_user_service.increment_user_questions_count(db=db, telegram_user_id=user.id)
+
+        return UserQuestionResponse(
+            question_text=question.question_text,
+            status=question.status,
+        )
+
+    async def get_admin_questions(
+        self,
+        db: AsyncSession,
+        page: int = 1,
+        limit: int = 20,
+        status: str = None,
     ) -> AdminQuestionListResponse:
-        query = select(UserQuestion)
-        count_query = select(func.count(UserQuestion.id))
+        """Получение списка вопросов для администраторов.
 
-        if status in {QuestionStatus.PENDING, QuestionStatus.ANSWERED}:
-            query = query.where(UserQuestion.status == status)
-            count_query = count_query.where(UserQuestion.status == status)
+        Args:
+            db: Сессия базы данных
+            page: Номер страницы
+            limit: Количество записей на странице
+            status: Фильтр по статусу
 
-        total = (await db.execute(count_query)).scalar_one()
-        pages = max((total + limit - 1) // limit, 1)
-        offset = (page - 1) * limit
+        Returns:
+            Список вопросов с пагинацией
+        """
+        skip = (page - 1) * limit
 
-        query = query.order_by(desc(UserQuestion.created_at)).offset(offset).limit(limit)
-        items = (await db.execute(query)).scalars().all()
+        questions = await self.question_crud.get_questions_by_status(db=db, status=status, skip=skip, limit=limit)
+
+        total = await self.question_crud.count_questions_by_status(db=db, status=status)
+        pages = (total + limit - 1) // limit
+
+        items = [
+            AdminQuestionResponse(
+                id=question.id,
+                telegram_user_id=question.telegram_user_id,
+                question_text=question.question_text,
+                answer_text=question.answer_text,
+                status=question.status,
+                created_at=question.created_at,
+                answered_at=question.answered_at,
+            )
+            for question in questions
+        ]
 
         return AdminQuestionListResponse(
-            items=[AdminQuestionResponse.model_validate(i) for i in items],
+            items=items,
             total=total,
             page=page,
             limit=limit,
@@ -72,22 +96,51 @@ class UserQuestionService:
         )
 
     async def answer_question(
-        self, db: AsyncSession, id: int, request: AdminQuestionAnswer, admin_user_id: Optional[int] = None
+        self, db: AsyncSession, question_id: int, request: AdminQuestionAnswer, admin_user_id: int
     ) -> AdminQuestionResponse:
-        result = await db.execute(select(UserQuestion).where(UserQuestion.id == id))
-        question = result.scalar_one_or_none()
-        if not question:
-            raise ValidationError("Вопрос не найден")
+        """Ответ администратора на вопрос пользователя.
 
-        question.answer_text = request.answer_text
-        question.status = QuestionStatus.ANSWERED
-        question.answered_at = datetime.now(timezone.utc)
-        if admin_user_id:
-            question.admin_user_id = admin_user_id
+        Args:
+            db: Сессия базы данных
+            question_id: ID вопроса
+            request: Данные ответа
+            admin_user_id: ID администратора
 
-        await db.commit()
-        await db.refresh(question)
-        return AdminQuestionResponse.model_validate(question)
+        Returns:
+            Ответ с обновленным вопросом
+        """
+        question = await self.question_crud.get(db, question_id)
+        self.validator.validate_question_exists(question)
+
+        self.validator.validate_answer_text(request.answer_text)
+
+        updated_question = await self.question_crud.answer_question(
+            db=db,
+            question_id=question_id,
+            answer_text=request.answer_text,
+            admin_user_id=admin_user_id,
+        )
+
+        return AdminQuestionResponse(
+            id=updated_question.id,
+            telegram_user_id=updated_question.telegram_user_id,
+            question_text=updated_question.question_text,
+            answer_text=updated_question.answer_text,
+            status=updated_question.status,
+            created_at=updated_question.created_at,
+            answered_at=updated_question.answered_at,
+        )
+
+    async def get_questions_statistics(self, db: AsyncSession) -> dict:
+        """Получение статистики по вопросам для аналитики.
+
+        Args:
+            db: Сессия базы данных
+
+        Returns:
+            Статистика по вопросам
+        """
+        return await self.question_crud.get_questions_statistics(db=db)
 
 
 user_question_service = UserQuestionService()

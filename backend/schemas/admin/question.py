@@ -59,14 +59,8 @@ class AdminQuestionListResponse(BaseModel):
 class AdminQuestionAnswer(BaseModel):
     """Схема запроса ответа на вопрос для PUT /api/v1/admin/user-questions/{id}."""
 
-    answer_text: str = Field(
-        ..., min_length=1, max_length=2000, description="Текст ответа"
-    )
+    answer_text: str = Field(..., min_length=1, max_length=2000, description="Текст ответа")
 
     model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "answer_text": "Для выбора слухового аппарата для ребенка необходимо..."
-            }
-        }
+        json_schema_extra={"example": {"answer_text": "Для выбора слухового аппарата для ребенка необходимо..."}}
     )

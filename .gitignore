@@ -102,6 +102,11 @@ Thumbs.db
 uploads/
 media/
 
+# Test files
+test_*
+*_test.py
+tests/
+
 # Temporary files
 *.tmp
 *.temp

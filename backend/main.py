@@ -5,16 +5,22 @@ from __future__ import annotations
 import logging
 from contextlib import asynccontextmanager
 
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 
+from backend.api.routers import api_router
 from backend.core.config import settings
 from backend.core.db import AsyncSessionLocal
 from backend.core.exception_handlers import register_exception_handlers
 from backend.core.security import get_password_hash
 from backend.models import AdminUser
+from backend.models.enums import AdminRole
 
+
+# Желательно потом почистить файл и раскидать по файлам, где нужно
+# логировани, middleware, настройки, endpoints и т.д.
 
 # Настройка логирования
 logging.basicConfig(
@@ -33,7 +39,7 @@ async def lifespan(app: FastAPI):
     """Управление жизненным циклом приложения."""
     # Startup
     logger.info("Запуск приложения FastAPI")
-    # await ensure_default_admin()  # Временно отключено
+    await ensure_default_admin()
     yield
     # Shutdown
     logger.info("Завершение работы приложения FastAPI")
@@ -59,12 +65,11 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # Подключение роутеров API
-    from backend.api.routers import api_router
-
-    app.include_router(api_router)
-    
+    # Регистрация глобальных обработчиков исключений
     register_exception_handlers(app)
+
+    # Подключение роутеров API
+    app.include_router(api_router)
 
     return app
 
@@ -83,18 +88,19 @@ async def ensure_default_admin() -> None:
             if admin_user is None:
                 admin_user = AdminUser(
                     username=settings.admin_username,
-                    email=settings.admin_email,
+                    email=settings.admin_email or "admin@yourapp.com",
                     password_hash=password_hash,
-                    role="admin",
+                    role=AdminRole.ADMIN,
                     is_active=True,
                 )
                 session.add(admin_user)
-                logger.info(f"Создан администратор по умолчанию: {settings.admin_username}")
+                logger.info(f"Создан администратор по умолчанию: {settings.admin_username} ({settings.admin_email})")
             else:
-                # Обновляем пароль и активируем
+                # Обновляем данные и активируем
                 admin_user.password_hash = password_hash
                 admin_user.is_active = True
-                admin_user.role = admin_user.role or "admin"
+                admin_user.role = admin_user.role or AdminRole.ADMIN
+                admin_user.email = settings.admin_email or "admin@yourapp.com"
                 logger.info(f"Обновлен администратор: {settings.admin_username}")
 
             await session.commit()
@@ -114,23 +120,24 @@ async def root():
     return {"message": "I Hear You Bot API", "version": "1.0.0", "docs": "/docs"}
 
 
-@app.get("/health/api")
+@app.get("/health")
 async def api_health_check():
     """Проверка работоспособности API."""
-    return {"status": "healthy", "service": "api"}
-
-
-@app.get("/health/db")
-async def database_health_check():
-    """Проверка подключения к базе данных."""
     try:
+        # Проверяем подключение к базе данных
         async with AsyncSessionLocal() as session:
             await session.execute(select(1))
 
-        return {"status": "healthy", "service": "database"}
+        return {"status": "healthy", "service": "api", "version": "1.0.0", "database": "connected"}
     except Exception as e:
-        logger.error(f"Database health check failed: {e}")
-        return {"status": "unhealthy", "service": "database", "error": str(e)}
+        logger.error(f"Health check failed: {e}")
+        return {
+            "status": "unhealthy",
+            "service": "api",
+            "version": "1.0.0",
+            "database": "disconnected",
+            "error": str(e),
+        }
 
 
 if __name__ == "__main__":

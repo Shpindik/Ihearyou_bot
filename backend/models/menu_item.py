@@ -6,12 +6,12 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import DECIMAL, Boolean, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import DECIMAL, Boolean, DateTime, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.core.db import Base
 
-from .enums import AccessLevel
+from .enums import AccessLevel, ItemType
 
 
 if TYPE_CHECKING:
@@ -31,11 +31,16 @@ class MenuItem(Base):
     # Иерархия меню
     parent_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("menu_items.id"), nullable=True, index=True)
 
+    item_type: Mapped[ItemType] = mapped_column(
+        String(20),
+        default=ItemType.NAVIGATION,
+        nullable=False,
+        index=True,
+        comment="Тип: navigation (имеет children) или content (имеет content)",
+    )
+
     # Сообщение бота
     bot_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-
-    # Web App URL для кнопок
-    web_app_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     # Управление
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, index=True)
@@ -60,8 +65,8 @@ class MenuItem(Base):
     parent: Mapped[Optional["MenuItem"]] = relationship("MenuItem", remote_side=[id], back_populates="children")
     children: Mapped[List["MenuItem"]] = relationship("MenuItem", back_populates="parent", cascade="all, delete-orphan")
     activities: Mapped[List["UserActivity"]] = relationship("UserActivity", back_populates="menu_item")
-    content_files: Mapped[List["ContentFile"]] = relationship(
-        "ContentFile", back_populates="menu_item", cascade="all, delete-orphan"
+    content: Mapped[Optional["ContentFile"]] = relationship(
+        "ContentFile", back_populates="menu_item", uselist=False, cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:
@@ -70,4 +75,19 @@ class MenuItem(Base):
 
     def __str__(self) -> str:
         """Человекочитаемое строковое представление."""
-        return f"Menu: {self.title}"
+        return f"Menu: {self.title} ({self.item_type})"
+
+    @property
+    def is_navigation(self) -> bool:
+        """Является ли пункт навигационным (имеет дочерние элементы)."""
+        return self.item_type == ItemType.NAVIGATION
+
+    @property
+    def is_content(self) -> bool:
+        """Является ли пункт контентным (имеет прикрепленный контент)."""
+        return self.item_type == ItemType.CONTENT
+
+    __table_args__ = (
+        Index("ix_menu_items_active_parent", "is_active", "parent_id"),
+        Index("ix_menu_items_type_active", "item_type", "is_active"),
+    )

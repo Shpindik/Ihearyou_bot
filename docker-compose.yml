@@ -7,22 +7,54 @@ services:
       - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
-    image: redis:7-alpine
     container_name: IHearYouRedis
+    image: redis:7-alpine
     ports:
       - "6379:6379"
-    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
+  # Telegram Bot
   bot:
     build:
       context: .
       target: bot
-    container_name: IHearYouBot
+    container_name: IHearYouTelegramBot
     env_file: .env
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      API_BASE_URL: http://bot_api:8000
+      WEBHOOK_URL: ${WEBHOOK_URL:-}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-}
+      INACTIVE_DAYS_THRESHOLD: ${INACTIVE_DAYS_THRESHOLD:-10}
+      REMINDER_COOLDOWN_DAYS: ${REMINDER_COOLDOWN_DAYS:-10}
+      API_TIMEOUT: ${API_TIMEOUT:-30}
+      API_MAX_RETRIES: ${API_MAX_RETRIES:-3}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
     depends_on:
-      - db
+      redis:
+        condition: service_healthy
+      bot_api:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     develop:
       watch:
         - action: rebuild
@@ -32,6 +64,7 @@ services:
         - action: rebuild
           path: ./Dockerfile
 
+  # FastAPI Backend  
   bot_api:
     build:
       context: .
@@ -41,24 +74,32 @@ services:
     environment:
       ADMIN_SECRET_KEY: ${ADMIN_SECRET_KEY:-changeme}
       BOT_TOKEN: ${BOT_TOKEN}
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/ihearyou
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DEBUG: ${DEBUG:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
     ports:
       - "${BOT_API_PORT:-8001}:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     volumes:
       - ./alembic:/app/alembic
       - ./alembic.ini:/app/alembic.ini
-      - ./backend:/app/backend
     command: >
       sh -c "
         echo 'Waiting for database...' &&
         sleep 5 &&
         echo 'Running migrations...' &&
         alembic upgrade head &&
-        echo 'Loading flow data...' &&
-        python backend/load_flow_data.py &&
         echo 'Starting API server...' &&
         uvicorn backend.main:app --host 0.0.0.0 --port 8000
       "
@@ -71,21 +112,7 @@ services:
         - action: rebuild
           path: ./Dockerfile
 
-  celery_worker:
-    build:
-      context: .
-      target: admin
-    container_name: IHearYouCelery
-    env_file: .env
-    environment:
-      ADMIN_SECRET_KEY: ${ADMIN_SECRET_KEY:-changeme}
-      BOT_TOKEN: ${BOT_TOKEN}
-      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
-    depends_on:
-      - redis
-    volumes:
-      - ./backend:/app/backend
-    command: ["celery", "-A", "backend.core.celery_app.celery_app", "worker", "-l", "info", "-Q", "celery"]
+  # Admin Frontend
   bot_frontend:
     build:
       context: ./frontend
@@ -112,23 +139,6 @@ services:
         - action: rebuild
           path: ./frontend/Dockerfile
 
-  pgadmin:
-    container_name: IHearYouPgAdmin
-    image: dpage/pgadmin4:latest
-    env_file: .env
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    ports:
-      - "${PGADMIN_PORT:-8080}:80"
-    depends_on:
-      - db
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    restart: unless-stopped
-
 volumes:
   pg_data:
-  pgadmin_data:
-
+  redis_data:
