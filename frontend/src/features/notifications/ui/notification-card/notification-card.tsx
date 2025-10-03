@@ -1,8 +1,8 @@
-import {TNotificationItem} from '@/entities/notifications/list/types/notification-item.type';
+import { TNotificationItem } from '@/entities/notifications/list/types/notification-item.type';
 import CloseIcon from '@/shared/svg/close.icon';
 import UIBlock from '@/shared/ui/block/ui-block';
 import UIFullBackdropLoader from '@/shared/ui/full-backdrop-loader';
-import {ComponentPropsWithoutRef, FC, MouseEvent} from 'react';
+import { ComponentPropsWithoutRef, FC, MouseEvent } from 'react';
 
 interface IProps extends ComponentPropsWithoutRef<'div'> {
   notification: TNotificationItem;
@@ -37,8 +37,8 @@ const NotificationCard: FC<IProps> = ({
         <CloseIcon />
       </button>
 
-      <div className="flex flex-col gap-8">
-        <h3>{notification.message}</h3>
+      <div className="flex flex-col gap-8 max-w-[90%]">
+        <h3 className="font-semibold">{notification.message}</h3>
         <p>
           Статус:{' '}
           {notification.status === 'sent'

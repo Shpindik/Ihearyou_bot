@@ -31,11 +31,13 @@ const UsersList: FC<UsersListProps> = ({
             key={admin.id}
             className="flex p-6 justify-around rounded-full"
           >
-            <p className="text-center">
+            <p className="text-ui-purple-primary font-semibold">
               {admin.firstName} {admin.lastName}
             </p>
 
-            <p className="text-center">{admin.username}</p>
+            <p className="text-ui-purple-primary font-semibold">
+              @{admin.username}
+            </p>
           </UIBlock>
         ))}
         <UsersCount count={total} className="mt-4" />

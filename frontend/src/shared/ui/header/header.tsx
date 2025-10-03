@@ -1,6 +1,6 @@
-import {useTokenStore} from '@/entities/admin';
+import { useTokenStore } from '@/entities/admin';
 import ExitButton from '@/shared/ui/header/ui/exit-button.tsx';
-import {ComponentPropsWithoutRef, FC} from 'react';
+import { ComponentPropsWithoutRef, FC } from 'react';
 import MainLogo from '../../../../public/logo.svg';
 
 interface IHeaderProps extends ComponentPropsWithoutRef<'div'> {
@@ -12,7 +12,7 @@ export const Header: FC<IHeaderProps> = ({ className, onExit }) => {
 
   return (
     <div
-      className={`w-screen mh-20% bg-ui-purple-tertiary py-5 px-28 flex justify-between ${className}`}
+      className={`w-screen mh-20% bg-ui-purple-tertiary py-5 px-[7%] flex justify-between ${className}`}
     >
       <img
         src={MainLogo}
