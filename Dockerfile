@@ -1,26 +1,45 @@
 FROM python:3.12-slim AS base
 
+# Установка системных утилит для health check
+RUN apt-get update && apt-get install -y \
+    procps \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 WORKDIR /app
 
 # Установка Poetry
-RUN pip install --no-cache-dir poetry
+RUN pip install --no-cache-dir poetry==1.7.1
 
-# Копирование файлов Poetry
+# Poetry конфигурация для Docker
+RUN poetry config virtualenvs.create false \
+    && poetry config virtualenvs.in-project false
+
+# Копирование зависимостей
 COPY pyproject.toml poetry.lock ./
 
 # Установка зависимостей
-RUN poetry config virtualenvs.create false \
-    && poetry install --only=main --no-root
+RUN poetry install --only=main --no-root
 
-# Bot stage - только код бота
+# Bot
 FROM base AS bot
 COPY bot ./bot
-CMD ["python", "bot/main.py"]
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD pgrep -f "python.*bot.main" || exit 1
+CMD ["python", "-m", "bot.main"]
 
-# API stage - только код бэкенда
+# API  
 FROM base AS admin
 COPY backend ./backend
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+COPY alembic ./alembic
+COPY alembic.ini ./
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
