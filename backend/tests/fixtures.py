@@ -133,3 +133,43 @@ async def inactive_template(freezer, db: AsyncSession):
     await db.commit()
     await db.refresh(template)
     return template
+
+
+@pytest_asyncio.fixture
+async def inactive_telegram_user(freezer, db: AsyncSession):
+    """Создать неактивного пользователя."""
+    freezer.move_to("2025-01-01")
+    user = TelegramUser(
+        telegram_id=123456789,
+        username="inactive_user",
+        first_name="Inactive",
+        last_name=None,
+        subscription_type=AccessLevel.FREE,
+        created_at=datetime.datetime.now(),
+        last_activity=datetime.datetime.now(),
+        reminder_sent_at=datetime.datetime.now()
+    )
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+@pytest_asyncio.fixture
+async def active_telegram_user(freezer, db: AsyncSession):
+    """Создать неактивного пользователя."""
+    freezer.move_to("2025-01-15")
+    user = TelegramUser(
+        telegram_id=122446689,
+        username="active_user",
+        first_name="Active",
+        last_name=None,
+        subscription_type=AccessLevel.FREE,
+        created_at=datetime.datetime.now(),
+        last_activity=datetime.datetime.now(),
+        reminder_sent_at=datetime.datetime.now()
+    )
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
