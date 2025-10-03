@@ -1,6 +1,7 @@
 from typing import Any, Dict, Optional
 
 from aiogram.types import CallbackQuery, Message
+from aiogram.exceptions import TelegramBadRequest
 from states import NavigationState
 
 # Глобальное состояние навигации для всех пользователей
@@ -39,13 +40,12 @@ async def edit_message(
     user_id = callback.from_user.id
 
     try:
-        # Проверяем, изменился ли контент или клавиатура
+        # Проверяем, изменился ли контент или клавиатура (быстрая оптимизация по тексту)
         current_text = callback.message.text
-        current_markup = callback.message.reply_markup
-
-        # Если текст и клавиатура совпадают, не редактируем
-        if current_text == text and current_markup == reply_markup:
-            return
+        if current_text == text:
+            # Даже если клавиатура совпадает, Telegram вернет "message is not modified";
+            # отдадим это обработчику ниже, чтобы не дублировать сообщение
+            pass
 
         await callback.message.edit_text(text=text, reply_markup=reply_markup)
         # Добавляем состояние в навигацию только после успешного редактирования
@@ -57,10 +57,23 @@ async def edit_message(
             except Exception:
                 pass
             add_navigation_state(user_id, text, reply_markup, meta_to_store)
-    except Exception:
-        # Если редактирование не удалось, отправляем новое сообщение
+    except TelegramBadRequest as e:
+        # Если попытались отредактировать без изменений — просто выходим без отправки нового сообщения
+        if "message is not modified" in str(e).lower():
+            return
+        # Любая другая ошибка Telegram — fallback к отправке нового сообщения
         sent = await callback.message.answer(text, reply_markup=reply_markup)
-        # Добавляем состояние в навигацию
+        if add_to_history:
+            meta_to_store: Dict[str, Any] = (meta or {}).copy()
+            try:
+                meta_to_store.setdefault("message_id", sent.message_id)
+                meta_to_store.setdefault("chat_id", sent.chat.id)
+            except Exception:
+                pass
+            add_navigation_state(user_id, text, reply_markup, meta_to_store)
+    except Exception:
+        # Непредвиденная ошибка — fallback к отправке нового сообщения
+        sent = await callback.message.answer(text, reply_markup=reply_markup)
         if add_to_history:
             meta_to_store: Dict[str, Any] = (meta or {}).copy()
             try:
