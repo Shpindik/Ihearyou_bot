@@ -27,15 +27,24 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
         result = await db.execute(query)
         return result.scalar_one_or_none()
 
-    async def get_or_create(
+    async def upsert_user(
         self,
         db: AsyncSession,
+        *,
         telegram_id: int,
         first_name: str,
         last_name: Optional[str] = None,
         username: Optional[str] = None,
     ) -> TelegramUser:
-        """Получить или создать пользователя с использованием UPSERT для атомарности."""
+        """Получить или создать пользователя.
+
+        Args:
+            db: Сессия базы данных
+            telegram_id: Telegram ID пользователя
+            first_name: Имя пользователя
+            last_name: Фамилия пользователя (опционально)
+            username: Username пользователя (опционально)
+        """
         current_time = datetime.now(timezone.utc)
 
         stmt = pg_insert(TelegramUser).values(
@@ -67,11 +76,9 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
 
         return user
 
-    async def update_activity(self, db: AsyncSession, telegram_id: int) -> None:
-        """Обновить время последней активности с использованием транзакции."""
-        current_time = datetime.now(timezone.utc)
-
-        stmt = update(TelegramUser).where(TelegramUser.telegram_id == telegram_id).values(last_activity=current_time)
+    async def update_last_activity(self, db: AsyncSession, *, telegram_id: int, last_activity: datetime) -> None:
+        """Обновить время последней активности."""
+        stmt = update(TelegramUser).where(TelegramUser.telegram_id == telegram_id).values(last_activity=last_activity)
 
         await db.execute(stmt)
         await db.commit()
@@ -94,21 +101,21 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
         result = await db.execute(query)
         return result.scalar()
 
-    async def update_activities_count(self, db: AsyncSession, telegram_user_id: int) -> None:
-        """Обновить счетчик активностей пользователя."""
+    async def increment_activities_count(self, db: AsyncSession, *, telegram_user_id: int, increment: int = 1) -> None:
+        """Увеличить счетчик активностей пользователя."""
         await db.execute(
             update(TelegramUser)
             .where(TelegramUser.id == telegram_user_id)
-            .values(activities_count=TelegramUser.activities_count + 1)
+            .values(activities_count=TelegramUser.activities_count + increment)
         )
         await db.commit()
 
-    async def update_questions_count(self, db: AsyncSession, telegram_user_id: int) -> None:
-        """Обновить счетчик вопросов пользователя."""
+    async def increment_questions_count(self, db: AsyncSession, *, telegram_user_id: int, increment: int = 1) -> None:
+        """Увеличить счетчик вопросов пользователя."""
         await db.execute(
             update(TelegramUser)
             .where(TelegramUser.id == telegram_user_id)
-            .values(questions_count=TelegramUser.questions_count + 1)
+            .values(questions_count=TelegramUser.questions_count + increment)
         )
         await db.commit()
 
@@ -133,22 +140,19 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
             select(TelegramUser)
             .where(
                 and_(
-                    # Пользователь неактивен N дней
                     TelegramUser.last_activity < inactive_threshold,
-                    # Последнее напоминание было более N дней назад ИЛИ никогда не отправлялось
                     (TelegramUser.reminder_sent_at < reminder_threshold) | (TelegramUser.reminder_sent_at.is_(None)),
-                    # Пользователь был создан более чем N дней назад (не спамить новых)
                     TelegramUser.created_at < inactive_threshold,
                 )
             )
-            .order_by(TelegramUser.last_activity.asc())  # Самые неактивные первыми
+            .order_by(TelegramUser.last_activity.asc())
         )
 
         result = await db.execute(query)
         return result.scalars().all()
 
     async def update_reminder_sent_status(
-        self, db: AsyncSession, telegram_user_id: int, sent_at: Optional[datetime] = None
+        self, db: AsyncSession, *, telegram_user_id: int, sent_at: Optional[datetime] = None
     ) -> None:
         """Обновить статус отправки напоминания пользователю.
 

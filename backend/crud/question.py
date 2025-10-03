@@ -66,7 +66,7 @@ class QuestionCRUD(BaseCRUD[UserQuestion, dict, dict]):
         Returns:
             Обновленный вопрос с ответом
         """
-        question = await self.get(db, question_id)
+        question = await self.get(db, id=question_id)
         if question:
             question.answer_text = answer_text
             question.status = QuestionStatus.ANSWERED

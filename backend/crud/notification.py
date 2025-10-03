@@ -47,6 +47,16 @@ class NotificationCRUD(BaseCRUD[Notification, dict, dict]):
         )
         return True
 
+    async def get_admin_notifications(self, db: AsyncSession, start_date=None) -> List[Notification]:
+        """Получить все уведомления для админ панели."""
+        query = select(Notification).order_by(Notification.created_at.desc())
+        
+        if start_date:
+            query = query.where(Notification.created_at >= start_date)
+            
+        result = await db.execute(query)
+        return result.scalars().all()
+
     async def create_notification(
         self, db: AsyncSession, telegram_user_id: int, message: str, template_id: int = None
     ) -> Notification:
@@ -57,7 +67,12 @@ class NotificationCRUD(BaseCRUD[Notification, dict, dict]):
             "status": NotificationStatus.PENDING,
             "template_id": template_id,
         }
-        return await self.create(db, notification_data)
+
+        db_obj = self.model(**notification_data)
+        db.add(db_obj)
+        await db.commit()
+        await db.refresh(db_obj)
+        return db_obj
 
     async def get_notification_statistics(self, db: AsyncSession, start_date=None) -> dict:
         """Получить статистику уведомлений."""

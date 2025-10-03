@@ -14,7 +14,7 @@ from .enums import NotificationStatus
 
 
 if TYPE_CHECKING:
-    from .reminder_template import ReminderTemplate
+    from .message_template import MessageTemplate
     from .telegram_user import TelegramUser
 
 
@@ -34,12 +34,12 @@ class Notification(Base):
     )
     sent_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True, index=True)
     template_id: Mapped[Optional[int]] = mapped_column(
-        Integer, ForeignKey("reminder_templates.id"), nullable=True, index=True
+        Integer, ForeignKey("message_templates.id"), nullable=True, index=True
     )
 
     # Связи
     telegram_user: Mapped["TelegramUser"] = relationship("TelegramUser", back_populates="notifications")
-    template: Mapped[Optional["ReminderTemplate"]] = relationship("ReminderTemplate", back_populates="notifications")
+    template: Mapped[Optional["MessageTemplate"]] = relationship("MessageTemplate", back_populates="notifications")
 
     def __repr__(self) -> str:
         """Строковое представление для отладки."""

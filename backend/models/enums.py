@@ -57,6 +57,7 @@ class ActivityType(str, enum.Enum):
     VIDEO_VIEW = "video_view"  # Просмотр видео (YouTube, VK)
     PDF_DOWNLOAD = "pdf_download"  # Скачивание PDF документов
     MEDIA_VIEW = "media_view"  # Общий просмотр медиа
+    CONTENT_VIEW = "content_view"  # Общий просмотр контента
 
     # Оценка и обратная связь
     RATING = "rating"  # Оценка полезности материала (1-5)
@@ -68,10 +69,6 @@ class ActivityType(str, enum.Enum):
     # Аналитика и статистика
     SECTION_ENTER = "section_enter"  # Вход в раздел
     MATERIAL_OPEN = "material_open"  # Открытие конкретного материала
-
-    # WebApp взаимодействие (только факт открытия)
-    # WEBAPP_OPENED = "webapp_opened"         # Открытие WebApp кнопки
-    # (можно реализовать, если надо для статистики, просто чуть сложнее реализовать)
 
 
 class QuestionStatus(str, enum.Enum):

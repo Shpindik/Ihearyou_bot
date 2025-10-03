@@ -14,9 +14,9 @@ from .enums import (
     SubscriptionType,
 )
 from .menu_item import MenuItem
+from .message_template import MessageTemplate
 from .notification import Notification
 from .question import UserQuestion
-from .reminder_template import ReminderTemplate
 from .telegram_user import TelegramUser
 from .user_activity import UserActivity
 
@@ -30,7 +30,7 @@ __all__ = [
     "UserActivity",
     "UserQuestion",
     "Notification",
-    "ReminderTemplate",
+    "MessageTemplate",
     "AccessLevel",
     "ActivityType",
     "AdminRole",

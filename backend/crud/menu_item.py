@@ -155,16 +155,7 @@ class MenuItemCRUD(BaseCRUD[MenuItem, dict, dict]):
                 )
             )
 
-        stmt = select(
-            MenuItem.id,
-            MenuItem.title,
-            MenuItem.description,
-            MenuItem.parent_id,
-            MenuItem.bot_message,
-            MenuItem.is_active,
-            MenuItem.access_level,
-            MenuItem.item_type,
-        ).where(MenuItem.is_active, *conditions)
+        stmt = select(MenuItem).where(MenuItem.is_active, *conditions)
 
         if access_level == AccessLevel.FREE:
             stmt = stmt.where(MenuItem.access_level == AccessLevel.FREE)
@@ -172,14 +163,14 @@ class MenuItemCRUD(BaseCRUD[MenuItem, dict, dict]):
         stmt = stmt.order_by(MenuItem.title.ilike(f"{query}%").desc(), MenuItem.id).limit(limit)
 
         result = await db.execute(stmt)
-        return result.all()
+        return result.scalars().all()
 
-    async def increment_view_count(self, db: AsyncSession, menu_id: int) -> None:
+    async def increment_view_count(self, db: AsyncSession, *, menu_id: int) -> None:
         """Увеличить счетчик просмотров."""
         await db.execute(update(MenuItem).where(MenuItem.id == menu_id).values(view_count=MenuItem.view_count + 1))
         await db.commit()
 
-    async def update_rating_stats(self, db: AsyncSession, menu_id: int, rating: int) -> None:
+    async def update_rating_stats(self, db: AsyncSession, *, menu_id: int, rating: int) -> None:
         """Обновить статистику оценок материалов.
 
         Args:
@@ -199,7 +190,7 @@ class MenuItemCRUD(BaseCRUD[MenuItem, dict, dict]):
         )
         await db.commit()
 
-    async def increment_download_count(self, db: AsyncSession, menu_id: int) -> None:
+    async def increment_download_count(self, db: AsyncSession, *, menu_id: int) -> None:
         """Увеличить счетчик скачиваний."""
         await db.execute(
             update(MenuItem).where(MenuItem.id == menu_id).values(download_count=MenuItem.download_count + 1)
