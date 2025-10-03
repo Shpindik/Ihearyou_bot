@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import List, Optional
 
 from pydantic import EmailStr
-from sqlalchemy import func, or_, select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.security import verify_password
@@ -122,10 +122,10 @@ class AdminUserCRUD(BaseCRUD[AdminUser, dict, dict]):
         return admin
 
     async def update_admin_info(
-        self, 
-        db: AsyncSession, 
-        *, 
-        admin: AdminUser, 
+        self,
+        db: AsyncSession,
+        *,
+        admin: AdminUser,
         username: Optional[str] = None,
         email: Optional[EmailStr] = None,
         role: Optional[AdminRole] = None,
@@ -140,7 +140,7 @@ class AdminUserCRUD(BaseCRUD[AdminUser, dict, dict]):
             admin.role = role
         if is_active is not None:
             admin.is_active = is_active
-        
+
         db.add(admin)
         await db.commit()
         await db.refresh(admin)
@@ -148,9 +148,7 @@ class AdminUserCRUD(BaseCRUD[AdminUser, dict, dict]):
 
     async def get_all_admins(self, db: AsyncSession) -> List[AdminUser]:
         """Получить всех администраторов."""
-        result = await db.execute(
-            select(AdminUser).order_by(AdminUser.created_at.desc())
-        )
+        result = await db.execute(select(AdminUser).order_by(AdminUser.created_at.desc()))
         return result.scalars().all()
 
 

@@ -50,10 +50,10 @@ class NotificationCRUD(BaseCRUD[Notification, dict, dict]):
     async def get_admin_notifications(self, db: AsyncSession, start_date=None) -> List[Notification]:
         """Получить все уведомления для админ панели."""
         query = select(Notification).order_by(Notification.created_at.desc())
-        
+
         if start_date:
             query = query.where(Notification.created_at >= start_date)
-            
+
         result = await db.execute(query)
         return result.scalars().all()
 

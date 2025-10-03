@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
-from sqlalchemy import and_, func, select, text
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import MenuItem, TelegramUser, UserActivity, UserQuestion
@@ -24,11 +24,11 @@ class AnalyticsCRUD:
 
     def _create_date_filters(self, start_date: Optional[datetime], end_date: Optional[datetime]):
         """Создать фильтры по датам для использования в запросах.
-        
+
         Args:
             start_date: Начальная дата фильтрации
             end_date: Конечная дата фильтрации
-            
+
         Returns:
             Список условий для фильтрации по датам
         """
@@ -41,13 +41,13 @@ class AnalyticsCRUD:
 
     def _apply_date_conditions(self, query, date_field, start_date: Optional[datetime], end_date: Optional[datetime]):
         """Применить условия фильтрации по датам к запросу.
-        
+
         Args:
             query: SQLAlchemy query объект
             date_field: Поле даты для фильтрации
             start_date: Начальная дата
             end_date: Конечная дата
-            
+
         Returns:
             Модифицированный query с примененными фильтрами дат
         """
@@ -75,7 +75,7 @@ class AnalyticsCRUD:
 
         """
         now_utc = datetime.now(timezone.utc)
-        
+
         # Общее количество пользователей
         total_query = select(func.count(TelegramUser.id))
         if start_date and end_date:
@@ -85,7 +85,7 @@ class AnalyticsCRUD:
             total_query = self._apply_date_conditions(total_query, TelegramUser.created_at, start_date, None)
         elif end_date:
             total_query = self._apply_date_conditions(total_query, TelegramUser.created_at, None, end_date)
-        
+
         total_result = await db.execute(total_query)
         total = total_result.scalar()
 
@@ -139,25 +139,23 @@ class AnalyticsCRUD:
         total_query = select(func.count(MenuItem.id)).where(MenuItem.is_active)
         if start_date or end_date:
             total_query = self._apply_date_conditions(total_query, MenuItem.created_at, start_date, end_date)
-        
+
         total_items_result = await db.execute(total_query)
         total_menu_items = total_items_result.scalar()
 
         # Наиболее просматриваемые элементы
         most_viewed_query = select(
-            MenuItem.id,
-            MenuItem.title,
-            MenuItem.view_count,
-            MenuItem.download_count,
-            MenuItem.average_rating
-        ).where(MenuItem.is_active == True)
-        
+            MenuItem.id, MenuItem.title, MenuItem.view_count, MenuItem.download_count, MenuItem.average_rating
+        ).where(MenuItem.is_active)
+
         if start_date or end_date:
-            most_viewed_query = self._apply_date_conditions(most_viewed_query, MenuItem.created_at, start_date, end_date)
-            
+            most_viewed_query = self._apply_date_conditions(
+                most_viewed_query, MenuItem.created_at, start_date, end_date
+            )
+
         most_viewed_query = most_viewed_query.order_by(MenuItem.view_count.desc()).limit(10)
         most_viewed_result = await db.execute(most_viewed_query)
-        
+
         most_viewed = [
             {
                 "id": row.id,
@@ -170,19 +168,18 @@ class AnalyticsCRUD:
         ]
 
         # Наиболее рейтинговые элементы
-        most_rated_query = select(
-            MenuItem.id,
-            MenuItem.title,
-            MenuItem.average_rating,
-            MenuItem.rating_count
-        ).where(MenuItem.is_active == True, MenuItem.rating_count > 0)
-        
+        most_rated_query = select(MenuItem.id, MenuItem.title, MenuItem.average_rating, MenuItem.rating_count).where(
+            MenuItem.is_active, MenuItem.rating_count > 0
+        )
+
         if start_date or end_date:
             most_rated_query = self._apply_date_conditions(most_rated_query, MenuItem.created_at, start_date, end_date)
-            
-        most_rated_query = most_rated_query.order_by(MenuItem.average_rating.desc(), MenuItem.rating_count.desc()).limit(10)
+
+        most_rated_query = most_rated_query.order_by(
+            MenuItem.average_rating.desc(), MenuItem.rating_count.desc()
+        ).limit(10)
         most_rated_result = await db.execute(most_rated_query)
-        
+
         most_rated = [
             {
                 "id": row.id,
@@ -217,43 +214,42 @@ class AnalyticsCRUD:
         """
         # Базовый запрос для статистики активностей
         base_query = select(
-            func.count().filter(UserActivity.activity_type == ActivityType.TEXT_VIEW).label('text_views'),
-            func.count().filter(UserActivity.activity_type == ActivityType.IMAGE_VIEW).label('image_views'),
-            func.count().filter(UserActivity.activity_type == ActivityType.VIDEO_VIEW).label('video_views'),
-            func.count().filter(UserActivity.activity_type == ActivityType.PDF_DOWNLOAD).label('pdf_downloads'),
-            func.count().filter(UserActivity.activity_type == ActivityType.MEDIA_VIEW).label('media_views'),
-            func.count().filter(UserActivity.activity_type == ActivityType.RATING).label('ratings'),
-            func.count().filter(UserActivity.activity_type == ActivityType.SEARCH).label('searches'),
-            func.count().filter(UserActivity.activity_type == ActivityType.NAVIGATION).label('navigation'),
+            func.count().filter(UserActivity.activity_type == ActivityType.TEXT_VIEW).label("text_views"),
+            func.count().filter(UserActivity.activity_type == ActivityType.IMAGE_VIEW).label("image_views"),
+            func.count().filter(UserActivity.activity_type == ActivityType.VIDEO_VIEW).label("video_views"),
+            func.count().filter(UserActivity.activity_type == ActivityType.PDF_DOWNLOAD).label("pdf_downloads"),
+            func.count().filter(UserActivity.activity_type == ActivityType.MEDIA_VIEW).label("media_views"),
+            func.count().filter(UserActivity.activity_type == ActivityType.RATING).label("ratings"),
+            func.count().filter(UserActivity.activity_type == ActivityType.SEARCH).label("searches"),
+            func.count().filter(UserActivity.activity_type == ActivityType.NAVIGATION).label("navigation"),
         ).select_from(UserActivity)
-        
+
         # Применяем фильтры по датам
         if start_date or end_date:
             base_query = self._apply_date_conditions(base_query, UserActivity.created_at, start_date, end_date)
-        
+
         stats_result = await db.execute(base_query)
         stats_row = stats_result.first()
 
         # Популярные поисковые запросы
-        searches_query = select(
-            UserActivity.search_query,
-            func.count().label('count')
-        ).where(
-            UserActivity.activity_type == ActivityType.SEARCH,
-            UserActivity.search_query.is_not(None)
+        searches_query = select(UserActivity.search_query, func.count().label("count")).where(
+            UserActivity.activity_type == ActivityType.SEARCH, UserActivity.search_query.is_not(None)
         )
-        
+
         if start_date or end_date:
             searches_query = self._apply_date_conditions(searches_query, UserActivity.created_at, start_date, end_date)
-            
+
         searches_query = searches_query.group_by(UserActivity.search_query).order_by(func.count().desc()).limit(10)
         searches_result = await db.execute(searches_query)
-        
+
         search_queries = [{"query": row.search_query, "count": row.count} for row in searches_result]
 
         return {
-            "total_views": (stats_row.text_views or 0) + (stats_row.image_views or 0) + 
-                          (stats_row.video_views or 0) + (stats_row.media_views or 0) + (stats_row.navigation or 0),
+            "total_views": (stats_row.text_views or 0)
+            + (stats_row.image_views or 0)
+            + (stats_row.video_views or 0)
+            + (stats_row.media_views or 0)
+            + (stats_row.navigation or 0),
             "total_downloads": stats_row.pdf_downloads or 0,
             "total_ratings": stats_row.ratings or 0,
             "total_searches": stats_row.searches or 0,
@@ -278,16 +274,16 @@ class AnalyticsCRUD:
         """
         # Запрос статистики по статусам вопросов
         status_query = select(
-            func.count().label('total'),
-            func.count().filter(UserQuestion.status == 'pending').label('pending'),
-            func.count().filter(UserQuestion.status == 'answered').label('answered'),
-            func.count().filter(UserQuestion.status == 'closed').label('closed'),
+            func.count().label("total"),
+            func.count().filter(UserQuestion.status == "pending").label("pending"),
+            func.count().filter(UserQuestion.status == "answered").label("answered"),
+            func.count().filter(UserQuestion.status == "closed").label("closed"),
         ).select_from(UserQuestion)
-        
+
         # Применяем фильтры по датам
         if start_date or end_date:
             status_query = self._apply_date_conditions(status_query, UserQuestion.created_at, start_date, end_date)
-        
+
         status_result = await db.execute(status_query)
         status_row = status_result.first()
 
