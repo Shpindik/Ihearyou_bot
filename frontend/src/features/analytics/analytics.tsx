@@ -60,7 +60,7 @@ export const Analytics: FC<ComponentPropsWithoutRef<'div'>> = ({
   return (
     <div className={`${className} w-full flex flex-col h-full`}>
       <div className="p-4">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex gap-2 items-center justify-between mb-4">
           <h1>Статистика</h1>
           <AnalyticsFilter onFilterChange={handleFilterChange} />
         </div>
