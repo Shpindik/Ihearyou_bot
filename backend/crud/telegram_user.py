@@ -10,6 +10,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models import TelegramUser, UserActivity, UserQuestion
+from backend.models.enums import SubscriptionType
 
 from .base import BaseCRUD
 
@@ -52,6 +53,7 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
             first_name=first_name,
             last_name=last_name,
             username=username,
+            subscription_type=SubscriptionType.FREE,  # Устанавливаем FREE по умолчанию!
             last_activity=current_time,
             created_at=current_time,
         )

@@ -17,58 +17,19 @@ YELLOW = \033[1;33m
 RED = \033[0;31m
 NC = \033[0m # No Color
 
-# Функции умного ожидания
-define wait-for-api
-	@echo "$(YELLOW)Ожидание готовности API...$(NC)"
-	@timeout=30; \
-	while [ $$timeout -gt 0 ]; do \
-		if curl -s http://localhost:8001/health/api | grep -q "healthy"; then \
-			echo "$(GREEN)✅ API готов!$(NC)"; \
-			break; \
+# Динамическая проверка готовности сервисов
+define wait-for-ready
+	@echo "$(YELLOW)⏳ Ожидание готовности сервисов...$(NC)"
+	@for i in $$(seq 1 20); do \
+		if curl -s http://localhost:8001/health | grep -q "healthy"; then \
+			echo "$(GREEN)✅ Сервисы готовы!$(NC)"; \
+			exit 0; \
 		fi; \
-		sleep 1; \
-		timeout=$$((timeout-1)); \
+		echo "Попытка $$i/20 - ждем..."; \
+		sleep 3; \
 	done; \
-	if [ $$timeout -eq 0 ]; then \
-		echo "$(RED)❌ API не готов за 30 секунд!$(NC)"; \
-		exit 1; \
-	fi
-endef
-
-define wait-for-db
-	@echo "$(YELLOW)Ожидание готовности БД...$(NC)"
-	@timeout=30; \
-	while [ $$timeout -gt 0 ]; do \
-		if curl -s http://localhost:8001/health/db | grep -q "healthy"; then \
-			echo "$(GREEN)✅ БД готова!$(NC)"; \
-			break; \
-		fi; \
-		sleep 1; \
-		timeout=$$((timeout-1)); \
-	done; \
-	if [ $$timeout -eq 0 ]; then \
-		echo "$(RED)❌ БД не готова за 30 секунд!$(NC)"; \
-		exit 1; \
-	fi
-endef
-
-define wait-for-containers
-	@echo "$(YELLOW)Ожидание готовности контейнеров...$(NC)"
-	@timeout=60; \
-	while [ $$timeout -gt 0 ]; do \
-		if curl -s http://localhost:8001/health/api | grep -q "healthy" && \
-		   curl -s http://localhost:8001/health/db | grep -q "healthy" && \
-		   curl -s -o /dev/null -w "%{http_code}" http://localhost:3001 | grep -q "200"; then \
-			echo "$(GREEN)✅ Все сервисы готовы!$(NC)"; \
-			break; \
-		fi; \
-		sleep 2; \
-		timeout=$$((timeout-2)); \
-	done; \
-	if [ $$timeout -eq 0 ]; then \
-		echo "$(RED)❌ Сервисы не готовы за 60 секунд!$(NC)"; \
-		exit 1; \
-	fi
+	echo "$(RED)❌ Сервисы не готовы за 60 секунд!$(NC)"; \
+	exit 1
 endef
 
 # Помощь
@@ -253,6 +214,11 @@ logs-frontend: ## Показать логи фронтенда
 status: ## Показать статус контейнеров
 	@echo "$(GREEN)Статус контейнеров:$(NC)"
 	docker-compose -f $(COMPOSE_FILE) ps
+	@echo ""
+	@echo "$(GREEN)Проверка доступности сервисов:$(NC)"
+	@echo "Redis: $$(docker-compose -f $(COMPOSE_FILE) exec redis redis-cli ping 2>/dev/null || echo 'DOWN')"
+	@echo "PostgreSQL: $$(docker-compose -f $(COMPOSE_FILE) exec db psql -U postgres -c 'SELECT 1' 2>/dev/null | grep -q '1 row' && echo 'UP' || echo 'DOWN')"
+	@echo "API: $$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8001/health || echo 'DOWN')"
 
 # =============================================================================
 # РАБОТА С КОНТЕЙНЕРАМИ
@@ -276,33 +242,28 @@ shell-db: ## Подключиться к контейнеру базы данн�
 
 migrate: ## Применить все миграции
 	@echo "$(GREEN)Применение миграций...$(NC)"
-	$(call wait-for-api)
+	$(call wait-for-ready)
 	docker-compose -f $(COMPOSE_FILE) exec $(API_CONTAINER) alembic upgrade head
 
 migrate-create: ## Создать новую миграцию (использование: make migrate-create MESSAGE="описание")
 	@echo "$(GREEN)Создание миграции: $(MESSAGE)$(NC)"
-	$(call wait-for-api)
 	docker-compose -f $(COMPOSE_FILE) exec $(API_CONTAINER) alembic revision --autogenerate -m "$(MESSAGE)"
 
 migrate-history: ## Показать историю миграций
 	@echo "$(GREEN)История миграций:$(NC)"
-	$(call wait-for-api)
 	docker-compose -f $(COMPOSE_FILE) exec $(API_CONTAINER) alembic history
 
 migrate-current: ## Показать текущую версию миграции
 	@echo "$(GREEN)Текущая версия миграции:$(NC)"
-	$(call wait-for-api)
 	docker-compose -f $(COMPOSE_FILE) exec $(API_CONTAINER) alembic current
 
 migrate-downgrade: ## Откатить миграцию на один шаг
 	@echo "$(GREEN)Откат миграции на один шаг...$(NC)"
-	$(call wait-for-api)
 	docker-compose -f $(COMPOSE_FILE) exec $(API_CONTAINER) alembic downgrade -1
 
 migrate-reset: ## Сбросить все миграции (ОСТОРОЖНО!)
 	@echo "$(RED)ВНИМАНИЕ: Это удалит все данные!$(NC)"
 	@read -p "Вы уверены? (y/N): " confirm && [ "$$confirm" = "y" ]
-	$(call wait-for-api)
 	docker-compose -f $(COMPOSE_FILE) exec $(API_CONTAINER) alembic downgrade base
 	docker-compose -f $(COMPOSE_FILE) exec $(API_CONTAINER) alembic upgrade head
 
@@ -312,17 +273,15 @@ migrate-reset: ## Сбросить все миграции (ОСТОРОЖНО!)
 
 load-data: ## Загрузить тестовые данные
 	@echo "$(GREEN)Загрузка тестовых данных...$(NC)"
-	$(call wait-for-api)
+	$(call wait-for-ready)
 	docker-compose -f $(COMPOSE_FILE) exec $(API_CONTAINER) python backend/load_flow_data.py
 
 db-backup: ## Создать бэкап базы данных
 	@echo "$(GREEN)Создание бэкапа базы данных...$(NC)"
-	$(call wait-for-db)
 	docker-compose -f $(COMPOSE_FILE) exec $(DB_CONTAINER) pg_dump -U postgres ihearyou > backup_$(shell date +%Y%m%d_%H%M%S).sql
 
 db-restore: ## Восстановить базу данных из бэкапа (использование: make db-restore FILE=backup.sql)
 	@echo "$(GREEN)Восстановление базы данных из $(FILE)...$(NC)"
-	$(call wait-for-db)
 	docker-compose -f $(COMPOSE_FILE) exec -T $(DB_CONTAINER) psql -U postgres ihearyou < $(FILE)
 
 # =============================================================================
@@ -360,9 +319,12 @@ deploy-stage-down: ## Остановить staging
 
 health-check: ## Проверить здоровье сервисов
 	@echo "$(GREEN)Проверка здоровья сервисов...$(NC)"
-	@echo "API: $$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8001/health/api || echo 'DOWN')"
-	@echo "Database: $$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8001/health/db || echo 'DOWN')"
+	@echo "API Root: $$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8001/ || echo 'DOWN')"
+	@echo "API Health: $$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8001/health || echo 'DOWN')"
 	@echo "Frontend: $$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3001 || echo 'DOWN')"
+	@echo ""
+	@echo "$(GREEN)Детальная информация API:$(NC)"
+	@curl -s http://localhost:8001/health | python -m json.tool 2>/dev/null || echo "API недоступен"
 
 env-check: ## Проверить переменные окружения
 	@echo "$(GREEN)Проверка переменных окружения...$(NC)"
@@ -399,46 +361,77 @@ rebuild-poetry: ## Переустановка Poetry с venv
 	@echo "$(GREEN)Poetry настроен и готов к работе!$(NC)"
 
 setup: ## Первоначальная настройка проекта
-	@echo "$(GREEN)Первоначальная настройка проекта...$(NC)"
+	@echo "$(GREEN)🚀 Первоначальная настройка проекта IHearYou Bot...$(NC)"
+	@echo ""
 	@if [ ! -f .env ]; then \
+		echo "$(YELLOW)Создание .env файла...$(NC)"; \
 		cp .env.example .env; \
-		echo "✅ Создан .env файл из .env.example"; \
-		echo "⚠️  Не забудьте настроить переменные в .env"; \
+		echo "$(GREEN)✅ Создан .env файл из .env.example$(NC)"; \
+		echo "$(YELLOW)⚠️  Не забудьте настроить переменные BOT_TOKEN в .env$(NC)"; \
+	else \
+		echo "$(GREEN)✅ .env файл уже существует$(NC)"; \
 	fi
+	@echo ""
+	@echo "$(YELLOW)Настройка Poetry...$(NC)"
 	@make build-poetry
-	@make install
+	@echo ""
+	@echo "$(YELLOW)Сборка и запуск контейнеров...$(NC)"
 	@make build
 	@make up
-	$(call wait-for-containers)
+	$(call wait-for-ready)
+	@echo ""
+	@echo "$(YELLOW)Применение миграций и загрузка данных...$(NC)"
 	@make migrate
-	@echo "$(GREEN)Проект готов к работе!$(NC)"
-	@echo "API: http://localhost:8001"
-	@echo "Frontend: http://localhost:3001"
-	@echo "Docs: http://localhost:8001/docs"
+	@make load-data
+	@echo ""
+	@echo "$(GREEN)🎉 Проект готов к работе!$(NC)"
+	@echo "$(GREEN)🌐 API: http://localhost:8001$(NC)"
+	@echo "$(GREEN)📱 Frontend: http://localhost:3001$(NC)"
+	@echo "$(GREEN)📖 API Docs: http://localhost:8001/docs$(NC)"
+	@echo "$(GREEN)📋 Health Check: http://localhost:8001/health$(NC)"
 
 # =============================================================================
 # БЫСТРЫЕ КОМАНДЫ
 # =============================================================================
 
 dev: ## Быстрый старт для разработки
-	@echo "$(GREEN)Запуск в режиме разработки...$(NC)"
+	@echo "$(GREEN)🚀 Запуск в режиме разработки...$(NC)"
+	@echo "$(YELLOW)Сборка и запуск с ожиданием готовности API...$(NC)"
 	@make up-build
-	$(call wait-for-containers)
+	$(call wait-for-ready)
+	@echo "$(YELLOW)Загрузка данных...$(NC)"
 	@make migrate
+	@make load-data
+	@echo "$(GREEN)✅ Проект готов! Открывайте логи...$(NC)"
 	@make logs
 
 stop: ## Быстрая остановка
 	@echo "$(GREEN)Остановка сервисов...$(NC)"
 	@make down
 
+quick-restart: ## Быстрый перезапуск (без сброса данных)
+	@echo "$(GREEN)Быстрый перезапуск сервисов...$(NC)"
+	@make restart
+	$(call wait-for-ready)
+	@echo "$(GREEN)✅ Сервисы перезапущены!$(NC)"
+
 reset: ## Полный сброс и перезапуск проекта
 	@echo "$(RED)ВНИМАНИЕ: Это удалит все данные!$(NC)"
 	@read -p "Вы уверены? (y/N): " confirm && [ "$$confirm" = "y" ]
+	@echo "$(YELLOW)Остановка и очистка...$(NC)"
 	@make down-volumes
 	@make clean-containers
-	@make build
+	@echo "$(YELLOW)Пересборка образов...$(NC)"
+	@make build-no-cache
+	@echo "$(YELLOW)Запуск сервисов...$(NC)"
 	@make up
-	$(call wait-for-containers)
+	$(call wait-for-ready)
+	@echo "$(YELLOW)Применение миграций...$(NC)"
 	@make migrate
+	@echo "$(YELLOW)Загрузка тестовых данных...$(NC)"
 	@make load-data
-	@echo "$(GREEN)Проект сброшен и готов к работе!$(NC)"
+	@echo ""
+	@echo "$(GREEN)🎉 Проект сброшен и готов к работе!$(NC)"
+	@echo "$(GREEN)🌐 API: http://localhost:8001$(NC)"
+	@echo "$(GREEN)📱 Frontend: http://localhost:3001$(NC)"
+	@echo "$(GREEN)📖 Docs: http://localhost:8001/docs$(NC)"

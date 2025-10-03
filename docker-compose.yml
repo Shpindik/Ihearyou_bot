@@ -48,13 +48,21 @@ services:
       redis:
         condition: service_healthy
       bot_api:
-        condition: service_started
+        condition: service_healthy
     restart: unless-stopped
+    command: >
+      sh -c "
+        echo 'Waiting for API to be ready...' &&
+        sleep 10 &&
+        echo 'Starting Telegram Bot...' &&
+        python -m bot.main
+      "
     healthcheck:
       test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 60s
     develop:
       watch:
         - action: rebuild
