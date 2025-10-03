@@ -19,7 +19,7 @@ const MainPage = () => {
     <div className="flex flex-col h-screen">
       <Header onExit={handleLogout} />
 
-      <div className="px-28 flex-1 flex flex-col min-h-0">
+      <div className="px-[5%] flex-1 flex flex-col min-h-0">
         <PageSwitcher />
 
         <Content />

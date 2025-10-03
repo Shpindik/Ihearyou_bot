@@ -1,7 +1,12 @@
-import {TAnalyticsItem} from '@/entities/analytics/models/types/analytics-item.type.ts';
-import {UIBlock} from '@/shared/ui';
-import {FC} from 'react';
-import {AntiTopRatings, MainStats, TopMaterials, TopRatings,} from './index.ts';
+import { TAnalyticsItem } from '@/entities/analytics/models/types/analytics-item.type.ts';
+import { UIBlock } from '@/shared/ui';
+import { FC } from 'react';
+import {
+  AntiTopRatings,
+  MainStats,
+  TopMaterials,
+  TopRatings,
+} from './index.ts';
 
 interface AnalyticsDashboardProps {
   data: TAnalyticsItem;
@@ -13,7 +18,7 @@ const AnalyticsDashboard: FC<AnalyticsDashboardProps> = ({ data }) => {
   }
 
   return (
-    <div className="p-6 pb-48">
+    <div className="px-6">
       <div className="grid grid-cols-12 gap-6">
         <UIBlock className="col-span-12 md:col-span-6">
           <TopMaterials materials={data.content.mostViewed} />

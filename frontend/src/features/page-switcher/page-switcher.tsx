@@ -11,7 +11,7 @@ const PageSwitcher: FC<ComponentPropsWithoutRef<'div'>> = ({
 
   return (
     <div
-      className={`flex items-center w-full gap-4 py-16 ${className}`}
+      className={`flex items-center w-full gap-4 py-4 overflow-x-auto scrollbar-hide ${className}`}
       {...props}
     >
       {MOrder.map((value) => (
@@ -19,7 +19,7 @@ const PageSwitcher: FC<ComponentPropsWithoutRef<'div'>> = ({
           key={value}
           theme="none"
           size="S"
-          className={`text-white ${state === value ? 'bg-ui-purple-primary' : 'bg-ui-purple-disabled'}`}
+          className={`flex-shrink-0 text-white ${state === value ? 'bg-ui-purple-primary' : 'bg-ui-purple-disabled'}`}
           onClick={() => setState(value)}
         >
           {MLabels[value]}
