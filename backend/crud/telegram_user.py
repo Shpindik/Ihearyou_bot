@@ -53,7 +53,7 @@ class TelegramUserCRUD(BaseCRUD[TelegramUser, dict, dict]):
             first_name=first_name,
             last_name=last_name,
             username=username,
-            subscription_type=SubscriptionType.FREE,  # Устанавливаем FREE по умолчанию!
+            subscription_type=SubscriptionType.FREE,
             last_activity=current_time,
             created_at=current_time,
         )
