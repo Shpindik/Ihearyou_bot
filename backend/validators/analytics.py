@@ -5,70 +5,47 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional
 
-from backend.core.exceptions import ValidationError
+from fastapi import HTTPException, status
+
+from backend.utils.analytics import create_analytics_date_range, ensure_timezone_aware
 
 
 class AnalyticsValidator:
-    """Валидатор для аналитических запросов."""
+    """Валидатор для аналитических запросов - только бизнес-логика."""
 
     def __init__(self):
         """Инициализация валидатора Analytics."""
 
-    def validate_period(self, period: str) -> None:
-        """Валидация периода аналитики.
+    def parse_and_validate_dates(self, request_data: dict) -> tuple[Optional[datetime], Optional[datetime]]:
+        """Финальная обработка дат после валидации в схемах.
 
         Args:
-            period: Период для анализа
-
-        Raises:
-            ValidationError: Если период некорректен
-
-        """
-        if period not in ["day", "week", "month", "year"]:
-            raise ValidationError("Период должен быть одним из: day, week, month, year")
-
-    def validate_date_range(
-        self,
-        start_date: Optional[str],
-        end_date: Optional[str],
-        period: Optional[str] = None,
-    ) -> Optional[tuple]:
-        """Валидация диапазона дат.
-
-        Args:
-            start_date: Начальная дата (ISO 8601)
-            end_date: Конечная дата (ISO 8601)
-            period: Период (если указан)
+            request_data: Данные запроса с уже валидированными полями
 
         Returns:
-            Кортеж с преобразованными датами или None
+            Кортеж с обработанными датами в UTC
 
         Raises:
-            ValidationError: Если диапазон дат некорректен
-
+            HTTPException: Если что-то пошло не так с обработкой дат
         """
-        if period is None and start_date is None and end_date is None:
-            return None
+        try:
+            period = request_data.get("period")
+            start_date = request_data.get("start_date")
+            end_date = request_data.get("end_date")
 
-        parsed_start = None
-        parsed_end = None
+            # Используем утилиту для создания диапазона дат
+            parsed_start, parsed_end = create_analytics_date_range(start_date, end_date, period)
 
-        if start_date:
-            try:
-                parsed_start = datetime.fromisoformat(start_date.replace("Z", "+00:00"))
-            except ValueError:
-                raise ValidationError("Начальная дата должна быть в формате ISO 8601 (YYYY-MM-DDTHH:MM:SS)")
+            # Обеспечиваем timezone awareness
+            if parsed_start:
+                parsed_start = ensure_timezone_aware(parsed_start)
+            if parsed_end:
+                parsed_end = ensure_timezone_aware(parsed_end)
 
-        if end_date:
-            try:
-                parsed_end = datetime.fromisoformat(end_date.replace("Z", "+00:00"))
-            except ValueError:
-                raise ValidationError("Конечная дата должна быть в формате ISO 8601 (YYYY-MM-DDTHH:MM:SS)")
+            return parsed_start, parsed_end
 
-        if parsed_start and parsed_end and parsed_start > parsed_end:
-            raise ValidationError("Начальная дата не может быть больше конечной даты")
-
-        return parsed_start, parsed_end
+        except ValueError as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     def validate_admin_access(self, admin_user) -> None:
         """Проверка доступа администратора к аналитике.
@@ -77,17 +54,24 @@ class AnalyticsValidator:
             admin_user: Объект администратора
 
         Raises:
-            ValidationError: Если доступ запрещен
+            HTTPException: Если доступ запрещен
 
         """
         if not admin_user:
-            raise ValidationError("Требуется аутентификация администратора")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Требуется аутентификация администратора"
+            )
 
         if not admin_user.is_active:
-            raise ValidationError("Учетная запись администратора неактивна")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Учетная запись администратора неактивна"
+            )
 
-        if admin_user.role.value not in ["admin", "moderator"]:
-            raise ValidationError("Недостаточно прав для доступа к аналитике")
+        role_value = admin_user.role.value if hasattr(admin_user.role, "value") else str(admin_user.role)
+        if role_value not in ["admin", "moderator"]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Недостаточно прав для доступа к аналитике"
+            )
 
 
 analytics_validator = AnalyticsValidator()

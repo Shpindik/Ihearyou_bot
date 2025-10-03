@@ -8,6 +8,7 @@ from backend.crud.question import question_crud
 from backend.crud.telegram_user import telegram_user_crud
 from backend.schemas.admin.question import AdminQuestionAnswer, AdminQuestionListResponse, AdminQuestionResponse
 from backend.schemas.public.question import UserQuestionCreate, UserQuestionResponse
+from backend.services.telegram_user import telegram_user_service
 from backend.validators.question import user_question_validator
 
 
@@ -41,8 +42,7 @@ class UserQuestionService:
             question_text=request.question_text,
         )
 
-        # Обновляем счетчик вопросов у пользователя
-        await self.telegram_user_crud.update_questions_count(db, user.id)
+        await telegram_user_service.increment_user_questions_count(db=db, telegram_user_id=user.id)
 
         return UserQuestionResponse(
             question_text=question.question_text,

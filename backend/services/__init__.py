@@ -3,9 +3,9 @@
 from .admin_user import AdminUserService, admin_user_service
 from .content_file import ContentFileService, content_file_service
 from .menu_item import MenuItemService, menu_item_service
+from .message_template import MessageTemplateService, message_template_service
 from .notification import NotificationService, notification_service
 from .question import UserQuestionService, user_question_service
-from .reminder_template import ReminderTemplateService, reminder_template_service
 from .telegram_user import TelegramUserService, telegram_user_service
 from .user_activity import UserActivityService, user_activity_service
 
@@ -17,7 +17,7 @@ __all__ = [
     "MenuItemService",
     "NotificationService",
     "UserQuestionService",
-    "ReminderTemplateService",
+    "MessageTemplateService",
     "TelegramUserService",
     "UserActivityService",
     # Service instances
@@ -26,7 +26,7 @@ __all__ = [
     "menu_item_service",
     "notification_service",
     "user_question_service",
-    "reminder_template_service",
+    "message_template_service",
     "telegram_user_service",
     "user_activity_service",
 ]

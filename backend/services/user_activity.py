@@ -9,6 +9,7 @@ from backend.crud.telegram_user import telegram_user_crud
 from backend.crud.user_activity import user_activity_crud
 from backend.models.enums import ActivityType
 from backend.schemas.public.user_activity import UserActivityRequest, UserActivityResponse
+from backend.services.telegram_user import telegram_user_service
 from backend.validators.user_activity import user_activity_validator
 
 
@@ -60,14 +61,16 @@ class UserActivityService:
                 ActivityType.MATERIAL_OPEN,
                 ActivityType.SECTION_ENTER,
             ]:
-                await self.menu_item_crud.increment_view_count(db, request.menu_item_id)
+                await self.menu_item_crud.increment_view_count(db=db, menu_id=request.menu_item_id)
             elif request.activity_type in [ActivityType.PDF_DOWNLOAD, ActivityType.MEDIA_VIEW]:
-                await self.menu_item_crud.increment_download_count(db, request.menu_item_id)
+                await self.menu_item_crud.increment_download_count(db=db, menu_id=request.menu_item_id)
             elif request.activity_type == ActivityType.RATING:
-                await self.menu_item_crud.update_rating_stats(db, request.menu_item_id, request.rating)
+                await self.menu_item_crud.update_rating_stats(
+                    db=db, menu_id=request.menu_item_id, rating=request.rating
+                )
 
-        # Обновляем счетчик активностей пользователя
-        await self.telegram_user_crud.update_activities_count(db, user.id)
+        # Обновляем счетчик активностей пользователя через сервис
+        await telegram_user_service.increment_user_activities_count(db=db, telegram_user_id=user.id)
 
         return UserActivityResponse(
             menu_item_id=activity.menu_item_id,

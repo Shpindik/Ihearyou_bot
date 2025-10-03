@@ -123,6 +123,11 @@ class AdminUserValidator:
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Пароль должен содержать минимум 6 символов"
             )
 
+        if len(password) > 100:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Пароль не может превышать 100 символов"
+            )
+
         if not any(c.isdigit() for c in password):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Пароль должен содержать минимум одну цифру"

@@ -6,7 +6,6 @@ from typing import Optional
 
 from fastapi import HTTPException, status
 
-from backend.core.exceptions import ValidationError
 from backend.models.content_file import ContentFile
 from backend.models.enums import ContentType
 from backend.models.menu_item import MenuItem
@@ -53,12 +52,14 @@ class ContentFileValidator:
     def validate_telegram_file_id_format(self, file_id: Optional[str]) -> None:
         """Проверка формата Telegram file_id."""
         if file_id and len(file_id) < 10:
-            raise ValidationError("Некорректный формат telegram_file_id")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Некорректный формат telegram_file_id")
 
     def validate_caption_length(self, caption: Optional[str]) -> None:
         """Проверка длины подписи (макс 1024 символа в Telegram)."""
         if caption and len(caption) > 1024:
-            raise ValidationError("Подпись не может превышать 1024 символа")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Подпись не может превышать 1024 символа"
+            )
 
     def validate_content_type_requirements(
         self,
@@ -80,11 +81,11 @@ class ContentFileValidator:
             web_app_short_name: Короткое имя Web App
 
         Raises:
-            ValidationError: Если данные не соответствуют типу контента
+            HTTPException: Если данные не соответствуют типу контента
         """
         if content_type == ContentType.TEXT:
             if not text_content:
-                raise ValidationError("Для TEXT необходим text_content")
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Для TEXT необходим text_content")
 
         elif content_type in [
             ContentType.PHOTO,
@@ -98,21 +99,30 @@ class ContentFileValidator:
         ]:
             # Должен быть либо telegram_file_id, либо local_file_path для загрузки
             if not telegram_file_id and not local_file_path:
-                raise ValidationError(f"Для {content_type.value} необходим telegram_file_id или local_file_path")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Для {content_type.value} необходим telegram_file_id или local_file_path",
+                )
 
         elif content_type in [ContentType.YOUTUBE_URL, ContentType.VK_URL, ContentType.EXTERNAL_URL]:
             if not external_url:
-                raise ValidationError(f"Для {content_type.value} необходим external_url")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, detail=f"Для {content_type.value} необходим external_url"
+                )
 
         elif content_type == ContentType.WEB_APP:
             if not external_url and not web_app_short_name:
-                raise ValidationError("Для WEB_APP необходим external_url или web_app_short_name")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Для WEB_APP необходим external_url или web_app_short_name",
+                )
 
     def validate_one_content_per_menu_item(self, menu_item_id: int, existing_content: Optional[ContentFile]) -> None:
         """Проверка, что у MenuItem еще нет контента."""
         if existing_content:
-            raise ValidationError(
-                f"У пункта меню {menu_item_id} уже есть контент. " "Один MenuItem может иметь только один ContentFile."
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"У пункта меню {menu_item_id} уже есть контент. Один MenuItem может иметь только один ContentFile.",
             )
 
     def validate_file_size(self, file_size: Optional[int], max_size: int = 50 * 1024 * 1024) -> None:
@@ -123,10 +133,13 @@ class ContentFileValidator:
             max_size: Максимальный размер файла в байтах (по умолчанию 50MB)
 
         Raises:
-            ValidationError: Если файл слишком большой
+            HTTPException: Если файл слишком большой
         """
         if file_size is not None and file_size > max_size:
-            raise ValidationError(f"Размер файла превышает максимально допустимый ({max_size // (1024*1024)}MB)")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Размер файла превышает максимально допустимый ({max_size // (1024*1024)}MB)",
+            )
 
     def validate_url_format(self, url: Optional[str]) -> None:
         """Проверка формата URL.
@@ -135,10 +148,12 @@ class ContentFileValidator:
             url: URL для проверки
 
         Raises:
-            ValidationError: Если URL имеет неверный формат
+            HTTPException: Если URL имеет неверный формат
         """
         if url and not (url.startswith("http://") or url.startswith("https://")):
-            raise ValidationError("URL должен начинаться с http:// или https://")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="URL должен начинаться с http:// или https://"
+            )
 
 
 content_file_validator = ContentFileValidator()

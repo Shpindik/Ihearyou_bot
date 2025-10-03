@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from backend.core.exceptions import NotFoundError, ValidationError
+from fastapi import HTTPException, status
 
 
 class TelegramUserValidator:
@@ -21,7 +21,7 @@ class TelegramUserValidator:
             NotFoundError: Если пользователь не найден
         """
         if telegram_id is None:
-            raise NotFoundError("Пользователь не найден")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
 
     def validate_telegram_id(self, telegram_id) -> None:
         """Валидация telegram_id.
@@ -33,16 +33,20 @@ class TelegramUserValidator:
             ValidationError: Если ID некорректен
         """
         if telegram_id is None:
-            raise ValidationError("Отсутствуют данные пользователя в запросе")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Отсутствуют данные пользователя в запросе"
+            )
 
         if not isinstance(telegram_id, int):
-            raise ValidationError("telegram_id должен быть числом")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="telegram_id должен быть числом")
 
         if telegram_id <= 0:
-            raise ValidationError("telegram_id должен быть положительным числом")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="telegram_id должен быть положительным числом"
+            )
 
         if telegram_id < 1000:
-            raise ValidationError("telegram_id имеет некорректный формат")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="telegram_id имеет некорректный формат")
 
     def validate_user_exists(self, user) -> None:
         """Проверка существования пользователя.
@@ -54,7 +58,7 @@ class TelegramUserValidator:
             ValidationError: Если пользователь не найден
         """
         if not user:
-            raise ValidationError("Пользователь не найден")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Пользователь не найден")
 
     def validate_user_id(self, user_id: int) -> None:
         """Валидация ID пользователя для админских операций.
@@ -66,7 +70,9 @@ class TelegramUserValidator:
             ValidationError: Если ID некорректен
         """
         if user_id <= 0:
-            raise ValidationError("ID пользователя должен быть положительным числом")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="ID пользователя должен быть положительным числом"
+            )
 
 
 telegram_user_validator = TelegramUserValidator()

@@ -9,6 +9,7 @@ from backend.crud.telegram_user import telegram_user_crud
 from backend.crud.user_activity import user_activity_crud
 from backend.models.enums import ActivityType
 from backend.schemas.public.ratings import RatingRequest, RatingResponse
+from backend.validators.menu_item import menu_item_validator
 from backend.validators.user_activity import user_activity_validator
 
 
@@ -20,7 +21,8 @@ class RatingService:
         self.menu_item_crud = menu_item_crud
         self.telegram_user_crud = telegram_user_crud
         self.user_activity_crud = user_activity_crud
-        self.validator = user_activity_validator
+        self.user_activity_validator = user_activity_validator
+        self.menu_item_validator = menu_item_validator
 
     async def rate_material(self, request: RatingRequest, db: AsyncSession) -> RatingResponse:
         """Оценка полезности материала пользователем.
@@ -34,15 +36,14 @@ class RatingService:
 
         """
         user = await self.telegram_user_crud.get_by_telegram_id(db, request.telegram_user_id)
-        self.validator.validate_user_exists(user)
+        self.user_activity_validator.validate_user_exists(user)
 
         menu_item = await self.menu_item_crud.get(db, request.menu_item_id)
-        self.validator.validate_menu_item_exists(menu_item)
-
-        self.validator.validate_menu_item_active(menu_item)
+        self.menu_item_validator.validate_menu_item_exists(menu_item)
+        self.menu_item_validator.validate_menu_item_active(menu_item)
 
         # Проверяем, что оценка корректна
-        self.validator.validate_rating(request.rating, ActivityType.RATING)
+        self.user_activity_validator.validate_rating(request.rating, ActivityType.RATING)
 
         # Создаем активность оценки
         await self.user_activity_crud.create_activity(
@@ -54,7 +55,7 @@ class RatingService:
         )
 
         # Обновляем статистику оценок материала
-        await self.menu_item_crud.update_rating_stats(db, request.menu_item_id, request.rating)
+        await self.menu_item_crud.update_rating_stats(db=db, menu_id=request.menu_item_id, rating=request.rating)
 
         return RatingResponse(success=True)
 

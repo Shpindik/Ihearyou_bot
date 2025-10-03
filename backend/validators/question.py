@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from backend.core.exceptions import ValidationError
+from fastapi import HTTPException, status
 
 
 class UserQuestionValidator:
@@ -22,7 +22,10 @@ class UserQuestionValidator:
 
         """
         if not user:
-            raise ValidationError("Пользователь не найден. Пользователь должен быть зарегистрирован через Bot API.")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Пользователь не найден. Пользователь должен быть зарегистрирован через Bot API.",
+            )
 
     def _validate_text_content(self, text: str, field_name: str) -> None:
         """Общая валидация текстового содержимого.
@@ -36,18 +39,24 @@ class UserQuestionValidator:
 
         """
         if not text or not text.strip():
-            raise ValidationError(f"{field_name} не может быть пустым")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{field_name} не может быть пустым")
 
         trimmed = text.strip()
         if len(trimmed) < 10:
-            raise ValidationError(f"{field_name} должен содержать минимум 10 символов")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=f"{field_name} должен содержать минимум 10 символов"
+            )
 
         if len(text) > 2000:
-            raise ValidationError(f"{field_name} не может превышать 2000 символов")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=f"{field_name} не может превышать 2000 символов"
+            )
 
         forbidden_chars = ["<", ">", "&", '"', "'", "\\", ";"]
         if any(char in text for char in forbidden_chars):
-            raise ValidationError(f"{field_name} содержит недопустимые символы")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=f"{field_name} содержит недопустимые символы"
+            )
 
     def validate_question_text(self, question_text: str) -> None:
         """Проверка корректности текста вопроса.
@@ -72,10 +81,10 @@ class UserQuestionValidator:
 
         """
         if not question:
-            raise ValidationError("Вопрос не найден")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Вопрос не найден")
 
-        if question.status.value != "pending":
-            raise ValidationError("На данный вопрос уже был дан ответ")
+        if question.status != "pending":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="На данный вопрос уже был дан ответ")
 
     def validate_answer_text(self, answer_text: str) -> None:
         """Проверка корректности текста ответа.

@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
-from typing import Optional
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.crud.analytics import analytics_crud
 from backend.models.admin_user import AdminUser
-from backend.schemas.admin.analytics import AdminAnalyticsResponse
+from backend.schemas.admin.analytics import AdminAnalyticsRequest, AdminAnalyticsResponse
 from backend.validators.analytics import analytics_validator
 
 
@@ -25,18 +22,14 @@ class AnalyticsService:
         self,
         db: AsyncSession,
         current_admin: AdminUser,
-        period: Optional[str] = None,
-        start_date: Optional[str] = None,
-        end_date: Optional[str] = None,
+        request: AdminAnalyticsRequest,
     ) -> AdminAnalyticsResponse:
-        """Получение комплексной аналитики системы.
+        """Получение комплексной аналитики системы по дням.
 
         Args:
             db: Сессия базы данных
             current_admin: Текущий администратор
-            period: Период аналитики (day, week, month, year)
-            start_date: Начальная дата в формате ISO 8601
-            end_date: Конечная дата в формате ISO 8601
+            request: Валидированные данные запроса аналитики
 
         Returns:
             Полная аналитика системы
@@ -45,25 +38,8 @@ class AnalyticsService:
         # Валидация доступа
         self.validator.validate_admin_access(current_admin)
 
-        # Валидация параметров
-        if period:
-            self.validator.validate_period(period)
-
-        # Парсинг дат
-        date_range = self.validator.validate_date_range(start_date, end_date, period)
-        parsed_start_date, parsed_end_date = date_range if date_range else (None, None)
-
-        # Если передан период, то вычисляем диапазон дат
-        if period and not parsed_start_date:
-            parsed_end_date = datetime.now()
-            if period == "day":
-                parsed_start_date = parsed_end_date - timedelta(days=1)
-            elif period == "week":
-                parsed_start_date = parsed_end_date - timedelta(weeks=1)
-            elif period == "month":
-                parsed_start_date = parsed_end_date - timedelta(days=30)
-            elif period == "year":
-                parsed_start_date = parsed_end_date - timedelta(days=365)
+        # Парсинг дат из предварительно валидированного запроса
+        parsed_start_date, parsed_end_date = self.validator.parse_and_validate_dates(request.model_dump())
 
         # Получение статистики пользователей
         users_stats = await self.analytics_crud.get_users_statistics(

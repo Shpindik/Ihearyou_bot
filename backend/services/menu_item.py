@@ -18,6 +18,7 @@ from backend.schemas.admin.menu import (
 )
 from backend.schemas.public.menu import ContentFileResponse, MenuContentResponse, MenuItemListResponse, MenuItemResponse
 from backend.schemas.public.search import SearchItemResponse, SearchListResponse
+from backend.schemas.public.user_activity import UserActivityRequest
 from backend.validators.menu_item import menu_item_validator
 
 
@@ -110,6 +111,7 @@ class MenuItemService:
                 title=menu_item.title,
                 description=menu_item.description,
                 bot_message="Раздел пока пуст. Попробуйте позже.",
+                item_type=menu_item.item_type,
                 content_files=[],
                 children=[],
             )
@@ -139,11 +141,13 @@ class MenuItemService:
                     text_content=menu_item.content.text_content,
                     external_url=menu_item.content.external_url,
                     web_app_short_name=menu_item.content.web_app_short_name,
+                    telegram_file_id=menu_item.content.telegram_file_id,
                     file_size=menu_item.content.file_size,
                     mime_type=menu_item.content.mime_type,
                     width=menu_item.content.width,
                     height=menu_item.content.height,
                     duration=menu_item.content.duration,
+                    thumbnail_telegram_file_id=menu_item.content.thumbnail_telegram_file_id,
                 )
             ]
 
@@ -152,6 +156,7 @@ class MenuItemService:
             title=menu_item.title,
             description=menu_item.description,
             bot_message=menu_item.bot_message,
+            item_type=menu_item.item_type,
             content_files=content_files,
             children=children,
         )
@@ -332,31 +337,28 @@ class MenuItemService:
             limit=limit,
         )
 
-        # Записываем активность поиска пользователя
-        await user_activity_crud.create(
-            db=db,
-            obj_in={
-                "telegram_user_id": telegram_user_id,
-                "menu_item_id": None,
-                "activity_type": ActivityType.SEARCH,
-                "search_query": {"query": normalized_query, "results_count": len(items)},
-            },
-        )
-        await db.commit()
-
         items_data = [
             SearchItemResponse(
-                id=row.id,
-                title=row.title,
-                description=row.description,
-                parent_id=row.parent_id,
-                bot_message=row.bot_message,
-                is_active=row.is_active,
-                access_level=row.access_level,
-                item_type=row.item_type,
+                id=item.id,
+                title=item.title,
+                description=item.description,
+                parent_id=item.parent_id,
+                bot_message=item.bot_message,
+                is_active=item.is_active,
+                access_level=item.access_level,
+                item_type=item.item_type,
             )
-            for row in items
+            for item in items
         ]
+
+        # Записываем активность поиска пользователя
+        search_activity = UserActivityRequest(
+            telegram_user_id=user.id,
+            menu_item_id=None,
+            activity_type=ActivityType.SEARCH,
+            search_query=f"Поиск: '{normalized_query}' (результатов: {len(items)})",
+        )
+        await user_activity_crud.create(db=db, obj_in=search_activity)
 
         return SearchListResponse(items=items_data)
 

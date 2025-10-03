@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,12 +14,20 @@ from backend.core.security import (
     create_access_token,
     create_password_reset_token,
     create_refresh_token,
+    get_password_hash,
     verify_password_reset_token,
     verify_token,
 )
 from backend.crud.admin_user import admin_user_crud
 from backend.models.admin_user import AdminUser
 from backend.models.enums import AdminRole
+from backend.schemas.admin.admin_user import (
+    AdminUserCreate,
+    AdminUserListResponse,
+    AdminUserPasswordUpdate,
+    AdminUserResponse,
+    AdminUserUpdate,
+)
 from backend.schemas.admin.auth import (
     AdminLoginResponse,
     AdminMeResponse,
@@ -53,7 +61,7 @@ class AdminUserService:
         user_id = self.validator.validate_token_payload(payload)
 
         # Получаем пользователя из базы данных
-        admin_user = await self.admin_crud.get_by_id(session, int(user_id))
+        admin_user = await self.admin_crud.get_by_id(db=session, admin_id=int(user_id))
 
         # Валидируем полученные данные
         admin_user = self.validator.validate_admin_exists(admin_user)
@@ -110,7 +118,7 @@ class AdminUserService:
         Returns:
             Optional[AdminUser]: Администратор или None
         """
-        return await self.admin_crud.get_by_id(session, admin_id)
+        return await self.admin_crud.get_by_id(db=session, admin_id=admin_id)
 
     async def get_admin_by_username(self, session: AsyncSession, username: str) -> Optional[AdminUser]:
         """Получить администратора по имени пользователя.
@@ -214,7 +222,7 @@ class AdminUserService:
             id=admin.id,
             username=admin.username,
             email=admin.email,
-            role=admin.role.value,
+            role=admin.role.value if hasattr(admin.role, "value") else str(admin.role),
             is_active=admin.is_active,
             created_at=admin.created_at.isoformat(),
         )
@@ -253,7 +261,11 @@ class AdminUserService:
         existing_email = await self.admin_crud.get_by_email(session, email)
         self.validator.validate_email_unique(existing_email)
 
-        return await self.admin_crud.create_admin(session, username, email, password, role, is_active)
+        password_hash = get_password_hash(password)
+
+        return await self.admin_crud.create_admin(
+            db=session, username=username, email=email, password_hash=password_hash, role=role, is_active=is_active
+        )
 
     async def update_admin_password(self, session: AsyncSession, admin: AdminUser, new_password: str) -> AdminUser:
         """Обновить пароль администратора.
@@ -269,7 +281,9 @@ class AdminUserService:
         # Валидация пароля
         self.validator.validate_password_strength(new_password)
 
-        return await self.admin_crud.update_password(session, admin, new_password)
+        password_hash = get_password_hash(new_password)
+
+        return await self.admin_crud.update_password(db=session, admin=admin, password_hash=password_hash)
 
     async def update_admin_role(self, session: AsyncSession, admin: AdminUser, new_role: AdminRole) -> AdminUser:
         """Обновить роль администратора.
@@ -282,7 +296,7 @@ class AdminUserService:
         Returns:
             AdminUser: Обновленный администратор
         """
-        return await self.admin_crud.update_role(session, admin, new_role)
+        return await self.admin_crud.update_role(db=session, admin=admin, role=new_role)
 
     async def deactivate_admin(self, session: AsyncSession, admin: AdminUser) -> AdminUser:
         """Деактивировать администратора.
@@ -294,7 +308,7 @@ class AdminUserService:
         Returns:
             AdminUser: Деактивированный администратор
         """
-        return await self.admin_crud.deactivate(session, admin)
+        return await self.admin_crud.deactivate(db=session, admin=admin)
 
     async def activate_admin(self, session: AsyncSession, admin: AdminUser) -> AdminUser:
         """Активировать администратора.
@@ -306,7 +320,7 @@ class AdminUserService:
         Returns:
             AdminUser: Активированный администратор
         """
-        return await self.admin_crud.activate(session, admin)
+        return await self.admin_crud.activate(db=session, admin=admin)
 
     async def get_admin_by_email(self, session: AsyncSession, email: EmailStr) -> Optional[AdminUser]:
         """Получить администратора по email.
@@ -394,6 +408,237 @@ class AdminUserService:
             token_type="bearer",
             expires_in=int(access_token_expires.total_seconds()),
         )
+
+    async def get_admin_by_id_for_update(self, session: AsyncSession, admin_id: int) -> Optional[AdminUser]:
+        """Получить администратора по ID для обновления.
+
+        Args:
+            session: Сессия базы данных
+            admin_id: ID администратора
+
+        Returns:
+            Optional[AdminUser]: Администратор или None
+        """
+        return await self.admin_crud.get_by_id(db=session, admin_id=admin_id)
+
+    async def update_admin_profile(
+        self,
+        session: AsyncSession,
+        admin_id: int,
+        username: Optional[str] = None,
+        email: Optional[EmailStr] = None,
+        role: Optional[AdminRole] = None,
+        is_active: Optional[bool] = None,
+    ) -> AdminUser:
+        """Обновить профиль администратора.
+
+        Args:
+            session: Сессия базы данных
+            admin_id: ID администратора
+            username: Новое имя пользователя (опционально)
+            email: Новый email (опционально)
+            role: Новая роль (опционально)
+            is_active: Новый статус активности (опционально)
+
+        Returns:
+            AdminUser: Обновленный администратор
+
+        Raises:
+            NotFoundError: Если администратор не найден
+        """
+        # Получаем администратора
+        admin = await self.get_admin_by_id(session, admin_id)
+        admin_verified = self.validator.validate_admin_exists(admin)
+
+        # Валидация входных данных
+        if username is not None:
+            self.validator.validate_username_format(username)
+            existing_user = await self.admin_crud.get_by_username(session, username)
+            self.validator.validate_username_unique(existing_user, admin_id)
+
+        if email is not None:
+            self.validator.validate_email_format(email)
+            existing_email = await self.admin_crud.get_by_email(session, email)
+            self.validator.validate_email_unique(existing_email, admin_id)
+
+        return await self.admin_crud.update_admin_info(
+            db=session,
+            admin=admin_verified,
+            username=username,
+            email=email,
+            role=role,
+            is_active=is_active,
+        )
+
+    async def get_all_admins(self, session: AsyncSession) -> List[AdminUser]:
+        """Получить список всех администраторов.
+
+        Args:
+            session: Сессита базы данных
+
+        Returns:
+            List[AdminUser]: Список всех администраторов
+        """
+        return await self.admin_crud.get_all_admins(session)
+
+    def get_admin_response(self, admin: AdminUser):
+        """Получить ответ с данными администратора для API.
+
+        Args:
+            admin: Объект администратора
+
+        Returns:
+            dict: Данные администратора для ответа
+        """
+        return {
+            "id": admin.id,
+            "username": admin.username,
+            "email": admin.email,
+            "role": admin.role,
+            "is_active": admin.is_active,
+            "created_at": admin.created_at,
+        }
+
+    async def get_admin_users_for_api(self, session: AsyncSession) -> AdminUserListResponse:
+        """Получить список администраторов для API.
+
+        Args:
+            session: Сессия базы данных
+
+        Returns:
+            AdminUserListResponse: Ответ со списком администраторов
+        """
+        admins = await self.get_all_admins(session)
+
+        admin_responses = [AdminUserResponse.model_validate(admin) for admin in admins]
+
+        return AdminUserListResponse(items=admin_responses)
+
+    async def get_admin_user_by_id(self, session: AsyncSession, admin_id: int) -> AdminUserResponse:
+        """Получить администратора по ID для API.
+
+        Args:
+            session: Сессия базы данных
+            admin_id: ID администратора
+
+        Returns:
+            AdminUserResponse: Ответ с данными администратора
+        """
+        admin = await self.get_admin_by_id(session, admin_id)
+        response_data = self.get_admin_response(admin)
+        return AdminUserResponse.model_validate(response_data)
+
+    async def create_admin_for_api(
+        self,
+        session: AsyncSession,
+        admin_data: AdminUserCreate,
+    ) -> AdminUserResponse:
+        """Создать администратора для API.
+
+        Args:
+            session: Сессия базы данных
+            admin_data: Данные для создания администратора
+
+        Returns:
+            AdminUserResponse: Данные созданного администратора
+        """
+        new_admin = await self.create_admin(
+            session=session,
+            username=admin_data.username,
+            email=admin_data.email,
+            password=admin_data.password,
+            role=admin_data.role,
+            is_active=admin_data.is_active,
+        )
+
+        response_data = self.get_admin_response(new_admin)
+        return AdminUserResponse.model_validate(response_data)
+
+    async def update_admin_for_api(
+        self,
+        session: AsyncSession,
+        admin_id: int,
+        admin_update: AdminUserUpdate,
+    ) -> AdminUserResponse:
+        """Обновить администратора для API.
+
+        Args:
+            session: Сессия базы данных
+            admin_id: ID администратора
+            admin_update: Обновленные данные
+
+        Returns:
+            AdminUserResponse: Данные обновленного администратора
+        """
+        updated_admin = await self.update_admin_profile(
+            session=session,
+            admin_id=admin_id,
+            username=admin_update.username,
+            email=admin_update.email,
+            role=admin_update.role,
+            is_active=admin_update.is_active,
+        )
+
+        response_data = self.get_admin_response(updated_admin)
+        return AdminUserResponse.model_validate(response_data)
+
+    async def update_admin_password_for_api(
+        self,
+        session: AsyncSession,
+        admin_id: int,
+        password_data: AdminUserPasswordUpdate,
+    ) -> AdminUserResponse:
+        """Изменить пароль администратора для API.
+
+        Args:
+            session: Сессия базы данных
+            admin_id: ID администратора
+            password_data: Новый пароль
+
+        Returns:
+            AdminUserResponse: Данные администратора с измененным паролем
+        """
+        admin = await self.get_admin_by_id(session, admin_id)
+        updated_admin = await self.update_admin_password(
+            session=session,
+            admin=admin,
+            new_password=password_data.new_password,
+        )
+
+        response_data = self.get_admin_response(updated_admin)
+        return AdminUserResponse.model_validate(response_data)
+
+    async def activate_admin_for_api(self, session: AsyncSession, admin_id: int) -> AdminUserResponse:
+        """Активировать администратора для API.
+
+        Args:
+            session: Сессия базы данных
+            admin_id: ID администратора
+
+        Returns:
+            AdminUserResponse: Данные активированного администратора
+        """
+        admin = await self.get_admin_by_id(session, admin_id)
+        activated_admin = await self.activate_admin(session, admin)
+
+        response_data = self.get_admin_response(activated_admin)
+        return AdminUserResponse.model_validate(response_data)
+
+    async def deactivate_admin_for_api(self, session: AsyncSession, admin_id: int) -> AdminUserResponse:
+        """Деактивировать администратора для API.
+
+        Args:
+            session: Сессия базы данных
+            admin_id: ID администратора
+
+        Returns:
+            AdminUserResponse: Данные деактивированного администратора
+        """
+        admin = await self.get_admin_by_id(session, admin_id)
+        deactivated_admin = await self.deactivate_admin(session, admin)
+
+        response_data = self.get_admin_response(deactivated_admin)
+        return AdminUserResponse.model_validate(response_data)
 
 
 admin_user_service = AdminUserService()
