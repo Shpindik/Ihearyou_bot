@@ -19,16 +19,22 @@ class MessageTemplateCRUD(BaseCRUD[MessageTemplate, dict, dict]):
         """Инициализация CRUD для шаблонов сообщений."""
         super().__init__(MessageTemplate)
 
-    async def get_active_templates(self, db: AsyncSession) -> List[MessageTemplate]:
+    async def get_all_templates(self, db: AsyncSession) -> List[MessageTemplate]:
         """Получить активные шаблоны сообщений."""
-        query = select(MessageTemplate).where(MessageTemplate.is_active)
+        query = select(MessageTemplate)
         result = await db.execute(query)
         return result.scalars().all()
 
     async def get_default_template(self, db: AsyncSession) -> Optional[MessageTemplate]:
-        """Получить шаблон по умолчанию."""
-        templates = await self.get_active_templates(db)
-        return templates[0] if templates else None
+        """Получить шаблон по умолчанию (самый новый активный)."""
+        query = (
+            select(MessageTemplate)
+            .where(MessageTemplate.is_active)
+            .order_by(MessageTemplate.created_at.desc())
+            .limit(1)
+        )
+        result = await db.execute(query)
+        return result.scalar_one_or_none()
 
 
 message_template_crud = MessageTemplateCRUD()
