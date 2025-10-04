@@ -69,12 +69,12 @@ async def create_message_template(
     return await message_template_service.create_admin_template(db=db, request=request)
 
 
-@router.put(
+@router.patch(
     "/{id}",
     response_model=AdminMessageTemplateResponse,
     status_code=status.HTTP_200_OK,
     summary="Обновление шаблона напоминания (админ)",
-    description="Обновляет существующий шаблон напоминания",
+    description="Обновляет существующий шаблон напоминания или изменяет его статус (активация/деактивация)",
     responses={
         200: {"description": "Шаблон напоминания успешно обновлен"},
         400: {"description": "Ошибка валидации данных"},
@@ -94,62 +94,9 @@ async def update_message_template(
 
     Требует авторизации с ролью администратора.
     Обновляет существующий шаблон напоминания с новыми параметрами.
+    Поддерживает изменение статуса через поле is_active.
     """
     return await message_template_service.update_admin_template(db=db, template_id=id, request=request)
-
-
-@router.post(
-    "/{id}/activate",
-    response_model=AdminMessageTemplateResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Активация шаблона напоминания (админ)",
-    description="Активирует шаблон напоминания для использования в автоматических рассылках",
-    responses={
-        200: {"description": "Шаблон напоминания успешно активирован"},
-        401: {"description": "Не авторизован"},
-        403: {"description": "Недостаточно прав доступа"},
-        404: {"description": "Шаблон напоминания не найден"},
-        500: {"description": "Внутренняя ошибка сервера"},
-    },
-)
-async def activate_message_template(
-    id: int,
-    current_admin: AdminOnly,
-    db: AsyncSession = Depends(get_session),
-) -> AdminMessageTemplateResponse:
-    """Активация шаблона напоминания.
-
-    Требует авторизации с ролью администратора.
-    Активирует шаблон для использования в автоматических напоминаниях.
-    """
-    return await message_template_service.activate_template(db=db, template_id=id)
-
-
-@router.post(
-    "/{id}/deactivate",
-    response_model=AdminMessageTemplateResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Деактивация шаблона напоминания (админ)",
-    description="Деактивирует шаблон напоминания",
-    responses={
-        200: {"description": "Шаблон напоминания успешно деактивирован"},
-        401: {"description": "Не авторизован"},
-        403: {"description": "Недостаточно прав доступа"},
-        404: {"description": "Шаблон напоминания не найден"},
-        500: {"description": "Внутренняя ошибка сервера"},
-    },
-)
-async def deactivate_message_template(
-    id: int,
-    current_admin: AdminOnly,
-    db: AsyncSession = Depends(get_session),
-) -> AdminMessageTemplateResponse:
-    """Деактивация шаблона напоминания.
-
-    Требует авторизации с ролью администратора.
-    Деактивирует шаблон и исключает его из автоматических рассылок.
-    """
-    return await message_template_service.deactivate_template(db=db, template_id=id)
 
 
 @router.delete(

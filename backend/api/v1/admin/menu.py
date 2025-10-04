@@ -68,7 +68,8 @@ async def get_admin_menu_items(
         201: {"description": "Пункт меню успешно создан"},
         400: {"description": "Ошибка валидации данных"},
         401: {"description": "Не авторизован"},
-        403: {"description": "Недостаточно прав доступа"},
+        403: {"description": "Недостаточно прав доступа (требуется роль администратора)"},
+        422: {"description": "Ошибка валидации данных запроса"},
         500: {"description": "Внутренняя ошибка сервера"},
     },
 )
@@ -85,7 +86,7 @@ async def create_menu_item(
     return await menu_item_service.create_admin_menu_item(db=db, request=request)
 
 
-@router.put(
+@router.patch(
     "/{id}",
     response_model=AdminMenuItemResponse,
     status_code=status.HTTP_200_OK,
@@ -188,7 +189,7 @@ async def create_content_file(
     return await content_file_service.create_content_file(db=db, menu_item_id=id, request=request)
 
 
-@router.put(
+@router.patch(
     "/content-files/{file_id}",
     response_model=AdminContentFileResponse,
     status_code=status.HTTP_200_OK,

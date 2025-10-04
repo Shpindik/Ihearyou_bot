@@ -12,36 +12,10 @@ from backend.schemas.admin.admin_user import (
     AdminUserResponse,
     AdminUserUpdate,
 )
-from backend.schemas.admin.auth import AdminMeResponse
 from backend.services.admin_user import admin_user_service
 
 
 router = APIRouter(prefix="/users", tags=["Admin Users"])
-
-
-@router.get(
-    "/me",
-    response_model=AdminMeResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Получение информации о текущем администраторе",
-    description="Возвращает информацию о текущем авторизованном администраторе",
-    responses={
-        200: {"description": "Информация об администраторе успешно получена"},
-        401: {"description": "Не авторизован"},
-        403: {"description": "Недостаточно прав доступа"},
-        500: {"description": "Внутренняя ошибка сервера"},
-    },
-)
-async def get_current_admin_info(
-    current_admin: AdminOnly,
-    db: AsyncSession = Depends(get_session),
-) -> AdminMeResponse:
-    """Получение информации о текущем администраторе.
-
-    Требует авторизации с ролью администратора.
-    Возвращает детальную информацию о текущем администраторе.
-    """
-    return admin_user_service.get_current_admin_info(current_admin)
 
 
 @router.get(
@@ -102,10 +76,11 @@ async def get_admin_user(
     description="Создает нового администратора в системе",
     responses={
         201: {"description": "Администратор успешно создан"},
-        400: {"description": "Ошибка валидации данных"},
+        400: {"description": "Ошибка валидации данных (неверный формат email, слабый пароль и т.д.)"},
         401: {"description": "Не авторизован"},
-        403: {"description": "Недостаточно прав доступа"},
+        403: {"description": "Недостаточно прав доступа (требуется роль администратора)"},
         409: {"description": "Конфликт данных (email или username уже существует)"},
+        422: {"description": "Ошибка валидации данных запроса"},
         500: {"description": "Внутренняя ошибка сервера"},
     },
 )
@@ -122,12 +97,12 @@ async def create_admin_user(
     return await admin_user_service.create_admin_for_api(session=db, admin_data=admin_data)
 
 
-@router.put(
+@router.patch(
     "/{admin_id}",
     response_model=AdminUserResponse,
     status_code=status.HTTP_200_OK,
-    summary="Обновление администратора",
-    description="Обновляет данные администратора",
+    summary="Частичное обновление администратора",
+    description="Обновляет указанные поля администратора или изменяет его статус (активация/деактивация)",
     responses={
         200: {"description": "Администратор успешно обновлен"},
         400: {"description": "Ошибка валидации данных"},
@@ -148,6 +123,7 @@ async def update_admin_user(
 
     Требует авторизации с ролью администратора.
     Обновляет только указанные поля.
+    Поддерживает изменение статуса через поле is_active.
     """
     return await admin_user_service.update_admin_for_api(
         session=db,
@@ -156,7 +132,7 @@ async def update_admin_user(
     )
 
 
-@router.put(
+@router.patch(
     "/{admin_id}/password",
     response_model=AdminUserResponse,
     status_code=status.HTTP_200_OK,
@@ -187,55 +163,3 @@ async def update_admin_password(
         admin_id=admin_id,
         password_data=password_data,
     )
-
-
-@router.put(
-    "/{admin_id}/activate",
-    response_model=AdminUserResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Активация администратора",
-    description="Активирует администратора",
-    responses={
-        200: {"description": "Администратор успешно активирован"},
-        401: {"description": "Не авторизован"},
-        403: {"description": "Недостаточно прав доступа"},
-        404: {"description": "Администратор не найден"},
-        500: {"description": "Внутренняя ошибка сервера"},
-    },
-)
-async def activate_admin_user(
-    admin_id: int,
-    current_admin: AdminOnly,
-    db: AsyncSession = Depends(get_session),
-) -> AdminUserResponse:
-    """Активировать администратора.
-
-    Требует авторизации с ролью администратора.
-    """
-    return await admin_user_service.activate_admin_for_api(session=db, admin_id=admin_id)
-
-
-@router.put(
-    "/{admin_id}/deactivate",
-    response_model=AdminUserResponse,
-    status_code=status.HTTP_200_OK,
-    summary="Деактивация администратора",
-    description="Деактивирует администратора",
-    responses={
-        200: {"description": "Администратор успешно деактивирован"},
-        401: {"description": "Не авторизован"},
-        403: {"description": "Недостаточно прав доступа"},
-        404: {"description": "Администратор не найден"},
-        500: {"description": "Внутренняя ошибка сервера"},
-    },
-)
-async def deactivate_admin_user(
-    admin_id: int,
-    current_admin: AdminOnly,
-    db: AsyncSession = Depends(get_session),
-) -> AdminUserResponse:
-    """Деактивировать администратора.
-
-    Требует авторизации с ролью администратора.
-    """
-    return await admin_user_service.deactivate_admin_for_api(session=db, admin_id=admin_id)

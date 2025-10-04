@@ -63,7 +63,7 @@ async def send_notification(
 )
 async def get_notifications(
     current_admin: ModeratorOrAdmin,
-    days_ago: Optional[int] = Query(None, description="Фильтр по дням назад"),
+    days_ago: Optional[int] = Query(None, ge=0, le=365, description="Фильтр по дням назад (0-365)"),
     db: AsyncSession = Depends(get_session),
 ) -> AdminNotificationListResponse:
     """Получение статистики уведомлений для администраторов.
@@ -74,7 +74,7 @@ async def get_notifications(
     return await notification_service.get_admin_notifications(db=db, days_ago=days_ago)
 
 
-@router.put(
+@router.patch(
     "/{id}",
     response_model=AdminNotificationResponse,
     status_code=status.HTTP_200_OK,
@@ -101,6 +101,32 @@ async def update_notification(
     Позволяет изменить статус уведомления при необходимости.
     """
     return await notification_service.update_admin_notification(db=db, notification_id=id, request=request)
+
+
+@router.delete(
+    "/{id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Удаление уведомления (админ)",
+    description="Удаляет уведомление из системы",
+    responses={
+        204: {"description": "Уведомление успешно удалено"},
+        401: {"description": "Не авторизован"},
+        403: {"description": "Недостаточно прав доступа"},
+        404: {"description": "Уведомление не найдено"},
+        500: {"description": "Внутренняя ошибка сервера"},
+    },
+)
+async def delete_notification(
+    id: int,
+    current_admin: AdminOnly,
+    db: AsyncSession = Depends(get_session),
+) -> None:
+    """Удаление уведомления.
+
+    Требует авторизации с ролью администратора.
+    Полностью удаляет уведомление из системы.
+    """
+    await notification_service.delete_admin_notification(db=db, notification_id=id)
 
 
 @router.get(

@@ -22,12 +22,13 @@ router = APIRouter(prefix="/menu-items")
     responses={
         200: {"description": "Структура меню успешно получена"},
         400: {"description": "Ошибка валидации параметров запроса"},
-        404: {"description": "Пункт меню не найден"},
+        404: {"description": "Пользователь не найден или родительский пункт меню не найден"},
+        422: {"description": "Ошибка валидации входных данных"},
         500: {"description": "Внутренняя ошибка сервера"},
     },
 )
 async def get_menu_items(
-    telegram_user_id: int = Query(..., description="ID пользователя в Telegram"),
+    telegram_user_id: int = Query(..., description="ID пользователя в Telegram", gt=0),
     parent_id: Optional[int] = Query(None, description="ID родительского пункта меню (null для корневого уровня)"),
     db: AsyncSession = Depends(get_session),
 ) -> MenuItemListResponse:
@@ -49,13 +50,14 @@ async def get_menu_items(
         200: {"description": "Контент пункта меню успешно получен"},
         400: {"description": "Ошибка валидации параметров запроса"},
         403: {"description": "Недостаточно прав для доступа к контенту"},
-        404: {"description": "Пункт меню не найден"},
+        404: {"description": "Пользователь не найден или пункт меню не найден"},
+        422: {"description": "Ошибка валидации входных данных"},
         500: {"description": "Внутренняя ошибка сервера"},
     },
 )
 async def get_menu_item_content(
     id: int,
-    telegram_user_id: int = Query(..., description="ID пользователя в Telegram"),
+    telegram_user_id: int = Query(..., description="ID пользователя в Telegram", gt=0),
     db: AsyncSession = Depends(get_session),
 ) -> MenuContentResponse:
     """Получение контента конкретного пункта меню с дочерними элементами.
