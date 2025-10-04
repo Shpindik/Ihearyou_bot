@@ -48,7 +48,7 @@ graph LR
 
 - **Backend:** FastAPI, SQLAlchemy, PostgreSQL, Redis
 - **Bot:** aiogram 3.x, aiohttp, httpx
-- **Frontend:** React, Vite
+- **Frontend:** React, TypeScript, Vite
 - **Инфраструктура:** Docker, Docker Compose
 - **Инструменты:** Poetry, Ruff, pytest, Alembic
 
@@ -148,25 +148,23 @@ make load-data
 ## 👥 Команда проекта
 
 ### Управление
-- **Product Manager:** Синдицкая Евгения — [eugeshia](https://t.me/eugeshia) | esinditskaya@gmail.com
-- **Project Manager:** Оксана Хамаза — [oksana016](https://t.me/oksana016) | khamaza.oksana@gmail.com
+- **Евгения Синдицкая** — [eugeshia](https://t.me/eugeshia) | esinditskaya@gmail.com
+- **Оксана Хамаза** — [oksana016](https://t.me/oksana016) | khamaza.oksana@gmail.com
 
 ### Команда Дизайн
-- **Куцак Ника Игоревна** — [iwrbiss](https://t.me/iwrbiss) | kucaknika661@gmail.com
-- **Ремарк Александра Андреевна** — [thundermonster](https://t.me/thundermonster) | remarkaleksandra@gmail.com
+- **Александра Ремарк** — [thundermonster](https://t.me/thundermonster) | remarkaleksandra@gmail.com
+- **Ника Куцак** — [iwrbiss](https://t.me/iwrbiss) | kucaknika661@gmail.com
 
 ### Команда Python
-- **Чунина Александра Сергеевна** — [noisejam](https://t.me/noisejam) | alexandra.chunina@gmail.com
-- **Карпов Тимофей Евгеньевич** — [timofey_the_hiker](https://t.me/timofey_the_hiker) | timofey@the-hiker.ru
-- **Жердецкий Андрей** — [a_n_s_e_z](https://t.me/a_n_s_e_z) | aszherdetskiy@gmail.com
-- **Прокофьев Александр Алексеевич** — [Shp1ndik](https://t.me/Shp1ndik) | kuisajke@gmail.com
-- **Башкатов Валентин Александрович** — [bashvalen](https://t.me/bashvalen) | bashkatovvala@gmail.com
+- **Александр Прокофьев** — [Shp1ndik](https://t.me/Shp1ndik) | kuisajke@gmail.com
+- **Александра Чунина** — [noisejam](https://t.me/noisejam) | alexandra.chunina@gmail.com
+- **Андрей Жердецкий** — [a_n_s_e_z](https://t.me/a_n_s_e_z) | aszherdetskiy@gmail.com
+- **Валентин Башкатов** — [bashvalen](https://t.me/bashvalen) | bashkatovvala@gmail.com
+- **Тимофей Карпов** — [timofey_the_hiker](https://t.me/timofey_the_hiker) | timofey@the-hiker.ru
 
 ### Команда Web
+- **Василий Виссаров** — [prayftorespect](https://t.me/prayftorespect) | vissar2016@gmail.com
 - **Денис Боровец** — [borove4ik](https://t.me/borove4ik) | dsborovets@gmail.com
-- **Даниленко Екатерина Алексеевна** — [ketrin_dan](https://t.me/ketrin_dan) | katerina.dan07@gmail.com
-- **Проскурина Ирина Сергеевна** — [IrinkaProskurina](https://t.me/IrinkaProskurina) | proskurin4343@gmail.com
-- **Виссаров Василий Анатольевич** — [prayftorespect](https://t.me/prayftorespect) | vissar2016@gmail.com
 
 ## 🔒 Безопасность
 
