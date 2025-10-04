@@ -19,9 +19,12 @@ from backend.tests.fixtures import (
     active_telegram_user,
     active_template,
     admin_user,
+    failed_notification,
     inactive_telegram_user,
     inactive_template,
     menu_items_fixture,
+    pending_notification,
+    sent_notification,
     user_free,
     user_premium,
 )
