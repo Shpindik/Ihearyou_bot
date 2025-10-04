@@ -8,10 +8,18 @@
 
 ## 🏗️ Архитектура
 
-```
-Telegram <-> bot (aiogram) <-> backend (FastAPI) <-> PostgreSQL
-                                    ↕
-                              frontend (React)
+```mermaid
+graph LR
+    TG[Telegram] <--> BOT[Bot<br/>aiogram]
+    BOT <--> API[Backend<br/>FastAPI]
+    API <--> DB[(PostgreSQL)]
+    API <--> FRONT[Frontend<br/>React]
+    
+    style TG fill:#e1f5fe,color:#000
+    style BOT fill:#f3e5f5,color:#000
+    style API fill:#e8f5e8,color:#000
+    style DB fill:#fff3e0,color:#000
+    style FRONT fill:#fce4ec,color:#000
 ```
 
 **Компоненты:**
@@ -136,6 +144,29 @@ make migrate
 # Загрузка тестовых данных
 make load-data
 ```
+
+## 👥 Команда проекта
+
+### Управление
+- **Product Manager:** Синдицкая Евгения — [eugeshia](https://t.me/eugeshia) | esinditskaya@gmail.com
+- **Project Manager:** Оксана Хамаза — [oksana016](https://t.me/oksana016) | khamaza.oksana@gmail.com
+
+### Команда Дизайн
+- **Куцак Ника Игоревна** — [iwrbiss](https://t.me/iwrbiss) | kucaknika661@gmail.com
+- **Ремарк Александра Андреевна** — [thundermonster](https://t.me/thundermonster) | remarkaleksandra@gmail.com
+
+### Команда Python
+- **Чунина Александра Сергеевна** — [noisejam](https://t.me/noisejam) | alexandra.chunina@gmail.com
+- **Карпов Тимофей Евгеньевич** — [timofey_the_hiker](https://t.me/timofey_the_hiker) | timofey@the-hiker.ru
+- **Жердецкий Андрей** — [a_n_s_e_z](https://t.me/a_n_s_e_z) | aszherdetskiy@gmail.com
+- **Прокофьев Александр Алексеевич** — [Shp1ndik](https://t.me/Shp1ndik) | kuisajke@gmail.com
+- **Башкатов Валентин Александрович** — [bashvalen](https://t.me/bashvalen) | bashkatovvala@gmail.com
+
+### Команда Web
+- **Денис Боровец** — [borove4ik](https://t.me/borove4ik) | dsborovets@gmail.com
+- **Даниленко Екатерина Алексеевна** — [ketrin_dan](https://t.me/ketrin_dan) | katerina.dan07@gmail.com
+- **Проскурина Ирина Сергеевна** — [IrinkaProskurina](https://t.me/IrinkaProskurina) | proskurin4343@gmail.com
+- **Виссаров Василий Анатольевич** — [prayftorespect](https://t.me/prayftorespect) | vissar2016@gmail.com
 
 ## 🔒 Безопасность
 
