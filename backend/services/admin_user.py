@@ -5,16 +5,17 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import List, Optional
 
+from fastapi import HTTPException, status
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.config import settings
-from backend.core.exceptions import AuthenticationError, NotFoundError
 from backend.core.security import (
     create_access_token,
     create_password_reset_token,
     create_refresh_token,
     get_password_hash,
+    verify_password,
     verify_password_reset_token,
     verify_token,
 )
@@ -144,13 +145,17 @@ class AdminUserService:
             AdminLoginResponse: Ответ с токенами аутентификации
 
         Raises:
-            AuthenticationError: Если учетные данные неверны
+            HTTPException: Если учетные данные неверны
         """
         # Аутентификация пользователя
         admin = await self.authenticate_admin_by_credentials(session, username, password)
 
         if not admin:
-            raise AuthenticationError("Неверное имя пользователя или пароль")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Неверное имя пользователя или пароль",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
         # Создание токенов
         access_token_expires = timedelta(minutes=settings.jwt_access_token_expire_minutes)
@@ -179,8 +184,7 @@ class AdminUserService:
             AdminRefreshResponse: Ответ с новым access токеном
 
         Raises:
-            AuthenticationError: Если refresh токен недействителен
-            NotFoundError: Если пользователь не найден
+            HTTPException: Если refresh токен недействителен или пользователь не найден
         """
         # Декодируем refresh токен
         payload = verify_token(refresh_token)
@@ -188,13 +192,20 @@ class AdminUserService:
         token_type = payload.get("type")
 
         if token_type != "refresh":
-            raise AuthenticationError("Недействительный refresh токен")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Недействительный refresh токен",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
         # Получаем пользователя
         admin = await self.get_admin_by_id(session, int(user_id))
 
         if not admin:
-            raise NotFoundError("Пользователь не найден")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Пользователь не найден",
+            )
 
         # Создаем новый access токен
         access_token_expires = timedelta(minutes=settings.jwt_access_token_expire_minutes)
@@ -222,7 +233,7 @@ class AdminUserService:
             id=admin.id,
             username=admin.username,
             email=admin.email,
-            role=admin.role.value if hasattr(admin.role, "value") else str(admin.role),
+            role=admin.role,
             is_active=admin.is_active,
             created_at=admin.created_at.isoformat(),
         )
@@ -379,7 +390,11 @@ class AdminUserService:
         # Декодируем токен
         email = verify_password_reset_token(token)
         if not email:
-            raise AuthenticationError("Недействительный или истекший токен восстановления")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Недействительный или истекший токен восстановления",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
 
         # Получаем администратора
         admin = await self.get_admin_by_email(session, email)
@@ -444,7 +459,7 @@ class AdminUserService:
             AdminUser: Обновленный администратор
 
         Raises:
-            NotFoundError: Если администратор не найден
+            HTTPException: Если администратор не найден
         """
         # Получаем администратора
         admin = await self.get_admin_by_id(session, admin_id)
@@ -523,8 +538,13 @@ class AdminUserService:
 
         Returns:
             AdminUserResponse: Ответ с данными администратора
+
+        Raises:
+            HTTPException: Если администратор не найден
         """
         admin = await self.get_admin_by_id(session, admin_id)
+        if not admin:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Администратор не найден")
         response_data = self.get_admin_response(admin)
         return AdminUserResponse.model_validate(response_data)
 
@@ -599,6 +619,11 @@ class AdminUserService:
             AdminUserResponse: Данные администратора с измененным паролем
         """
         admin = await self.get_admin_by_id(session, admin_id)
+
+        # Проверяем текущий пароль для безопасности
+        if not verify_password(password_data.current_password, admin.password_hash):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Неверный текущий пароль")
+
         updated_admin = await self.update_admin_password(
             session=session,
             admin=admin,

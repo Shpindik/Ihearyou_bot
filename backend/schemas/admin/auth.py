@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from backend.models.enums import AdminRole
+
 
 class AdminLoginRequest(BaseModel):
     """Схема запроса аутентификации для POST /api/v1/admin/auth/login."""
@@ -68,7 +70,7 @@ class AdminMeResponse(BaseModel):
     id: int = Field(..., description="ID администратора")
     username: str = Field(..., max_length=50, description="Имя пользователя")
     email: EmailStr = Field(..., max_length=255, description="Email администратора")
-    role: str = Field(..., description="Роль администратора")
+    role: AdminRole = Field(..., description="Роль администратора")
     is_active: bool = Field(..., description="Активен ли администратор")
     created_at: str = Field(..., description="Дата создания")
 
