@@ -120,6 +120,29 @@ services:
         - action: rebuild
           path: ./Dockerfile
 
+  # React Frontend
+  frontend:
+    build:
+      context: .
+      target: frontend
+    container_name: IHearYouFrontend
+    env_file: .env
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8001/api}
+      NODE_ENV: ${NODE_ENV:-production}
+    depends_on:
+      bot_api:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT:-3001}:3001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
 
 volumes:
   pg_data:

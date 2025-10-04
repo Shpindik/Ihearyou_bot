@@ -41,3 +41,18 @@ COPY alembic.ini ./
 EXPOSE 8000
 
 CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+
+# Frontend
+FROM node:20-slim AS frontend
+WORKDIR /app
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci && \
+    rm -rf package-lock.json node_modules && \
+    npm install
+COPY frontend/ .
+ARG VITE_API_URL=http://localhost:8001/api
+ENV VITE_API_URL=${VITE_API_URL}
+RUN npm run build
+RUN npm install -g serve
+EXPOSE 3001
+CMD ["serve", "-s", "dist", "-l", "3001"]
