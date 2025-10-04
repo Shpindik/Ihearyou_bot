@@ -27,7 +27,9 @@ class RatingService:
             rating_data = {"telegram_user_id": telegram_user_id, "menu_item_id": menu_item_id, "rating": rating}
 
             async with api_client as client:
-                response = await client._make_request(method="POST", endpoint="api/v1/public/ratings/", data=rating_data)
+                response = await client._make_request(
+                    method="POST", endpoint="api/v1/public/ratings/", data=rating_data
+                )
 
                 logger.debug(f"Rating submitted for user {telegram_user_id}: {response}")
                 return True
@@ -61,7 +63,7 @@ class RatingService:
                 return {
                     "id": response.get("id"),
                     "title": response.get("title"),
-                    "item_type": response.get("item_type")
+                    "item_type": response.get("item_type"),
                 }
 
         except APIClientError as e:

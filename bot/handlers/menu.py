@@ -94,20 +94,20 @@ async def menu_navigation_handler(callback: types.CallbackQuery, state: FSMConte
             # Если тип неопределен или неизвестен, пытаемся обработать как контент
             logger.warning(f"Unknown menu item type: {item_type} for item {menu_item_id}")
             success = await menu_service.send_content_user(menu_content, callback)
-            
+
             if success:
                 # Создаем клавиатуру действий для контента
                 keyboard = create_content_actions_keyboard(menu_item_id)
-                
+
                 # Добавляем кнопки действий
                 await callback.message.edit_reply_markup(reply_markup=keyboard)
-                
+
                 # Обновляем состояние просмотра контента
                 await state.set_state(UserStates.content_view)
                 await state.update_data(
                     viewed_content_id=menu_item_id, content_title=menu_content.get("title", "Материал")
                 )
-                
+
                 await callback.answer()
             else:
                 await callback.answer("Ошибка обработки пункта меню", show_alert=True)

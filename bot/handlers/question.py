@@ -36,10 +36,10 @@ async def ask_question_handler(callback: types.CallbackQuery, state: FSMContext)
 
         # Создаем клавиатуру с кнопкой отмены
         from aiogram.utils.keyboard import InlineKeyboardBuilder
-        
+
         builder = InlineKeyboardBuilder()
         builder.button(text="🏠 Главное меню", callback_data="home")
-        
+
         keyboard = builder.as_markup()
 
         await callback.message.edit_text(
@@ -61,7 +61,7 @@ async def question_input_handler(message: types.Message, state: FSMContext):
     try:
         # Получаем telegram_user_id из события
         telegram_user_id = message.from_user.id
-        
+
         current_state = await state.get_state()
 
         if current_state != UserStates.question_input:
@@ -112,9 +112,7 @@ async def question_input_handler(message: types.Message, state: FSMContext):
             )
 
             keyboard = create_back_menu_keyboard()
-            await message.answer(
-                text=confirmation_text, parse_mode=settings.parse_mode, reply_markup=keyboard
-            )
+            await message.answer(text=confirmation_text, parse_mode=settings.parse_mode, reply_markup=keyboard)
 
             await state.clear()
             await state.set_state(UserStates.main_menu)  # Явно устанавливаем состояние главного меню
@@ -131,11 +129,7 @@ async def question_input_handler(message: types.Message, state: FSMContext):
     except Exception as e:
         logger.error(f"Error in question_input_handler: {e}")
         keyboard = create_back_menu_keyboard()
-        await message.answer(
-            text=settings.error_message, 
-            parse_mode=settings.parse_mode,
-            reply_markup=keyboard
-        )
+        await message.answer(text=settings.error_message, parse_mode=settings.parse_mode, reply_markup=keyboard)
         await state.set_state(UserStates.main_menu)
 
 
@@ -155,7 +149,7 @@ async def short_question_handler(message: types.Message, state: FSMContext):
         await message.answer(
             "📝 Ваше сообщение слишком короткое. Используйте меню для навигации:",
             parse_mode=settings.parse_mode,
-            reply_markup=keyboard
+            reply_markup=keyboard,
         )
         await state.set_state(UserStates.main_menu)
 
@@ -165,10 +159,11 @@ async def start_command_handler(message: types.Message, state: FSMContext):
     """Обработчик команды /start в процессе ввода вопроса."""
     await state.clear()
     await state.set_state(UserStates.main_menu)
-    
+
     from ..utils.keyboards import create_main_menu_keyboard
+
     keyboard = create_main_menu_keyboard()
-    
+
     await message.answer(
         text=settings.welcome_message,
         parse_mode=settings.parse_mode,
@@ -199,4 +194,3 @@ def is_valid_question_text(text: str) -> bool:
             return False
 
     return True
-

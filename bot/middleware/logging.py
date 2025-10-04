@@ -129,36 +129,54 @@ class LoggingMiddleware(BaseMiddleware):
 
     def _is_spam_search(self, text: str) -> bool:
         """Проверяет является ли текст мусорным поисковым запросом.
-        
+
         Args:
             text: Текст сообщения
-            
+
         Returns:
             True если текст спам
         """
         if not text:
             return True
-            
+
         text_lower = text.lower().strip()
-        
+
         # Черный список мусорных запросов
         spam_patterns = {
-            "привет", "hello", "hi", "здравствуйте", "как дела", "как у тебя",
-            "что", "где", "когда", "почему", "как", "кто", "какой", "какая",
-            "тест", "test", "проверка", "работает", "бот", "помощь", "хелп"
+            "привет",
+            "hello",
+            "hi",
+            "здравствуйте",
+            "как дела",
+            "как у тебя",
+            "что",
+            "где",
+            "когда",
+            "почему",
+            "как",
+            "кто",
+            "какой",
+            "какая",
+            "тест",
+            "test",
+            "проверка",
+            "работает",
+            "бот",
+            "помощь",
+            "хелп",
         }
-        
+
         # Проверяем на прямые совпадения
         if text_lower in spam_patterns:
             return True
-            
+
         # Слишком короткие запросы
         if len(text_lower) < 3:
             return True
-            
+
         # Только повторяющиеся символы
         unique_chars = len(set(text_lower.replace(" ", "")))
         if unique_chars < 2:
             return True
-            
+
         return False

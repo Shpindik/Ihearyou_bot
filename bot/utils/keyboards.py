@@ -41,7 +41,7 @@ def create_menu_keyboard(items: List[dict]) -> InlineKeyboardMarkup:
     # Постоянные кнопки навигации
     builder.button(text=f"{settings.emoji_search} Поиск", callback_data="search")
     builder.button(text=f"{settings.emoji_question} Задать вопрос", callback_data="ask_question")
-    
+
     # Кнопка "Назад" только если есть контент для возврата
     builder.button(text=f"{settings.emoji_back} Назад", callback_data="back")
     builder.button(text=f"{settings.emoji_home} Главное меню", callback_data="home")
