@@ -68,9 +68,12 @@ class QuestionCRUD(BaseCRUD[UserQuestion, dict, dict]):
         """
         question = await self.get(db, id=question_id)
         if question:
+            from datetime import datetime, timezone
+
             question.answer_text = answer_text
             question.status = QuestionStatus.ANSWERED
             question.admin_user_id = admin_user_id
+            question.answered_at = datetime.now(timezone.utc)
             db.add(question)
             await db.commit()
             await db.refresh(question)

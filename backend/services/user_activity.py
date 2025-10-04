@@ -7,9 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.crud.menu_item import menu_item_crud
 from backend.crud.telegram_user import telegram_user_crud
 from backend.crud.user_activity import user_activity_crud
-from backend.models.enums import ActivityType
+from backend.models.enums import AccessLevel, ActivityType
 from backend.schemas.public.user_activity import UserActivityRequest, UserActivityResponse
 from backend.services.telegram_user import telegram_user_service
+from backend.validators.menu_item import menu_item_validator
+from backend.validators.telegram_user import telegram_user_validator
 from backend.validators.user_activity import user_activity_validator
 
 
@@ -21,7 +23,8 @@ class UserActivityService:
         self.user_activity_crud = user_activity_crud
         self.menu_item_crud = menu_item_crud
         self.telegram_user_crud = telegram_user_crud
-        self.validator = user_activity_validator
+        self.user_activity_validator = user_activity_validator
+        self.menu_item_validator = menu_item_validator
 
     async def record_activity(self, request: UserActivityRequest, db: AsyncSession) -> UserActivityResponse:
         """Запись активности пользователя.
@@ -34,14 +37,19 @@ class UserActivityService:
             Ответ с данными созданной активности
         """
         user = await self.telegram_user_crud.get_by_telegram_id(db, request.telegram_user_id)
-        self.validator.validate_user_exists(user)
+        telegram_user_validator.validate_user_exists(user)
 
         menu_item = None
         if request.menu_item_id is not None:
             menu_item = await self.menu_item_crud.get(db, request.menu_item_id)
-            self.validator.validate_menu_item_exists(menu_item)
+            self.menu_item_validator.validate_menu_item_exists(menu_item)
 
-        self.validator.validate_search_query(request.search_query)
+            user_access_level = (
+                AccessLevel.PREMIUM if getattr(user, "subscription_type", None) == "premium" else AccessLevel.FREE
+            )
+            self.menu_item_validator.validate_access_level(user_access_level, menu_item.access_level)
+
+        self.user_activity_validator.validate_search_query(request.search_query)
 
         activity = await self.user_activity_crud.create_activity(
             db=db,
@@ -77,7 +85,7 @@ class UserActivityService:
             activity_type=activity.activity_type,
             rating=activity.rating,
             search_query=activity.search_query,
-            success=True,
+            message="Активность успешно записана",
         )
 
 

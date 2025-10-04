@@ -27,7 +27,7 @@ class MenuItemService:
 
     def __init__(self):
         """Инициализация сервиса Menu Item."""
-        self.menu_crud = menu_item_crud
+        self.menu_item_crud = menu_item_crud
         self.telegram_user_crud = telegram_user_crud
         self.validator = menu_item_validator
 
@@ -51,7 +51,7 @@ class MenuItemService:
         self.validator.validate_user_exists(user)
 
         if parent_id is not None:
-            parent_item = await self.menu_crud.get(db, parent_id)
+            parent_item = await self.menu_item_crud.get(db, parent_id)
             self.validator.validate_parent_menu_item(parent_item)
 
         user_access_level = (
@@ -59,7 +59,7 @@ class MenuItemService:
         )
 
         # Загружаем только один уровень
-        items = await self.menu_crud.get_by_parent_id(db, parent_id, True, user_access_level)
+        items = await self.menu_item_crud.get_by_parent_id(db, parent_id, True, user_access_level)
 
         items_data = [
             MenuItemResponse(
@@ -98,7 +98,7 @@ class MenuItemService:
             AccessLevel.PREMIUM if getattr(user, "subscription_type", None) == "premium" else AccessLevel.FREE
         )
 
-        menu_item = await self.menu_crud.get_with_content_and_children(db, menu_id, user_access_level)
+        menu_item = await self.menu_item_crud.get_with_content_and_children(db, menu_id, user_access_level)
         self.validator.validate_menu_item_exists(menu_item)
         self.validator.validate_menu_item_active(menu_item)
         self.validator.validate_access_level(user_access_level, menu_item.access_level)
@@ -179,7 +179,7 @@ class MenuItemService:
         Returns:
             Полный список пунктов меню для админки с метаданными
         """
-        items = await self.menu_crud.get_admin_menu_items(db, parent_id, is_active, access_level)
+        items = await self.menu_item_crud.get_admin_menu_items(db, parent_id, is_active, access_level)
 
         items_data = [
             AdminMenuItemResponse(
@@ -221,10 +221,10 @@ class MenuItemService:
             Созданный пункт меню
         """
         if request.parent_id:
-            parent_item = await self.menu_crud.get(db, request.parent_id)
+            parent_item = await self.menu_item_crud.get(db, request.parent_id)
             self.validator.validate_parent_menu_item(parent_item)
 
-        menu_item = await self.menu_crud.create(db, obj_in=request)
+        menu_item = await self.menu_item_crud.create(db, obj_in=request)
 
         return AdminMenuItemResponse(
             id=menu_item.id,
@@ -257,17 +257,17 @@ class MenuItemService:
         Returns:
             Обновленный пункт меню
         """
-        menu_item = await self.menu_crud.get(db, menu_id)
+        menu_item = await self.menu_item_crud.get(db, menu_id)
         self.validator.validate_menu_item_exists(menu_item)
 
         if request.parent_id is not None:
             if request.parent_id == menu_id:
                 self.validator.validate_menu_item_not_self_parent(menu_id)
             if request.parent_id:
-                parent_item = await self.menu_crud.get(db, request.parent_id)
+                parent_item = await self.menu_item_crud.get(db, request.parent_id)
                 self.validator.validate_parent_menu_item(parent_item)
 
-        updated_item = await self.menu_crud.update(db, db_obj=menu_item, obj_in=request)
+        updated_item = await self.menu_item_crud.update(db, db_obj=menu_item, obj_in=request)
 
         return AdminMenuItemResponse(
             id=updated_item.id,
@@ -294,13 +294,13 @@ class MenuItemService:
             db: Сессия базы данных
             menu_id: ID пункта меню
         """
-        menu_item = await self.menu_crud.get(db, menu_id)
+        menu_item = await self.menu_item_crud.get(db, menu_id)
         self.validator.validate_menu_item_exists(menu_item)
 
-        children = await self.menu_crud.get_children_by_parent_id(db, menu_id)
+        children = await self.menu_item_crud.get_children_by_parent_id(db, menu_id)
         self.validator.validate_menu_item_no_children(children)
 
-        await self.menu_crud.remove(db, id=menu_id)
+        await self.menu_item_crud.remove(db, id=menu_id)
 
     async def search_menu_items(
         self,
@@ -319,7 +319,7 @@ class MenuItemService:
         Returns:
             SearchListResponse: Список найденных пунктов меню
         Raises:
-            ValidationError: Если пользователь не найден или запрос некорректен
+            HTTPException: Если пользователь не найден или запрос некорректен
         """
         user = await telegram_user_crud.get_by_telegram_id(db, telegram_user_id)
         menu_item_validator.validate_user_exists(user)

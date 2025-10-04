@@ -22,11 +22,11 @@ class UserActivityValidator:
             user: Объект пользователя из БД
 
         Raises:
-            ValidationError: Если пользователь не найден
+            HTTPException: Если пользователь не найден
         """
         if not user:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail="Пользователь не найден. Пользователь должен быть зарегистрирован через Bot API.",
             )
 
@@ -37,10 +37,10 @@ class UserActivityValidator:
             menu_item: Объект пункта меню из БД
 
         Raises:
-            ValidationError: Если пункт меню не найден
+            HTTPException: Если пункт меню не найден
         """
         if menu_item is None:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Пункт меню не найден")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пункт меню не найден")
 
     def validate_search_query(self, search_query: Optional[str]) -> None:
         """Проверка корректности поискового запроса.
@@ -49,7 +49,7 @@ class UserActivityValidator:
             search_query: Поисковый запрос
 
         Raises:
-            ValidationError: Если поисковый запрос некорректен
+            HTTPException: Если поисковый запрос некорректен
         """
         if search_query is None:
             return
@@ -84,18 +84,9 @@ class UserActivityValidator:
             activity_type: Тип активности
 
         Raises:
-            ValidationError: Если оценка некорректна
+            HTTPException: Если оценка некорректна
         """
-        if activity_type == ActivityType.RATING:
-            if rating is None:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST, detail="Оценка обязательна для типа активности 'rating'"
-                )
-            if not isinstance(rating, int) or rating < 1 or rating > 5:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST, detail="Оценка должна быть целым числом от 1 до 5"
-                )
-        elif rating is not None:
+        if activity_type != ActivityType.RATING and rating is not None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Оценка может быть указана только для типа активности 'rating'",

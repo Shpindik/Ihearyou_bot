@@ -18,12 +18,12 @@ class UserQuestionValidator:
             user: Объект пользователя из БД
 
         Raises:
-            ValidationError: Если пользователь не найден
+            HTTPException: Если пользователь не найден
 
         """
         if not user:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail="Пользователь не найден. Пользователь должен быть зарегистрирован через Bot API.",
             )
 
@@ -35,23 +35,9 @@ class UserQuestionValidator:
             field_name: Название поля для сообщений об ошибках
 
         Raises:
-            ValidationError: Если текст некорректен
+            HTTPException: Если текст содержит недопустимые символы
 
         """
-        if not text or not text.strip():
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{field_name} не может быть пустым")
-
-        trimmed = text.strip()
-        if len(trimmed) < 10:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=f"{field_name} должен содержать минимум 10 символов"
-            )
-
-        if len(text) > 2000:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=f"{field_name} не может превышать 2000 символов"
-            )
-
         forbidden_chars = ["<", ">", "&", '"', "'", "\\", ";"]
         if any(char in text for char in forbidden_chars):
             raise HTTPException(
@@ -65,7 +51,7 @@ class UserQuestionValidator:
             question_text: Текст вопроса
 
         Raises:
-            ValidationError: Если текст вопроса некорректен
+            HTTPException: Если текст вопроса некорректен
 
         """
         self._validate_text_content(question_text, "Текст вопроса")
@@ -77,11 +63,11 @@ class UserQuestionValidator:
             question: Объект вопроса из БД
 
         Raises:
-            ValidationError: Если вопрос не найден
+            HTTPException: Если вопрос не найден или уже отвечен
 
         """
         if not question:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Вопрос не найден")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Вопрос не найден")
 
         if question.status != "pending":
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="На данный вопрос уже был дан ответ")
@@ -93,7 +79,7 @@ class UserQuestionValidator:
             answer_text: Текст ответа
 
         Raises:
-            ValidationError: Если текст ответа некорректен
+            HTTPException: Если текст ответа некорректен
 
         """
         self._validate_text_content(answer_text, "Текст ответа")

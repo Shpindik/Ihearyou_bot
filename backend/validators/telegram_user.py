@@ -18,7 +18,7 @@ class TelegramUserValidator:
             telegram_id: Telegram ID пользователя или None
 
         Raises:
-            NotFoundError: Если пользователь не найден
+            HTTPException: Если пользователь не найден
         """
         if telegram_id is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
@@ -30,7 +30,7 @@ class TelegramUserValidator:
             telegram_id: ID пользователя в Telegram
 
         Raises:
-            ValidationError: Если ID некорректен
+            HTTPException: Если ID некорректен
         """
         if telegram_id is None:
             raise HTTPException(
@@ -55,10 +55,13 @@ class TelegramUserValidator:
             user: Объект пользователя из БД
 
         Raises:
-            ValidationError: Если пользователь не найден
+            HTTPException: Если пользователь не найден
         """
         if not user:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Пользователь не найден")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Пользователь не найден. Пользователь должен быть зарегистрирован через Bot API.",
+            )
 
     def validate_user_id(self, user_id: int) -> None:
         """Валидация ID пользователя для админских операций.
@@ -67,7 +70,7 @@ class TelegramUserValidator:
             user_id: ID пользователя
 
         Raises:
-            ValidationError: Если ID некорректен
+            HTTPException: Если ID некорректен
         """
         if user_id <= 0:
             raise HTTPException(

@@ -80,7 +80,7 @@ class MenuItemValidator:
             required_access_level: Требуемый уровень доступа
 
         Raises:
-            ValidationError: Если доступ запрещен
+            HTTPException: Если доступ запрещен
         """
         if required_access_level == AccessLevel.PREMIUM and user_access_level != AccessLevel.PREMIUM:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Требуется доступ к премиум контенту")
@@ -92,7 +92,7 @@ class MenuItemValidator:
             menu_id: ID пункта меню
 
         Raises:
-            ValidationError: Если пункт меню является родителем самому себе
+            HTTPException: Если пункт меню является родителем самому себе
         """
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Пункт меню не может быть родителем самому себе"
@@ -105,7 +105,7 @@ class MenuItemValidator:
             children: Список дочерних элементов
 
         Raises:
-            ValidationError: Если есть дочерние элементы
+            HTTPException: Если есть дочерние элементы
         """
         if children:
             raise HTTPException(
@@ -117,16 +117,12 @@ class MenuItemValidator:
         """Валидация поискового запроса.
 
         Args:
-            query: Поисковый запрос
+            query: Поисковый запрос (уже прошедший pydantic валидацию длины)
+
         Raises:
-            ValidationError: Если запрос не прошел валидацию
+            HTTPException: Если запрос не прошел валидацию
         """
         normalized_query = " ".join(query.split())
-
-        if len(normalized_query) < 2 or len(normalized_query) > 100:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Поисковый запрос должен содержать от 2 до 100 символов"
-            )
 
         unsafe_chars = ["<", ">", "{", "}", "[", "]", "\\", "|", "`"]
         if any(char in normalized_query for char in unsafe_chars):
