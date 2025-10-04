@@ -1,7 +1,7 @@
 """Конфигурация pytest для тестов."""
 
 import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from pathlib import Path
 from typing import AsyncGenerator, Generator
 
@@ -13,13 +13,13 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
 from backend.core.db import Base, get_session
-from backend.core.dependencies import require_admin_role
 from backend.core.security import create_access_token
 from backend.main import app
-from backend.models.enums import AdminRole
 from backend.tests.fixtures import (
+    active_telegram_user,
     active_template,
     admin_user,
+    inactive_telegram_user,
     inactive_template,
     menu_items_fixture,
     user_free,
