@@ -14,7 +14,7 @@ class TestAdminAuthAPI:
         # Arrange
         endpoint = "/api/v1/admin/auth/login"
         login_data = {
-            "login": "testadmin@example.com",
+            "username": "testadmin@example.com",
             "password": "testpassword123"
         }
         expected_status_code = 200
@@ -36,7 +36,7 @@ class TestAdminAuthAPI:
         # Arrange
         endpoint = "/api/v1/admin/auth/login"
         login_data = {
-            "login": "testadmin@example.com",
+            "username": "testadmin@example.com",
             "password": "wrongpassword"
         }
         expected_status_code = 401
@@ -55,7 +55,7 @@ class TestAdminAuthAPI:
         # Arrange
         endpoint = "/api/v1/admin/auth/login"
         login_data = {
-            "login": "notadmin@example.com",
+            "username": "notadmin@example.com",
             "password": "anypassword"
         }
         expected_status_code = 401
@@ -69,7 +69,7 @@ class TestAdminAuthAPI:
     @pytest.mark.parametrize(
         "login,password,expected_status",
         [
-            ("", "testpassword", 422),  # Пустой login
+            ("", "testpassword", 422),  # Пустой username
             ("testadmin@example.com", "", 422),  # Пустой password
             ("", "", 422),  # Оба поля пустые
         ],
@@ -79,7 +79,7 @@ class TestAdminAuthAPI:
         """Тест аутентификации с пустыми полями."""
         # Arrange
         endpoint = "/api/v1/admin/auth/login"
-        login_data = {"login": login, "password": password}
+        login_data = {"username": login, "password": password}
 
         # Act
         response = await async_client.post(endpoint, json=login_data)
@@ -90,7 +90,7 @@ class TestAdminAuthAPI:
     @pytest.mark.parametrize(
         "login_data,expected_status",
         [
-            ({"login": "testadmin@example.com"}, 422),  # Только login
+            ({"username": "testadmin@example.com"}, 422),  # Только username
             ({"password": "testpassword"}, 422),  # Только password
             ({}, 422),  # Пустой запрос
         ],
@@ -124,7 +124,7 @@ class TestAdminAuthAPI:
     @pytest.mark.parametrize(
         "login,password,expected_status",
         [
-            ("' OR 1=1 --", "testpassword", 400),  # SQL-инъекция в login
+            ("' OR 1=1 --", "testpassword", 400),  # SQL-инъекция в username
             ("testadmin@example.com", "' OR 1=1 --", 401),  # SQL-инъекция в password
         ],
     )
@@ -133,7 +133,7 @@ class TestAdminAuthAPI:
         """Тест защиты от SQL-инъекций."""
         # Arrange
         endpoint = "/api/v1/admin/auth/login"
-        login_data = {"login": login, "password": password}
+        login_data = {"username": login, "password": password}
 
         # Act
         response = await async_client.post(endpoint, json=login_data)
@@ -144,7 +144,7 @@ class TestAdminAuthAPI:
     @pytest.mark.parametrize(
         "field,value,expected_status",
         [
-            ("login", "a" * 256, 422),  # Слишком длинный login - ошибка валидации Pydantic
+            ("username", "a" * 256, 422),  # Слишком длинный username - ошибка валидации Pydantic
             ("password", "p" * 256, 422),  # Слишком длинный password - ошибка валидации Pydantic
         ],
     )
@@ -154,7 +154,7 @@ class TestAdminAuthAPI:
         # Arrange
         endpoint = "/api/v1/admin/auth/login"
         login_data = {
-            "login": "testadmin@example.com",
+            "username": "testadmin@example.com",
             "password": "testpassword123"
         }
         login_data[field] = value
@@ -171,7 +171,7 @@ class TestAdminAuthAPI:
         # Arrange
         endpoint = "/api/v1/admin/auth/login"
         login_data = {
-            "login": "Testadmin@example.com",  # Изменен регистр
+            "username": "Testadmin@example.com",  # Изменен регистр
             "password": "testpassword123"
         }
         expected_status_code = 401

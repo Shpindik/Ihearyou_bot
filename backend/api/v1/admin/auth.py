@@ -49,7 +49,9 @@ async def login_admin(
     Возвращает JWT токены для доступа к административным функциям.
     Поддерживает вход по email или username.
     """
-    admin = await admin_user_service.authenticate_admin_by_login_and_password(session, request.login, request.password)
+    admin = await admin_user_service.authenticate_admin_by_login_and_password(
+        session, request.username, request.password
+    )
 
     admin = admin_user_validator.validate_admin_authenticated(admin)
     admin = admin_user_validator.validate_admin_active(admin)

@@ -10,10 +10,10 @@ from backend.models.enums import AdminRole
 class AdminLoginRequest(BaseModel):
     """Схема запроса аутентификации для POST /api/v1/admin/auth/login."""
 
-    login: str = Field(..., min_length=3, max_length=255, description="Email или username для входа")
+    username: str = Field(..., min_length=3, max_length=255, description="Email или username для входа")
     password: str = Field(..., min_length=6, max_length=100, description="Пароль")
 
-    model_config = ConfigDict(json_schema_extra={"example": {"login": "admin@example.com", "password": "admin123"}})
+    model_config = ConfigDict(json_schema_extra={"example": {"username": "admin@example.com", "password": "admin123"}})
 
 
 class AdminRefreshRequest(BaseModel):
@@ -29,12 +29,13 @@ class AdminRefreshRequest(BaseModel):
 class AdminLoginResponse(BaseModel):
     """Схема ответа аутентификации для POST /api/v1/admin/auth/login."""
 
-    access_token: str = Field(..., description="JWT токен доступа")
-    refresh_token: str = Field(..., description="Refresh токен")
-    token_type: str = Field(default="bearer", description="Тип токена")
-    expires_in: int = Field(..., description="Время жизни токена в секундах")
+    access_token: str = Field(..., alias="access_token", description="JWT токен доступа")
+    refresh_token: str = Field(..., alias="refresh_token", description="Refresh токен")
+    token_type: str = Field(default="bearer", alias="token_type", description="Тип токена")
+    expires_in: int = Field(..., alias="expires_in", description="Время жизни токена в секундах")
 
     model_config = ConfigDict(
+        populate_by_name=True,
         json_schema_extra={
             "example": {
                 "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
@@ -42,7 +43,7 @@ class AdminLoginResponse(BaseModel):
                 "token_type": "bearer",
                 "expires_in": 3600,
             }
-        }
+        },
     )
 
 
