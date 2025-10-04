@@ -6,9 +6,10 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.models.admin_user import AdminUser
-from backend.models.enums import AccessLevel
+from backend.models.enums import AccessLevel, NotificationStatus
 from backend.models.menu_item import MenuItem
 from backend.models.message_template import MessageTemplate
+from backend.models.notification import Notification
 from backend.models.telegram_user import TelegramUser
 
 
@@ -168,6 +169,51 @@ async def active_telegram_user(freezer, db: AsyncSession):
         created_at=datetime.datetime.now(),
         last_activity=datetime.datetime.now(),
         reminder_sent_at=datetime.datetime.now()
+    )
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+@pytest_asyncio.fixture
+async def pending_notification(freezer, db: AsyncSession):
+    """Создать ожидающее уведомление."""
+    freezer.move_to("2025-01-15")
+    user = Notification(
+        telegram_user_id=123456789,
+        message="Ожидающее напоминание: не забудьте проверить новые материалы!",
+        status=NotificationStatus.PENDING
+    )
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+@pytest_asyncio.fixture
+async def sent_notification(freezer, db: AsyncSession):
+    """Создать отосланое уведомление."""
+    freezer.move_to("2025-01-15")
+    user = Notification(
+        telegram_user_id=123456789,
+        message="Отосланое напоминание: не забудьте проверить новые материалы!",
+        status=NotificationStatus.SENT
+    )
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+@pytest_asyncio.fixture
+async def failed_notification(freezer, db: AsyncSession):
+    """Создать неотосланое уведомление."""
+    freezer.move_to("2025-01-15")
+    user = Notification(
+        telegram_user_id=123456789,
+        message="Неотосланое напоминание: не забудьте проверить новые материалы!",
+        status=NotificationStatus.FAILED
     )
     db.add(user)
     await db.commit()

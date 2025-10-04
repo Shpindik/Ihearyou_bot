@@ -67,7 +67,7 @@ class NotificationService:
 
         notification = await notification_crud.create_notification(
             db=db,
-            telegram_user_id=user.id,
+            telegram_user_id=user.telegram_id,
             message=request.message,
         )
 
