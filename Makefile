@@ -9,7 +9,6 @@ COMPOSE_STAGE_FILE = docker-compose.stage.yml
 BOT_CONTAINER = bot
 API_CONTAINER = bot_api
 DB_CONTAINER = db
-FRONTEND_CONTAINER = bot_frontend
 
 # Цвета для вывода
 GREEN = \033[0;32m
@@ -208,8 +207,6 @@ logs-bot: ## Показать логи бота
 logs-db: ## Показать логи базы данных
 	docker-compose -f $(COMPOSE_FILE) logs -f $(DB_CONTAINER)
 
-logs-frontend: ## Показать логи фронтенда
-	docker-compose -f $(COMPOSE_FILE) logs -f $(FRONTEND_CONTAINER)
 
 status: ## Показать статус контейнеров
 	@echo "$(GREEN)Статус контейнеров:$(NC)"
@@ -321,7 +318,6 @@ health-check: ## Проверить здоровье сервисов
 	@echo "$(GREEN)Проверка здоровья сервисов...$(NC)"
 	@echo "API Root: $$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8001/ || echo 'DOWN')"
 	@echo "API Health: $$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8001/health || echo 'DOWN')"
-	@echo "Frontend: $$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3001 || echo 'DOWN')"
 	@echo ""
 	@echo "$(GREEN)Детальная информация API:$(NC)"
 	@curl -s http://localhost:8001/health | python -m json.tool 2>/dev/null || echo "API недоступен"
@@ -386,7 +382,6 @@ setup: ## Первоначальная настройка проекта
 	@echo ""
 	@echo "$(GREEN)🎉 Проект готов к работе!$(NC)"
 	@echo "$(GREEN)🌐 API: http://localhost:8001$(NC)"
-	@echo "$(GREEN)📱 Frontend: http://localhost:3001$(NC)"
 	@echo "$(GREEN)📖 API Docs: http://localhost:8001/docs$(NC)"
 	@echo "$(GREEN)📋 Health Check: http://localhost:8001/health$(NC)"
 
@@ -415,6 +410,13 @@ quick-restart: ## Быстрый перезапуск (без сброса да�
 	$(call wait-for-ready)
 	@echo "$(GREEN)✅ Сервисы перезапущены!$(NC)"
 
+reload-api: ## Перезагрузить API
+	@echo "$(GREEN)Перезагрузка API...$(NC)"
+	@make down
+	@make up-build
+	$(call wait-for-ready)
+	@echo "$(GREEN)✅ API перезагружен!$(NC)"
+
 reset: ## Полный сброс и перезапуск проекта
 	@echo "$(RED)ВНИМАНИЕ: Это удалит все данные!$(NC)"
 	@read -p "Вы уверены? (y/N): " confirm && [ "$$confirm" = "y" ]
@@ -433,5 +435,4 @@ reset: ## Полный сброс и перезапуск проекта
 	@echo ""
 	@echo "$(GREEN)🎉 Проект сброшен и готов к работе!$(NC)"
 	@echo "$(GREEN)🌐 API: http://localhost:8001$(NC)"
-	@echo "$(GREEN)📱 Frontend: http://localhost:3001$(NC)"
 	@echo "$(GREEN)📖 Docs: http://localhost:8001/docs$(NC)"

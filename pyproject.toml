@@ -82,8 +82,13 @@ aiosqlite = "^0.21.0"
 pytest = "^8.4.2"
 pytest-asyncio = "^0.21.0"
 pytest-cov = "^4.1.0"
+pytest-postgresql = "^6.0.0"
 aiosqlite = "^0.21.0"
 httpx = {extras = ["testing"], version = "^0.28.1"}
+
+[tool.pytest.ini_options]
+addopts = "-v --tb=short"
+testpaths = ["backend/tests"]
 
 [build-system]
 requires = ["poetry-core"]
@@ -92,6 +97,10 @@ build-backend = "poetry.core.masonry.api"
 [tool.ruff]
 line-length = 120
 target-version = "py310"
+exclude = [
+    "backend/tests/",
+    "backend/alembic/",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "Q", "D"]

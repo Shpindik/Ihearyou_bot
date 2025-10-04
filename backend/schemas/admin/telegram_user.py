@@ -22,8 +22,8 @@ class AdminTelegramUserResponse(BaseModel):
     last_activity: Optional[datetime] = Field(None, description="Последняя активность")
     reminder_sent_at: Optional[datetime] = Field(None, description="Дата отправки последнего напоминания")
     created_at: datetime = Field(..., description="Дата регистрации")
-    activities_count: Optional[int] = Field(None, description="Количество активностей")
-    questions_count: Optional[int] = Field(None, description="Количество вопросов")
+    activities_count: int = Field(..., description="Количество активностей")
+    questions_count: int = Field(..., description="Количество вопросов")
 
     model_config = ConfigDict(from_attributes=True)
 

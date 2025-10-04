@@ -102,11 +102,6 @@ Thumbs.db
 uploads/
 media/
 
-# Test files
-test_*
-*_test.py
-tests/
-
 # Temporary files
 *.tmp
 *.temp
@@ -126,3 +121,13 @@ tests/
 *.bak
 *.backup
 *.old
+
+# Test cache
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+.ruff_cache/
+
+# Ruff cache
+.ruff_cache/

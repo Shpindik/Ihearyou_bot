@@ -74,6 +74,11 @@ class NotificationCRUD(BaseCRUD[Notification, dict, dict]):
         await db.refresh(db_obj)
         return db_obj
 
+    async def delete(self, db: AsyncSession, notification_id: int) -> bool:
+        """Удалить уведомление по ID."""
+        notification = await self.remove(db, id=notification_id)
+        return notification is not None
+
     async def get_notification_statistics(self, db: AsyncSession, start_date=None) -> dict:
         """Получить статистику уведомлений."""
         query = select(Notification)

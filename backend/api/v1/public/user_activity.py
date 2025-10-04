@@ -1,11 +1,9 @@
 """Публичные эндпоинты для записи активности пользователей."""
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.exc import SQLAlchemyError
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.db import get_session
-from backend.core.exceptions import ValidationError
 from backend.schemas.public.user_activity import UserActivityRequest, UserActivityResponse
 from backend.services.user_activity import user_activity_service
 
@@ -22,6 +20,8 @@ router = APIRouter(prefix="/user-activities")
     responses={
         201: {"description": "Активность успешно записана"},
         400: {"description": "Ошибка валидации данных запроса"},
+        404: {"description": "Пользователь не найден или пункт меню не найден"},
+        422: {"description": "Ошибка валидации входных данных"},
         500: {"description": "Внутренняя ошибка сервера"},
     },
 )
@@ -33,13 +33,4 @@ async def record_user_activity(
     Используется ботом для записи просмотров, скачиваний и других действий.
     Автоматически проверяет существование пользователя и создает запись активности.
     """
-    try:
-        return await user_activity_service.record_activity(request, db)
-    except ValidationError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except SQLAlchemyError:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Ошибка базы данных при записи активности"
-        )
-    except Exception:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Внутренняя ошибка сервера")
+    return await user_activity_service.record_activity(request, db)

@@ -255,7 +255,7 @@ class ContentHandler:
 
         # Используем external_url если он есть, иначе web_app_short_name
         web_app_url = external_url or web_app_short_name
-        
+
         if not web_app_url:
             logger.warning("Web App URL not specified")
             return
@@ -264,7 +264,7 @@ class ContentHandler:
         if not web_app_url.startswith("http://") and not web_app_url.startswith("https://"):
             logger.warning(f"Non-HTTP URL for Web App: {web_app_url}, sending as text link")
             text = f"🔗 Приложение: {web_app_url}"
-            
+
             if caption:
                 caption_html = ContentHandler._escape_html(caption)
                 text = f"{caption_html}\n\n{text}"
@@ -283,8 +283,7 @@ class ContentHandler:
                 inline_keyboard=[
                     [
                         types.InlineKeyboardButton(
-                            text="🚀 Открыть приложение", 
-                            web_app=types.WebAppInfo(url=web_app_url)
+                            text="🚀 Открыть приложение", web_app=types.WebAppInfo(url=web_app_url)
                         )
                     ]
                 ]
@@ -295,10 +294,10 @@ class ContentHandler:
             "parse_mode": settings.parse_mode,
             "disable_web_page_preview": settings.disable_web_page_preview,
         }
-        
+
         if keyboard:
             send_kwargs["reply_markup"] = keyboard
-            
+
         if message_id:
             await bot.edit_message_text(chat_id=chat_id, message_id=message_id, **send_kwargs)
         else:

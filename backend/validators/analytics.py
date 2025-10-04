@@ -45,7 +45,23 @@ class AnalyticsValidator:
             return parsed_start, parsed_end
 
         except ValueError as e:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+            error_message = str(e)
+            if "Некорректный формат" in error_message:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=f"Ошибка формата даты: {error_message}"
+                )
+            elif "не может быть больше" in error_message:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=f"Ошибка диапазона дат: {error_message}"
+                )
+            elif "Неподдерживаемый период" in error_message:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=f"Ошибка периода: {error_message}"
+                )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, detail=f"Ошибка обработки дат: {error_message}"
+                )
 
     def validate_admin_access(self, admin_user) -> None:
         """Проверка доступа администратора к аналитике.

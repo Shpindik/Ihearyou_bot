@@ -113,6 +113,13 @@ class NotificationService:
         updated_notification = await notification_crud.get(db, notification_id)
         return AdminNotificationResponse.model_validate(updated_notification.__dict__)
 
+    async def delete_admin_notification(self, db: AsyncSession, notification_id: int) -> None:
+        """Удалить админское уведомление."""
+        notification = await notification_crud.get(db, notification_id)
+        self.validator.validate_notification_exists_for_id(notification, notification_id)
+
+        await notification_crud.delete(db, notification_id)
+
     async def get_notification_statistics(self, db: AsyncSession) -> dict:
         """Получить общую статистику уведомлений."""
         stats = await notification_crud.get_notification_statistics(db)

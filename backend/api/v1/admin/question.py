@@ -1,5 +1,7 @@
 """Административные эндпоинты для управления вопросами пользователей."""
 
+from typing import Optional
+
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,9 +30,11 @@ router = APIRouter(prefix="/user-questions", tags=["Admin Questions"])
 )
 async def get_user_questions(
     current_admin: ModeratorOrAdmin,
-    page: int = Query(1, description="Номер страницы (по умолчанию 1)"),
-    limit: int = Query(20, description="Количество записей на странице (по умолчанию 20)"),
-    status: str = Query(None, description="Фильтр по статусу (pending, answered)"),
+    page: int = Query(1, ge=1, le=1000, description="Номер страницы (по умолчанию 1)"),
+    limit: int = Query(20, ge=1, le=100, description="Количество записей на странице (по умолчанию 20)"),
+    status: Optional[str] = Query(
+        None, pattern="^(pending|answered|closed)$", description="Фильтр по статусу (pending, answered, closed)"
+    ),
     db: AsyncSession = Depends(get_session),
 ) -> AdminQuestionListResponse:
     """Получение списка вопросов от пользователей.
@@ -41,7 +45,7 @@ async def get_user_questions(
     return await user_question_service.get_admin_questions(db=db, page=page, limit=limit, status=status)
 
 
-@router.put(
+@router.patch(
     "/{id}",
     response_model=AdminQuestionResponse,
     status_code=status.HTTP_200_OK,

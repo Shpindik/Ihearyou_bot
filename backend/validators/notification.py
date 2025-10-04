@@ -16,7 +16,7 @@ class NotificationValidator:
             user: Объект пользователя или None
 
         Raises:
-            NotFoundError: Если пользователь не найден
+            HTTPException: Если пользователь не найден
         """
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
@@ -29,7 +29,7 @@ class NotificationValidator:
             user_id: ID пользователя
 
         Raises:
-            NotFoundError: Если пользователь не найден
+            HTTPException: Если пользователь не найден
         """
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Пользователь с ID {user_id} не найден")
@@ -41,7 +41,7 @@ class NotificationValidator:
             notification: Объект уведомления или None
 
         Raises:
-            NotFoundError: Если уведомление не найдено
+            HTTPException: Если уведомление не найдено
         """
         if not notification:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Уведомление не найдено")
@@ -54,7 +54,7 @@ class NotificationValidator:
             notification_id: ID уведомления
 
         Raises:
-            NotFoundError: Если уведомление не найдено
+            HTTPException: Если уведомление не найдено
         """
         if not notification:
             raise HTTPException(
@@ -68,7 +68,7 @@ class NotificationValidator:
             inactive_days: Количество дней неактивности
 
         Raises:
-            ValidationError: Если значение некорректно
+            HTTPException: Если значение некорректно
         """
         if not isinstance(inactive_days, int):
             raise HTTPException(
@@ -92,7 +92,7 @@ class NotificationValidator:
             days_since_last_reminder: Минимальный интервал днями
 
         Raises:
-            ValidationError: Если значение некорректно
+            HTTPException: Если значение некорректно
         """
         if not isinstance(days_since_last_reminder, int):
             raise HTTPException(
@@ -117,7 +117,7 @@ class NotificationValidator:
             message: Текст сообщения
 
         Raises:
-            ValidationError: Если сообщение некорректно
+            HTTPException: Если сообщение некорректно
         """
         if not message or not message.strip():
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Сообщение не может быть пустым")
@@ -140,7 +140,7 @@ class NotificationValidator:
             template: Шаблон сообщения
 
         Raises:
-            ValidationError: Если шаблон содержит некорректные переменные
+            HTTPException: Если шаблон содержит некорректные переменные
         """
         # Проверяем на наличие потенциально опасных плейсхолдеров
         dangerous_placeholders = ["{system}", "{admin}", "{debug}", "{config}"]
@@ -168,7 +168,7 @@ class NotificationValidator:
             user_id: ID пользователя
 
         Raises:
-            ValidationError: Если ID некорректен
+            HTTPException: Если ID некорректен
         """
         if not isinstance(user_id, int):
             raise HTTPException(

@@ -31,10 +31,12 @@ class UserQuestionService:
         Returns:
             Ответ с данными созданного вопроса
         """
+        # Сначала валидируем входные данные (бизнес-логика)
+        self.validator.validate_question_text(request.question_text)
+
+        # Потом проверяем существование пользователя
         user = await self.telegram_user_crud.get_by_telegram_id(db, request.telegram_user_id)
         self.validator.validate_user_exists(user)
-
-        self.validator.validate_question_text(request.question_text)
 
         question = await self.question_crud.create_question(
             db=db,
@@ -46,6 +48,7 @@ class UserQuestionService:
 
         return UserQuestionResponse(
             question_text=question.question_text,
+            answer_text=question.answer_text,
             status=question.status,
         )
 

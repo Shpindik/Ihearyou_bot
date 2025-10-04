@@ -7,9 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.crud.menu_item import menu_item_crud
 from backend.crud.telegram_user import telegram_user_crud
 from backend.crud.user_activity import user_activity_crud
-from backend.models.enums import ActivityType
+from backend.models.enums import AccessLevel, ActivityType
 from backend.schemas.public.ratings import RatingRequest, RatingResponse
 from backend.validators.menu_item import menu_item_validator
+from backend.validators.telegram_user import telegram_user_validator
 from backend.validators.user_activity import user_activity_validator
 
 
@@ -36,11 +37,16 @@ class RatingService:
 
         """
         user = await self.telegram_user_crud.get_by_telegram_id(db, request.telegram_user_id)
-        self.user_activity_validator.validate_user_exists(user)
+        telegram_user_validator.validate_user_exists(user)
 
         menu_item = await self.menu_item_crud.get(db, request.menu_item_id)
         self.menu_item_validator.validate_menu_item_exists(menu_item)
         self.menu_item_validator.validate_menu_item_active(menu_item)
+
+        user_access_level = (
+            AccessLevel.PREMIUM if getattr(user, "subscription_type", None) == "premium" else AccessLevel.FREE
+        )
+        self.menu_item_validator.validate_access_level(user_access_level, menu_item.access_level)
 
         # Проверяем, что оценка корректна
         self.user_activity_validator.validate_rating(request.rating, ActivityType.RATING)
@@ -57,7 +63,9 @@ class RatingService:
         # Обновляем статистику оценок материала
         await self.menu_item_crud.update_rating_stats(db=db, menu_id=request.menu_item_id, rating=request.rating)
 
-        return RatingResponse(success=True)
+        return RatingResponse(
+            menu_item_id=request.menu_item_id, rating=request.rating, message="Оценка успешно сохранена"
+        )
 
 
 rating_service = RatingService()

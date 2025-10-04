@@ -8,7 +8,6 @@ from email_validator import EmailNotValidError, validate_email
 from fastapi import HTTPException, status
 
 from backend.core.config import settings
-from backend.core.exceptions import AuthenticationError
 from backend.models.admin_user import AdminUser
 from backend.models.enums import AdminRole
 
@@ -194,11 +193,15 @@ class AdminUserValidator:
             str: ID пользователя из токена
 
         Raises:
-            AuthenticationError: Если токен недействителен
+            HTTPException: Если токен недействителен
         """
         user_id = payload.get("sub")
         if user_id is None:
-            raise AuthenticationError("Недействительный токен")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Недействительный токен",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         return str(user_id)
 
     def validate_email_format(self, email: str) -> None:

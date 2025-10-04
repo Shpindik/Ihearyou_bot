@@ -3,10 +3,9 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
+from fastapi import HTTPException, status
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-
-from backend.core.exceptions import AuthenticationError
 
 from .config import settings
 
@@ -52,7 +51,11 @@ def verify_token(token: str) -> Dict[str, Any]:
         payload = jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
         return payload
     except JWTError:
-        raise AuthenticationError("Недействительный токен")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Недействительный токен",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 def create_password_reset_token(email: str, expires_delta: Optional[timedelta] = None) -> str:
@@ -84,10 +87,18 @@ def verify_token_payload_for_password_reset(payload: Dict[str, Any]) -> str:
     """Валидирует payload токена восстановления пароля"""
     token_type = payload.get("type")
     if token_type != "password_reset":
-        raise AuthenticationError("Недействительный токен восстановления")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Недействительный токен восстановления",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     email = payload.get("email")
     if email is None:
-        raise AuthenticationError("Отсутствует email в токене")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Отсутствует email в токене",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     return email
