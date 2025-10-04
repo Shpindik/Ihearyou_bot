@@ -120,32 +120,6 @@ services:
         - action: rebuild
           path: ./Dockerfile
 
-  # Admin Frontend
-  bot_frontend:
-    build:
-      context: ./frontend
-      args:
-        VITE_API_URL: ${FRONTEND_API_URL:-http://localhost:8001/api}
-    container_name: IHearYouAdminFrontend
-    environment:
-      VITE_API_URL: ${FRONTEND_API_URL:-http://localhost:8001/api}
-    ports:
-      - "${FRONTEND_PORT:-3001}:3001"
-    command: ["serve", "-s", "dist", "-l", "3001"]
-    depends_on:
-      - bot_api
-    develop:
-      watch:
-        - action: rebuild
-          path: ./frontend/src
-        - action: rebuild
-          path: ./frontend/public
-        - action: rebuild
-          path: ./frontend/package.json
-        - action: rebuild
-          path: ./frontend/package-lock.json
-        - action: rebuild
-          path: ./frontend/Dockerfile
 
 volumes:
   pg_data:
