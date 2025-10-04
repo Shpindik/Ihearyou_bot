@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from decimal import Decimal
 from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -25,7 +26,7 @@ class AdminMenuItemResponse(BaseModel):
     download_count: int = Field(..., description="Количество скачиваний")
     rating_sum: int = Field(..., description="Сумма оценок")
     rating_count: int = Field(..., description="Количество оценок")
-    average_rating: Optional[float] = Field(None, description="Средняя оценка")
+    average_rating: Optional[Decimal] = Field(None, description="Средняя оценка")
     created_at: datetime = Field(..., description="Дата создания")
     updated_at: datetime = Field(..., description="Дата обновления")
 

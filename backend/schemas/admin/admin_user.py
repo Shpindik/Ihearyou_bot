@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from backend.models.enums import AdminRole
 
@@ -89,14 +89,26 @@ class AdminUserUpdate(BaseModel):
 
 
 class AdminUserPasswordUpdate(BaseModel):
-    """Схема запроса смены пароля администратора для PUT /api/v1/admin/users/{id}/password."""
+    """Схема запроса смены пароля администратора для PATCH /api/v1/admin/users/{id}/password."""
 
+    current_password: str = Field(..., description="Текущий пароль для подтверждения")
     new_password: str = Field(..., min_length=6, max_length=100, description="Новый пароль")
+    confirm_password: str = Field(..., description="Подтверждение нового пароля")
+
+    @field_validator("confirm_password")
+    @classmethod
+    def validate_passwords_match(cls, v, info):
+        """Проверяет, что новый пароль и подтверждение совпадают."""
+        if "new_password" in info.data and v != info.data["new_password"]:
+            raise ValueError("Новый пароль и подтверждение не совпадают")
+        return v
 
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "new_password": "new_admin123",
+                "current_password": "old_password123",
+                "new_password": "new_password123",
+                "confirm_password": "new_password123",
             }
         }
     )

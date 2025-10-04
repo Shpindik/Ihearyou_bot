@@ -13,7 +13,7 @@ class UserQuestionCreate(BaseModel):
     """Схема создания вопроса пользователем для POST /api/v1/user-questions."""
 
     telegram_user_id: int = Field(..., description="ID пользователя Telegram")
-    question_text: str = Field(..., min_length=1, max_length=2000, description="Текст вопроса")
+    question_text: str = Field(..., min_length=10, max_length=2000, description="Текст вопроса")
 
     model_config = ConfigDict(
         json_schema_extra={

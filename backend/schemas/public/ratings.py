@@ -20,13 +20,17 @@ class RatingRequest(BaseModel):
 class RatingResponse(BaseModel):
     """Схема ответа создания оценки для POST /api/v1/ratings."""
 
-    success: bool = Field(True, description="Оценка успешно сохранена")
+    menu_item_id: int = Field(..., description="ID пункта меню")
+    rating: int = Field(..., description="Поставленная оценка")
+    message: str = Field(..., description="Сообщение об успешной операции")
 
     model_config = ConfigDict(
         from_attributes=True,
         json_schema_extra={
             "example": {
-                "success": True,
+                "menu_item_id": 1,
+                "rating": 5,
+                "message": "Оценка успешно сохранена",
             }
         },
     )

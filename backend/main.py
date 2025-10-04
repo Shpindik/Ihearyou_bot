@@ -14,24 +14,10 @@ from backend.api.routers import api_router
 from backend.core.config import settings
 from backend.core.db import AsyncSessionLocal
 from backend.core.exception_handlers import register_exception_handlers
-from backend.core.security import get_password_hash
-from backend.models import AdminUser
-from backend.models.enums import AdminRole
+from backend.utils.ensure_default_admin import ensure_default_admin
 
 
-# Желательно потом почистить файл и раскидать по файлам, где нужно
-# логировани, middleware, настройки, endpoints и т.д.
-
-# Настройка логирования
-logging.basicConfig(
-    level=getattr(logging, settings.log_level.upper()),
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
 logger = logging.getLogger(__name__)
-
-# TODO: Перенести настройки логирования в отдельный файл
-# Сюда импортировать готовый logger
-# Настроить логирование в файл
 
 
 @asynccontextmanager
@@ -72,42 +58,6 @@ def create_app() -> FastAPI:
     app.include_router(api_router)
 
     return app
-
-
-async def ensure_default_admin() -> None:
-    """Создание администратора по умолчанию при запуске."""
-    try:
-        async with AsyncSessionLocal() as session:
-            # Проверяем существование администратора
-            result = await session.execute(select(AdminUser).where(AdminUser.username == settings.admin_username))
-            admin_user = result.scalar_one_or_none()
-
-            # Создаем или обновляем администратора
-            password_hash = get_password_hash(settings.admin_password)
-
-            if admin_user is None:
-                admin_user = AdminUser(
-                    username=settings.admin_username,
-                    email=settings.admin_email or "admin@yourapp.com",
-                    password_hash=password_hash,
-                    role=AdminRole.ADMIN,
-                    is_active=True,
-                )
-                session.add(admin_user)
-                logger.info(f"Создан администратор по умолчанию: {settings.admin_username} ({settings.admin_email})")
-            else:
-                # Обновляем данные и активируем
-                admin_user.password_hash = password_hash
-                admin_user.is_active = True
-                admin_user.role = admin_user.role or AdminRole.ADMIN
-                admin_user.email = settings.admin_email or "admin@yourapp.com"
-                logger.info(f"Обновлен администратор: {settings.admin_username}")
-
-            await session.commit()
-
-    except Exception as e:
-        logger.error(f"Ошибка при создании администратора по умолчанию: {e}")
-        raise
 
 
 # Создание экземпляра приложения

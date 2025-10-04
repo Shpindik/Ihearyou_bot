@@ -38,16 +38,17 @@ class UserActivityResponse(BaseModel):
     activity_type: ActivityType = Field(..., description="Тип активности")
     rating: Optional[int] = Field(None, description="Оценка полезности материала")
     search_query: Optional[str] = Field(None, description="Поисковый запрос")
-    success: bool = Field(True, description="Успешность операции")
+    message: str = Field(..., description="Сообщение об успешной операции")
 
     model_config = ConfigDict(
         from_attributes=True,
         json_schema_extra={
             "example": {
+                "menu_item_id": 1,
                 "activity_type": "view",
                 "rating": None,
-                "search_query": "слуховые аппараты",
-                "success": True,
+                "search_query": None,
+                "message": "Активность успешно записана",
             }
         },
     )
